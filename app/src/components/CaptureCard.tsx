@@ -1,11 +1,11 @@
 /**
- * CaptureCard — 결과지 캡처 영역. html-to-image 친화.
- * 명세: outputs/stage-2/component-spec-web.md C6
+ * CaptureCard — 캡처 영역 (v3: 토스 카드 톤 + 큰 캐릭터 헤로).
  */
 
 import { forwardRef } from 'react';
 import Badge from './Badge';
-import type { TypeIndex } from '../content/schema';
+import CharacterAvatar from './CharacterAvatar';
+import type { FaceVariant, TypeIndex } from '../content/schema';
 import './CaptureCard.css';
 
 type Props = {
@@ -14,11 +14,13 @@ type Props = {
   name: string;
   tagline: string;
   traits: string[];
-  celebrate?: boolean; // true면 stagger 애니메이션
+  accessory: string;
+  face?: FaceVariant;
+  celebrate?: boolean;
 };
 
 const CaptureCard = forwardRef<HTMLElement, Props>(function CaptureCard(
-  { typeIndex, code, name, tagline, traits, celebrate = false },
+  { typeIndex, code, name, tagline, traits, accessory, face, celebrate = false },
   ref
 ) {
   return (
@@ -28,16 +30,27 @@ const CaptureCard = forwardRef<HTMLElement, Props>(function CaptureCard(
       data-type={String(typeIndex).padStart(2, '0')}
       aria-label="결과 카드"
     >
-      <Badge code={code} size="lg" />
-      <h1 className="capture__name">{name}</h1>
-      <hr className="capture__divider" />
-      <p className="capture__tagline">"{tagline}"</p>
-      <ul className="capture__traits">
-        {traits.map((t, i) => (
-          <li key={i}>{t}</li>
-        ))}
-      </ul>
-      <span className="capture__watermark">연기 스타일 MBTI</span>
+      <div className="capture__hero">
+        <CharacterAvatar
+          typeIndex={typeIndex}
+          accessory={accessory}
+          face={face}
+          size="xl"
+          label={`${code} 캐릭터`}
+        />
+      </div>
+      <div className="capture__body">
+        <Badge code={code} size="lg" />
+        <h1 className="capture__name">{name}</h1>
+        <p className="capture__tagline">{tagline}</p>
+        <div className="capture__divider" />
+        <ul className="capture__traits">
+          {traits.map((t, i) => (
+            <li key={i}>{t}</li>
+          ))}
+        </ul>
+        <span className="capture__watermark">ACTI · 연기 스타일 MBTI</span>
+      </div>
     </section>
   );
 });

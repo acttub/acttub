@@ -1,51 +1,21 @@
 /**
- * SecondaryButton — 약한 CTA (다시 풀기, S4 보조 등).
- * 명세: outputs/stage-2/component-spec-web.md C4
+ * SecondaryButton — 토스 weak variant 의 별칭. PrimaryButton 으로 위임 가능하지만
+ * 기존 호출처 호환성을 위해 별도 컴포넌트 유지.
  */
 
 import type { ReactNode, MouseEventHandler } from 'react';
-import './SecondaryButton.css';
+import PrimaryButton from './PrimaryButton';
 
 type Props = {
   children: ReactNode;
   onClick?: MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
   fullWidth?: boolean;
-  size?: 'md' | 'lg';
+  size?: 'md' | 'lg' | 'xl';
   disabled?: boolean;
   as?: 'button' | 'a';
   href?: string;
 };
 
-export default function SecondaryButton({
-  children,
-  onClick,
-  fullWidth = true,
-  size = 'md',
-  disabled = false,
-  as = 'button',
-  href,
-}: Props) {
-  const cls = [
-    'secondary',
-    `secondary--${size}`,
-    fullWidth ? 'secondary--full' : '',
-  ].filter(Boolean).join(' ');
-
-  if (as === 'a' && href) {
-    return (
-      <a className={cls} href={href} onClick={onClick as MouseEventHandler<HTMLAnchorElement>}>
-        {children}
-      </a>
-    );
-  }
-  return (
-    <button
-      type="button"
-      className={cls}
-      onClick={onClick as MouseEventHandler<HTMLButtonElement>}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  );
+export default function SecondaryButton(props: Props) {
+  return <PrimaryButton {...props} variant="weak" />;
 }

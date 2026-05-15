@@ -1,18 +1,22 @@
 /**
- * S3 / S3' — 결과 페이지 (본인 / 공유 수신자 통합).
- * 명세: outputs/stage-2/design-spec-web.md § S3, S3'
+ * S3 / S3' — 결과 페이지 (v3: 토스 카드 위계 + BottomCTA).
  */
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ChevronLeft, RotateCcw, ArrowRight } from 'lucide-react';
+import {
+  ChevronLeft, RotateCcw, ArrowRight,
+  ImageDown, Link2, MessageCircle,
+} from 'lucide-react';
 
 import CaptureCard from '../components/CaptureCard';
 import TypeCard from '../components/TypeCard';
+import AxisBreakdown from '../components/AxisBreakdown';
 import PrimaryButton from '../components/PrimaryButton';
 import SecondaryButton from '../components/SecondaryButton';
 import ShareActionButton from '../components/ShareActionButton';
+import BottomCTA from '../components/BottomCTA';
 import Toast from '../components/Toast';
 
 import { isTypeCode } from '../content/schema';
@@ -30,17 +34,14 @@ export default function ResultPage() {
   const captureRef = useRef<HTMLElement>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  // 화이트리스트 검증
   if (!rawCode || !isTypeCode(rawCode)) {
     return <NotFoundPage />;
   }
   const code = rawCode;
 
-  // 본인 vs 수신자 모드 (localStorage)
   const myCode = useMemo(() => getMyTypeCode(), []);
   const isRecipient = !myCode || myCode !== code;
   const isCelebrate = !isRecipient && myCode === code;
-  // 첫 진입 셀럽레이션은 본인 결과일 때만
 
   const type = getType(code);
   const rival = getType(type.rival);
@@ -49,7 +50,7 @@ export default function ResultPage() {
 
   useEffect(() => {
     if (toast) {
-      const t = setTimeout(() => setToast(null), 1700);
+      const t = setTimeout(() => setToast(null), 1800);
       return () => clearTimeout(t);
     }
   }, [toast]);
@@ -57,6 +58,7 @@ export default function ResultPage() {
   const handleSaveImage = async () => {
     if (!captureRef.current) return;
     await saveCaptureAsImage(captureRef.current, `acti-${code}.png`);
+    setToast('이미지가 저장됐어요');
   };
 
   const handleCopyLink = async () => {
@@ -76,7 +78,7 @@ export default function ResultPage() {
   return (
     <main className="page page-enter page-result">
       <Helmet>
-        <title>[{code}] {type.name} — 연기 스타일 MBTI</title>
+        <title>[{code}] {type.name} — ACTI</title>
         <meta name="description" content={type.tagline} />
         <meta property="og:title" content={`[${code}] ${type.name}`} />
         <meta property="og:description" content={type.tagline} />
@@ -86,15 +88,19 @@ export default function ResultPage() {
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
-      <div className="container">
-        <header className="page-result__header">
-          <Link to="/" aria-label="처음으로" className="page-result__back">
-            <ChevronLeft size={24} aria-hidden="true" />
-          </Link>
-        </header>
+      <header className="page-result__topbar">
+        <Link to="/" aria-label="처음으로" className="page-result__back">
+          <ChevronLeft size={24} aria-hidden="true" />
+        </Link>
+        <span className="page-result__topbar-title">ACTI</span>
+        <span aria-hidden="true" style={{ width: 40 }} />
+      </header>
 
+      <div className="page-result__container">
         {isRecipient && (
-          <p className="page-result__visitor-note">친구가 풀어본 결과예요 :)</p>
+          <div className="page-result__visitor">
+            <span>친구가 풀어본 결과예요</span>
+          </div>
         )}
 
         <CaptureCard
@@ -104,21 +110,15 @@ export default function ResultPage() {
           name={type.name}
           tagline={type.tagline}
           traits={type.traits}
+          accessory={type.accessory}
+          face={type.face}
           celebrate={isCelebrate}
         />
 
-        {isRecipient && (
-          <section className="page-result__visitor-cta">
-            <PrimaryButton size="lg" fullWidth onClick={() => navigate('/quiz')}>
-              나도 풀어보기
-              <ArrowRight size={20} aria-hidden="true" />
-            </PrimaryButton>
-            <p className="page-result__visitor-cta-meta">2~3분이면 끝</p>
-          </section>
-        )}
+        <AxisBreakdown code={type.code} />
 
-        <section className="page-result__roles">
-          <h3 className="page-result__section-title">어울리는 역할 / 장르</h3>
+        <section className="page-result__section">
+          <h3 className="page-result__section-title">어울리는 역할</h3>
           <ul className="page-result__role-list">
             {type.roles.map((r, i) => (
               <li key={i}>{r}</li>
@@ -126,28 +126,52 @@ export default function ResultPage() {
           </ul>
         </section>
 
-        <section className="page-result__relations">
-          <div>
-            <h3 className="page-result__section-title">너의 천적</h3>
-            <TypeCard relation="rival" code={rival.code} name={rival.name} />
-          </div>
-          <div>
-            <h3 className="page-result__section-title">너의 베프</h3>
-            <TypeCard relation="bff" code={bff.code} name={bff.name} />
+        <section className="page-result__section">
+          <h3 className="page-result__section-title">너의 관계</h3>
+          <div className="page-result__relations">
+            <TypeCard
+              relation="rival"
+              code={rival.code}
+              name={rival.name}
+              typeIndex={rival.index}
+              accessory={rival.accessory}
+              face={rival.face}
+            />
+            <TypeCard
+              relation="bff"
+              code={bff.code}
+              name={bff.name}
+              typeIndex={bff.index}
+              accessory={bff.accessory}
+              face={bff.face}
+            />
           </div>
         </section>
 
         <section className="page-result__share">
+          <p className="page-result__share-title">단톡방에 던지기</p>
           <div className="share-group">
-            <ShareActionButton type="image" onAction={handleSaveImage} />
-            <ShareActionButton type="link" onAction={handleCopyLink} />
-            <ShareActionButton type="kakao" onAction={handleKakao} />
+            <ShareActionButton type="image" icon={ImageDown} onAction={handleSaveImage} label="이미지" />
+            <ShareActionButton type="link"  icon={Link2}     onAction={handleCopyLink}  label="링크" />
+            <ShareActionButton type="kakao" icon={MessageCircle} onAction={handleKakao} label="카톡" />
           </div>
-          <SecondaryButton fullWidth onClick={handleRetry}>
-            <RotateCcw size={18} aria-hidden="true" /> 다시 풀기
-          </SecondaryButton>
         </section>
+
+        <SecondaryButton size="lg" fullWidth onClick={handleRetry}>
+          <RotateCcw size={18} aria-hidden="true" /> 다시 풀어보기
+        </SecondaryButton>
+
+        <div className="page-result__bottom-pad" aria-hidden="true" />
       </div>
+
+      {isRecipient && (
+        <BottomCTA>
+          <PrimaryButton size="xl" fullWidth onClick={() => navigate('/quiz')}>
+            나도 풀어보기
+            <ArrowRight size={20} aria-hidden="true" />
+          </PrimaryButton>
+        </BottomCTA>
+      )}
 
       {toast && <Toast message={toast} />}
     </main>

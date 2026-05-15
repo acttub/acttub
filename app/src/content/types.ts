@@ -2,26 +2,13 @@
  * 16유형 콘텐츠 — Phase 2 본문 (16유형 전체 폴리싱 1차 초안)
  *
  * 톤: idea-brief — 진지 30 / 재미 70, B급, 단톡방 짤맛, 도메인 양념 필수.
- * 5항목 × 16유형 = 80셀.
- *
- * 4축 의미:
- *   1축 M(메소드: 캐릭터 잠수) ↔ T(테크닉: 분석·기교)
- *   2축 I(즉흥: 현장에서 만듦) ↔ P(설계: 사전 계획)
- *   3축 N(직관: 감으로 잡음) ↔ A(분석: 객관화)
- *   4축 B(신체: 몸으로 표현) ↔ S(내면: 마음으로 표현)
- *
- * 천적/베프 원칙:
- *   - 천적: 정반대 1~2축이 부딪히는 유형
- *   - 베프: 1~2축 같고 보완되는 유형
- *
- * v1 출시 전: 본인 폴리싱 5점 척도 평균 ≥ 3.5 검증.
+ * 5항목 × 16유형 = 80셀 + accessory 16개 (CharacterAvatar 식별).
  */
 
 import type { TypeCode, TypeContent, TypeIndex } from './schema';
 import { TYPE_CODES } from './schema';
 
 const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
-  // ── M·I·N·B — 메소드 + 즉흥 + 직관 + 신체 ──
   MINB: {
     code: 'MINB',
     name: '비 오는 날 뛰쳐나가는 햄릿형',
@@ -40,9 +27,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'TPAS',
     bff: 'MIAS',
+    accessory: 'CloudRain',
+    face: 'intense',
   },
 
-  // ── M·I·A·S — 메소드 + 즉흥 + 분석 + 내면 ──
   MIAS: {
     code: 'MIAS',
     name: '새벽 3시에 캐릭터한테 전화하는 타입',
@@ -61,9 +49,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'TPNB',
     bff: 'MINB',
+    accessory: 'Phone',
+    face: 'cool',
   },
 
-  // ── M·P·N·B — 메소드 + 설계 + 직관 + 신체 ──
   MPNB: {
     code: 'MPNB',
     name: '리허설장 가장 먼저 와서 무대 한 바퀴 도는 사람',
@@ -82,9 +71,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'TIAS',
     bff: 'MPNS',
+    accessory: 'Footprints',
+    face: 'dreamy',
   },
 
-  // ── M·P·A·S — 메소드 + 설계 + 분석 + 내면 ──
   MPAS: {
     code: 'MPAS',
     name: '캐릭터 분석 노트 8장 쓰는 인간',
@@ -103,9 +93,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'TINB',
     bff: 'MPAB',
+    accessory: 'NotebookPen',
+    face: 'intense',
   },
 
-  // ── T·I·N·B — 테크닉 + 즉흥 + 직관 + 신체 ──
   TINB: {
     code: 'TINB',
     name: '리허설 안 가도 무대 위에선 천재인 척',
@@ -124,9 +115,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'MIAS',
     bff: 'TIAB',
+    accessory: 'Sparkles',
+    face: 'wink',
   },
 
-  // ── T·I·A·S — 테크닉 + 즉흥 + 분석 + 내면 ──
   TIAS: {
     code: 'TIAS',
     name: '현장에서 NG 한 번도 안 내는 즉흥꾼',
@@ -145,9 +137,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'MPNB',
     bff: 'TIAB',
+    accessory: 'Camera',
+    face: 'cool',
   },
 
-  // ── T·P·N·B — 테크닉 + 설계 + 직관 + 신체 ──
   TPNB: {
     code: 'TPNB',
     name: '대본에 안무 그려넣는 사람',
@@ -166,9 +159,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'MIAS',
     bff: 'TPNS',
+    accessory: 'Map',
+    face: 'dreamy',
   },
 
-  // ── T·P·A·S — 테크닉 + 설계 + 분석 + 내면 ──
   TPAS: {
     code: 'TPAS',
     name: '대본에 형광펜 7색 쓰는 인간',
@@ -187,9 +181,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'MINB',
     bff: 'TPAB',
+    accessory: 'Highlighter',
+    face: 'sharp',
   },
 
-  // ── M·I·N·S — 메소드 + 즉흥 + 직관 + 내면 ──
   MINS: {
     code: 'MINS',
     name: '눈빛만으로 끝내는 침묵의 캐릭터',
@@ -208,9 +203,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'TPAB',
     bff: 'MIAS',
+    accessory: 'Moon',
+    face: 'zen',
   },
 
-  // ── M·I·A·B — 메소드 + 즉흥 + 분석 + 신체 ──
   MIAB: {
     code: 'MIAB',
     name: '리허설마다 다른 인물을 데려오는 분석가',
@@ -229,9 +225,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'TPNS',
     bff: 'MINB',
+    accessory: 'Shuffle',
+    face: 'wild',
   },
 
-  // ── M·P·N·S — 메소드 + 설계 + 직관 + 내면 ──
   MPNS: {
     code: 'MPNS',
     name: '캐릭터한테 편지 쓰면서 새벽을 보내는 인간',
@@ -250,9 +247,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'TIAB',
     bff: 'MINS',
+    accessory: 'Feather',
+    face: 'zen',
   },
 
-  // ── M·P·A·B — 메소드 + 설계 + 분석 + 신체 ──
   MPAB: {
     code: 'MPAB',
     name: '캐릭터 일기를 안무로 옮기는 사람',
@@ -271,9 +269,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'TINS',
     bff: 'MPAS',
+    accessory: 'Compass',
+    face: 'intense',
   },
 
-  // ── T·I·N·S — 테크닉 + 즉흥 + 직관 + 내면 ──
   TINS: {
     code: 'TINS',
     name: '직감 하나로 카메라 앞 5초만에 들어가는 타입',
@@ -292,9 +291,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'MPAB',
     bff: 'TIAS',
+    accessory: 'Wand',
+    face: 'wink',
   },
 
-  // ── T·I·A·B — 테크닉 + 즉흥 + 분석 + 신체 ──
   TIAB: {
     code: 'TIAB',
     name: '현장에서 안무를 즉흥으로 짜는 분석가',
@@ -313,9 +313,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'MPNS',
     bff: 'TINB',
+    accessory: 'Zap',
+    face: 'wild',
   },
 
-  // ── T·P·N·S — 테크닉 + 설계 + 직관 + 내면 ──
   TPNS: {
     code: 'TPNS',
     name: '대본 받자마자 한 줄에 한 시간씩 쓰는 사람',
@@ -334,9 +335,10 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'MIAB',
     bff: 'TPNB',
+    accessory: 'BookOpen',
+    face: 'dreamy',
   },
 
-  // ── T·P·A·B — 테크닉 + 설계 + 분석 + 신체 ──
   TPAB: {
     code: 'TPAB',
     name: '대사보다 동선을 먼저 외우는 사람',
@@ -355,16 +357,16 @@ const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
     ],
     rival: 'MINS',
     bff: 'TPAS',
+    accessory: 'Ruler',
+    face: 'sharp',
   },
 };
 
-/** code → TypeContent 조회. 모든 코드가 폴리싱되어 있으므로 폴백 미사용. */
 export function getType(code: TypeCode): TypeContent {
   const index = TYPE_CODES.indexOf(code) as TypeIndex;
   return { ...POLISHED[code], index };
 }
 
-/** 모든 유형 (도감/검증용) */
 export function getAllTypes(): TypeContent[] {
   return TYPE_CODES.map((code) => getType(code));
 }

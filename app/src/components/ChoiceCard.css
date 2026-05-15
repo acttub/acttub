@@ -1,48 +1,80 @@
 .choice {
   display: flex;
   align-items: center;
-  gap: var(--choice-gap);
+  gap: var(--space-3);
   width: 100%;
-  background: var(--choice-bg);
+  background: var(--white);
   color: var(--text-default);
-  border: 2px solid var(--choice-border);
-  padding: var(--choice-padding);
-  border-radius: var(--choice-radius);
-  box-shadow: var(--choice-shadow);
+  border: 2px solid transparent;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
   text-align: left;
   cursor: pointer;
   font-family: inherit;
-  font-size: var(--text-base);
-  line-height: var(--lh-base);
-  min-height: 64px;
+  font-size: var(--text-md);
+  line-height: 1.45;
+  font-weight: var(--fw-medium);
+  min-height: 72px;
+  box-shadow: var(--shadow-1);
   transition:
     transform var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) var(--ease-out),
-    background var(--duration-fast) var(--ease-out),
-    border-color var(--duration-base) var(--ease-out);
+    border-color var(--duration-base) var(--ease-out),
+    background var(--duration-base) var(--ease-out);
 }
 
 @media (hover: hover) {
   .choice:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--choice-shadow-hover);
-    background: var(--choice-bg-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-2);
   }
 }
 
-.choice:active { transform: translateY(1px) scale(0.98); }
+.choice:active {
+  transform: translateY(0) scale(0.99);
+}
 
 .choice--selected {
-  background: var(--choice-bg-selected);
-  border-color: var(--choice-border-selected);
+  background: #FFF6F3;
+  border-color: var(--primary-500);
 }
 
 .choice:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.choice__icon { flex-shrink: 0; color: var(--text-secondary); }
-.choice__label { flex: 1; }
+.choice__icon-wrap {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--gray-50);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-default);
+  transition: background var(--duration-base) var(--ease-out);
+}
+
+.choice--selected .choice__icon-wrap {
+  background: var(--primary-100);
+  color: var(--primary-700);
+}
+
+.choice__label {
+  flex: 1;
+  color: var(--text-default);
+  letter-spacing: -0.005em;
+}
+
 .choice__check {
-  color: var(--primary-500);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-500);
+  color: var(--white);
   animation: choice-pop var(--duration-base) var(--ease-out-back);
 }
 

@@ -1,201 +1,133 @@
 /* =====================================================
-   연기 스타일 MBTI — Design Tokens (globals.css)
-   Generated from outputs/stage-2/design-tokens.md § 5
+   ACTI Design Tokens (v3 — Toss-inspired mobile)
+   - Toss 본문 텍스트 컬러 채택 (#191F28 계열)
+   - 옅은 배경 + 흰 카드 + 진한 텍스트 (모바일 가독성)
+   - BottomCTA 패턴, safe-area 대응
    ===================================================== */
 
-/* Pretendard Variable (CDN) is loaded in index.html */
-
 :root {
-  /* ---------- Base: Neutral ---------- */
-  --gray-50: #FAFAF8;
-  --gray-100: #F4F2EE;
-  --gray-200: #E8E4DD;
-  --gray-300: #D4CFC4;
-  --gray-400: #A8A39A;
-  --gray-500: #7A756B;
-  --gray-700: #4A453E;
-  --gray-900: #1F1C18;
+  /* ---------- Base: Neutral (Toss 그레이 스케일) ---------- */
+  --gray-900: #191F28;   /* 본문 primary */
+  --gray-700: #333D4B;
+  --gray-600: #4E5968;   /* 본문 secondary */
+  --gray-500: #6B7684;
+  --gray-400: #8B95A1;   /* 보조 */
+  --gray-300: #B0B8C1;
+  --gray-200: #D1D6DB;
+  --gray-100: #E5E8EB;
+  --gray-50:  #F2F4F6;   /* 옅은 배경 */
+  --white:    #FFFFFF;
 
   /* ---------- Base: Brand ---------- */
   --primary-100: #FFE8E0;
+  --primary-300: #FFB39E;
   --primary-500: #FF7A5C;
+  --primary-600: #E55A3C;
   --primary-700: #C8553A;
-  --success-500: #5CB880;
-  --warn-500: #E6B85C;
-  --error-500: #D85C5C;
+  --success-500: #2BAC4E;
+  --warn-500:    #F2A50C;
+  --error-500:   #E55353;
 
-  /* ---------- Base: 16유형 시그니처 ---------- */
-  --type-00: #E6A29A; --type-00-dark: #8C443B;
-  --type-01: #E6B59A; --type-01-dark: #8C523B;
-  --type-02: #E6C89A; --type-02-dark: #8C633B;
-  --type-03: #DCE69A; --type-03-dark: #7E8C3B;
-  --type-04: #B5E69A; --type-04-dark: #558C3B;
-  --type-05: #9AE6A8; --type-05-dark: #3B8C53;
-  --type-06: #9AE6C8; --type-06-dark: #3B8C72;
-  --type-07: #9AE0E6; --type-07-dark: #3B888C;
-  --type-08: #9ACDE6; --type-08-dark: #3B708C;
-  --type-09: #9AB5E6; --type-09-dark: #3B528C;
-  --type-10: #A89AE6; --type-10-dark: #473B8C;
-  --type-11: #BD9AE6; --type-11-dark: #603B8C;
-  --type-12: #D29AE6; --type-12-dark: #723B8C;
-  --type-13: #E69AD2; --type-13-dark: #8C3B72;
-  --type-14: #E69ABD; --type-14-dark: #8C3B5B;
-  --type-15: #E69AA8; --type-15-dark: #8C3B4D;
+  /* ---------- Base: 16유형 시그니처 (HSL 22.5° 균등) ---------- */
+  --type-00: #F2A8A0; --type-00-dark: #8C443B;
+  --type-01: #F2BC9F; --type-01-dark: #8C523B;
+  --type-02: #F2D09F; --type-02-dark: #8C633B;
+  --type-03: #E1F29F; --type-03-dark: #7E8C3B;
+  --type-04: #B7F29F; --type-04-dark: #558C3B;
+  --type-05: #9FF2AE; --type-05-dark: #3B8C53;
+  --type-06: #9FF2CE; --type-06-dark: #3B8C72;
+  --type-07: #9FECF2; --type-07-dark: #3B888C;
+  --type-08: #9FD4F2; --type-08-dark: #3B708C;
+  --type-09: #9FBBF2; --type-09-dark: #3B528C;
+  --type-10: #AE9FF2; --type-10-dark: #473B8C;
+  --type-11: #C49FF2; --type-11-dark: #603B8C;
+  --type-12: #DA9FF2; --type-12-dark: #723B8C;
+  --type-13: #F29FDA; --type-13-dark: #8C3B72;
+  --type-14: #F29FC4; --type-14-dark: #8C3B5B;
+  --type-15: #F29FAE; --type-15-dark: #8C3B4D;
 
-  /* ---------- Base: Spacing ---------- */
-  --space-0: 0;
+  /* ---------- Spacing (Toss 4·8 base) ---------- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-7: 28px;
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
+  --space-14: 56px;
   --space-16: 64px;
+  --space-20: 80px;
 
-  /* ---------- Base: Radius ---------- */
-  --radius-sm: 6px;
+  /* ---------- Radius (Toss 시그니처 - 큰 라운드) ---------- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
   --radius-pill: 9999px;
 
-  /* ---------- Base: Shadow ---------- */
-  --shadow-1: 0 1px 2px rgba(31, 28, 24, 0.06);
-  --shadow-2: 0 4px 12px rgba(31, 28, 24, 0.08);
-  --shadow-3: 0 8px 24px rgba(31, 28, 24, 0.12);
-  --shadow-focus: 0 0 0 4px rgba(255, 122, 92, 0.32);
+  /* ---------- Shadow ---------- */
+  --shadow-1: 0 1px 2px rgba(25, 31, 40, 0.04), 0 1px 2px rgba(25, 31, 40, 0.06);
+  --shadow-2: 0 4px 12px rgba(25, 31, 40, 0.06), 0 2px 4px rgba(25, 31, 40, 0.04);
+  --shadow-3: 0 12px 28px rgba(25, 31, 40, 0.10), 0 4px 8px rgba(25, 31, 40, 0.06);
+  --shadow-cta-top: 0 -4px 16px rgba(25, 31, 40, 0.06);
+  --shadow-focus: 0 0 0 4px rgba(255, 122, 92, 0.28);
 
-  /* ---------- Base: Typography ---------- */
+  /* ---------- Typography ---------- */
   --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
 
-  --text-xs: 12px;   --lh-xs: 16px;
-  --text-sm: 14px;   --lh-sm: 20px;
-  --text-base: 16px; --lh-base: 26px;
-  --text-lg: 18px;   --lh-lg: 28px;
-  --text-xl: 22px;   --lh-xl: 30px;
-  --text-2xl: 28px;  --lh-2xl: 36px;
-  --text-3xl: 36px;  --lh-3xl: 44px;
-  --text-4xl: 44px;  --lh-4xl: 52px;
+  /* Toss 모바일 위계 (큰 본문 + 명확한 헤딩) */
+  --text-xs:    12px; --lh-xs:   16px;
+  --text-sm:    14px; --lh-sm:   20px;
+  --text-base:  16px; --lh-base: 24px;
+  --text-md:    17px; --lh-md:   26px;   /* Toss 본문 권장 */
+  --text-lg:    19px; --lh-lg:   28px;
+  --text-xl:    22px; --lh-xl:   30px;
+  --text-2xl:   26px; --lh-2xl:  34px;
+  --text-3xl:   32px; --lh-3xl:  42px;
+  --text-4xl:   40px; --lh-4xl:  50px;
 
-  --font-regular: 400;
-  --font-medium: 500;
-  --font-semibold: 600;
-  --font-bold: 700;
-  --font-extrabold: 800;
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+  --fw-extrabold:800;
 
-  /* ---------- Base: Motion ---------- */
+  /* ---------- Motion ---------- */
   --duration-fast: 150ms;
   --duration-base: 250ms;
   --duration-slow: 400ms;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.45, 0.64, 1);
 
   /* ---------- Semantic ---------- */
-  --bg-page: var(--gray-50);
-  --bg-surface: #FFFFFF;
-  --bg-subtle: var(--gray-100);
-  --bg-inverse: var(--gray-900);
+  --bg-page:     var(--gray-50);
+  --bg-surface:  var(--white);
+  --bg-subtle:   var(--gray-100);
+  --bg-inverse:  var(--gray-900);
 
-  --text-default: var(--gray-900);
-  --text-secondary: var(--gray-700);
-  --text-muted: var(--gray-500);
-  --text-helper: var(--gray-400);
-  --text-inverse: var(--gray-50);
+  --text-default:   var(--gray-900);
+  --text-secondary: var(--gray-600);
+  --text-muted:     var(--gray-500);
+  --text-helper:    var(--gray-400);
+  --text-inverse:   var(--white);
+  --text-link:      var(--primary-600);
 
   --border-default: var(--gray-200);
-  --border-subtle: var(--gray-100);
-  --border-focus: var(--primary-500);
+  --border-subtle:  var(--gray-100);
+  --border-focus:   var(--primary-500);
 
-  --action-primary-bg: var(--primary-500);
-  --action-primary-bg-hover: var(--primary-700);
-  --action-primary-text: #FFFFFF;
-  --action-secondary-bg: var(--bg-surface);
-  --action-secondary-bg-hover: var(--gray-100);
-  --action-secondary-text: var(--text-default);
-
-  --status-success: var(--success-500);
-  --status-warn: var(--warn-500);
-  --status-error: var(--error-500);
-
-  /* ---------- Component: Badge ---------- */
-  --badge-bg: var(--bg-surface);
-  --badge-text: var(--text-default);
-  --badge-border: var(--border-default);
-  --badge-padding-x: var(--space-3);
-  --badge-padding-y: var(--space-2);
-  --badge-radius: var(--radius-pill);
-  --badge-font: var(--font-mono);
-  --badge-size: var(--text-base);
-  --badge-weight: var(--font-semibold);
-
-  /* ---------- Component: Choice ---------- */
-  --choice-bg: var(--bg-surface);
-  --choice-bg-hover: var(--gray-100);
-  --choice-bg-selected: var(--primary-100);
-  --choice-border: var(--border-default);
-  --choice-border-selected: var(--primary-500);
-  --choice-padding: var(--space-4);
-  --choice-radius: var(--radius-lg);
-  --choice-shadow: var(--shadow-1);
-  --choice-shadow-hover: var(--shadow-2);
-  --choice-gap: var(--space-3);
-
-  /* ---------- Component: CTA ---------- */
-  --cta-bg: var(--action-primary-bg);
-  --cta-bg-hover: var(--action-primary-bg-hover);
-  --cta-text: var(--action-primary-text);
-  --cta-padding-x: var(--space-6);
-  --cta-padding-y: var(--space-4);
-  --cta-radius: var(--radius-md);
-  --cta-size: var(--text-lg);
-  --cta-weight: var(--font-semibold);
-  --cta-min-height: 56px;
-
-  /* ---------- Component: Capture ---------- */
-  --capture-padding: var(--space-8);
-  --capture-radius: var(--radius-xl);
-  --capture-shadow: var(--shadow-3);
-  --capture-name-size: var(--text-3xl);
-  --capture-name-weight: var(--font-extrabold);
-  --capture-tagline-size: var(--text-base);
-  --capture-description-size: var(--text-sm);
-  --capture-watermark-size: var(--text-xs);
-
-  /* ---------- Component: Progress ---------- */
-  --progress-track: var(--gray-200);
-  --progress-fill: var(--primary-500);
-  --progress-height: 4px;
-  --progress-radius: var(--radius-pill);
-  --progress-counter-size: var(--text-sm);
-  --progress-counter-color: var(--text-muted);
-
-  /* ---------- Component: Share ---------- */
-  --share-bg: var(--bg-surface);
-  --share-bg-hover: var(--gray-100);
-  --share-border: var(--border-default);
-  --share-padding: var(--space-4);
-  --share-radius: var(--radius-md);
-  --share-icon-size: 24px;
-  --share-label-size: var(--text-sm);
-  --share-min-height: 80px;
-
-  /* ---------- Component: Type Card ---------- */
-  --typecard-bg: var(--bg-surface);
-  --typecard-bg-hover: var(--gray-100);
-  --typecard-border: var(--border-default);
-  --typecard-padding: var(--space-4);
-  --typecard-radius: var(--radius-lg);
-  --typecard-shadow: var(--shadow-1);
-  --typecard-shadow-hover: var(--shadow-2);
-  --typecard-arrow-color: var(--text-muted);
-
-  /* ---------- Container ---------- */
+  /* ---------- Container (Toss는 모바일 폼팩터에 최적) ---------- */
   --container-max: 480px;
-  --container-gutter: var(--space-4);
+  --container-gutter: 20px;   /* Toss 표준 좌우 20px */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 
 /* ===== 16유형 동적 캡처 컬러 ===== */
@@ -217,25 +149,22 @@
 [data-type="15"] { --bg-capture: var(--type-15); --text-on-type: var(--type-15-dark); }
 
 /* ===== Base Reset ===== */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 html, body {
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: var(--lh-base);
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
   color: var(--text-default);
   background: var(--bg-page);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
 }
 
-body {
-  min-height: 100dvh;
-}
+body { min-height: 100dvh; }
 
 #root {
   min-height: 100dvh;
@@ -243,13 +172,8 @@ body {
   flex-direction: column;
 }
 
-button {
-  font-family: inherit;
-}
-
-a {
-  color: inherit;
-}
+button { font-family: inherit; }
+a { color: inherit; }
 
 .container {
   max-width: var(--container-max);
@@ -267,18 +191,29 @@ a {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
 }
 
 /* ===== Page transition ===== */
-.page-enter {
-  animation: page-enter var(--duration-base) var(--ease-out);
+.page-enter { animation: page-enter var(--duration-base) var(--ease-out); }
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes page-enter {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ===== Bottom CTA 컨테이너 ===== */
+.bottom-cta {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-3) var(--container-gutter) calc(var(--space-3) + var(--safe-bottom));
+  background: linear-gradient(180deg, rgba(242,244,246,0) 0%, var(--bg-page) 28%);
+  z-index: 20;
+}
+.bottom-cta--surface {
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--white) 28%);
+  box-shadow: var(--shadow-cta-top);
 }

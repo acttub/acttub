@@ -1,35 +1,23 @@
 /**
- * ShareActionButton — 이미지/링크/카톡 공유 액션.
- * 명세: outputs/stage-2/component-spec-web.md C8
+ * ShareActionButton — 토스 ListRow Action 톤 (v3: 깔끔한 회색 칩).
  */
 
 import { useState } from 'react';
-import { ImageDown, Link2, MessageCircle, Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, type LucideIcon } from 'lucide-react';
 import './ShareActionButton.css';
 
 type ShareType = 'image' | 'link' | 'kakao';
 
 type Props = {
   type: ShareType;
+  icon: LucideIcon;
+  label: string;
   onAction: () => Promise<void> | void;
   disabled?: boolean;
 };
 
-const LABEL: Record<ShareType, string> = {
-  image: '이미지 저장',
-  link: '링크 복사',
-  kakao: '카톡 공유',
-};
-
-const ICON: Record<ShareType, typeof ImageDown> = {
-  image: ImageDown,
-  link: Link2,
-  kakao: MessageCircle,
-};
-
-export default function ShareActionButton({ type, onAction, disabled }: Props) {
+export default function ShareActionButton({ type, icon: Icon, label, onAction, disabled }: Props) {
   const [state, setState] = useState<'idle' | 'loading' | 'success'>('idle');
-  const Icon = ICON[type];
 
   const handleClick = async () => {
     if (state !== 'idle' || disabled) return;
@@ -47,15 +35,17 @@ export default function ShareActionButton({ type, onAction, disabled }: Props) {
   return (
     <button
       type="button"
-      className="share"
+      className={`share share--${type}`}
       onClick={handleClick}
       disabled={disabled || state !== 'idle'}
-      aria-label={`${LABEL[type]}`}
+      aria-label={label}
     >
-      {state === 'loading' && <Loader2 size={24} className="share__spin" aria-hidden="true" />}
-      {state === 'success' && <Check size={24} aria-hidden="true" />}
-      {state === 'idle' && <Icon size={24} aria-hidden="true" />}
-      <span className="share__label">{LABEL[type]}</span>
+      <span className="share__icon" aria-hidden="true">
+        {state === 'loading' && <Loader2 size={20} className="share__spin" />}
+        {state === 'success' && <Check size={20} strokeWidth={3} />}
+        {state === 'idle' && <Icon size={20} />}
+      </span>
+      <span className="share__label">{label}</span>
     </button>
   );
 }

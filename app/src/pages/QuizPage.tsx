@@ -1,6 +1,5 @@
 /**
- * S2 — 문항 페이지.
- * 명세: outputs/stage-2/design-spec-web.md § S2
+ * S2 — 문항 페이지 (v3: 토스 톤 + 더 큰 본문 + 진행률 진한 막대).
  */
 
 import { useState, useMemo } from 'react';
@@ -29,16 +28,14 @@ export default function QuizPage() {
     setAnswers(next);
 
     if (index < total - 1) {
-      // 자동 다음 — 시각 피드백 후 진행
-      setTimeout(() => setIndex(index + 1), 250);
+      setTimeout(() => setIndex(index + 1), 240);
     } else {
-      // 마지막 문항: 점수 계산 → 결과 페이지
       setTimeout(() => {
         const filled = next.filter((c): c is Choice => c !== null);
         const code = computeType(filled);
         setMyTypeCode(code);
         navigate(`/result/${code}`, { replace: true });
-      }, 300);
+      }, 320);
     }
   };
 
@@ -73,7 +70,7 @@ export default function QuizPage() {
         total={total}
         onBack={index > 0 ? handleBack : undefined}
       />
-      <div className="container">
+      <div className="page-quiz__container">
         <section className="page-quiz__body" key={question.id}>
           <p className="page-quiz__scenario">{question.scenario}</p>
           <h2 className="page-quiz__question">{question.question}</h2>

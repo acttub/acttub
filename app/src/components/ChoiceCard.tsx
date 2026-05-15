@@ -1,6 +1,5 @@
 /**
- * ChoiceCard — 시나리오 4지선다 카드.
- * 명세: outputs/stage-2/component-spec-web.md C2
+ * ChoiceCard — 시나리오 4지선다 (v3: 토스 ListRow 톤).
  */
 
 import { Check, type LucideIcon } from 'lucide-react';
@@ -29,9 +28,15 @@ export default function ChoiceCard({
       disabled={disabled}
       aria-pressed={selected}
     >
-      <Icon size={24} className="choice__icon" aria-hidden="true" />
+      <span className="choice__icon-wrap" aria-hidden="true">
+        <Icon size={22} strokeWidth={2.1} />
+      </span>
       <span className="choice__label">{label}</span>
-      {selected && <Check size={20} className="choice__check" aria-hidden="true" />}
+      {selected ? (
+        <span className="choice__check" aria-hidden="true">
+          <Check size={18} strokeWidth={3} />
+        </span>
+      ) : null}
     </button>
   );
 }

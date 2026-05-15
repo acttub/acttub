@@ -1,25 +1,30 @@
 .page-404 {
   flex: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  background: var(--bg-page);
 }
 
 .page-404__container {
+  flex: 1;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--space-6);
   padding: var(--space-12) var(--container-gutter);
-  width: 100%;
 }
 
 .page-404__title {
   font-size: var(--text-3xl);
   line-height: 1.25;
-  font-weight: var(--font-extrabold);
+  font-weight: var(--fw-extrabold);
   text-align: center;
   margin: 0;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.025em;
 }
 
 .page-404__hint {
@@ -27,12 +32,9 @@
   color: var(--text-muted);
   text-align: center;
   margin: 0;
+  font-weight: var(--fw-medium);
 }
 
-.page-404__actions {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
+.page-404__container .btn {
+  max-width: 240px;
 }

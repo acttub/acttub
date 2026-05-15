@@ -2,10 +2,18 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  background: var(--bg-page);
+}
+
+.page-quiz__container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 var(--container-gutter) var(--space-16);
 }
 
 .page-quiz__body {
-  padding: var(--space-8) 0;
+  padding: var(--space-8) 0 var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
@@ -13,18 +21,20 @@
 }
 
 .page-quiz__scenario {
-  font-size: var(--text-base);
-  line-height: var(--lh-base);
+  font-size: var(--text-md);
+  line-height: 1.55;
   color: var(--text-secondary);
   margin: 0;
+  font-weight: var(--fw-medium);
 }
 
 .page-quiz__question {
-  font-size: var(--text-xl);
-  line-height: var(--lh-xl);
-  font-weight: var(--font-bold);
+  font-size: var(--text-2xl);
+  line-height: 1.3;
+  font-weight: var(--fw-extrabold);
   margin: 0;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  color: var(--text-default);
 }
 
 .page-quiz__choices {
@@ -35,6 +45,6 @@
 }
 
 @keyframes quiz-slide {
-  from { opacity: 0; transform: translateX(16px); }
+  from { opacity: 0; transform: translateX(12px); }
   to   { opacity: 1; transform: translateX(0); }
 }

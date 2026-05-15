@@ -36,3 +36,6 @@ Thumbs.db
 
 # Testing
 coverage/
+
+# Character image backups (before bg removal)
+app/public/characters.bak/
