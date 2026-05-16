@@ -2,22 +2,25 @@
  * S3 / S3' — 결과 페이지 (v3: 토스 카드 위계 + BottomCTA).
  */
 
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ChevronLeft, RotateCcw, ArrowRight } from 'lucide-react';
+import { ChevronLeft, RotateCcw, ArrowRight, Camera, MessageCircle, Link as LinkIcon } from 'lucide-react';
 
 import CaptureCard from '../components/CaptureCard';
 import TypeCard from '../components/TypeCard';
 import AxisBreakdown from '../components/AxisBreakdown';
 import PrimaryButton from '../components/PrimaryButton';
 import SecondaryButton from '../components/SecondaryButton';
+import ShareActionButton from '../components/ShareActionButton';
 import BottomCTA from '../components/BottomCTA';
+import Toast from '../components/Toast';
 
 import { isTypeCode } from '../content/schema';
 import { getType } from '../content/types';
 import { getMyTypeCode, clearMyTypeCode } from '../lib/storage';
-import { getSiteUrl } from '../lib/share';
+import { getSiteUrl, shareCaptureToInstagram, copyResultUrl } from '../lib/share';
+import { ensureKakaoReady, shareToKakao } from '../lib/kakao';
 
 import NotFoundPage from './NotFoundPage';
 import './ResultPage.css';
@@ -40,9 +43,42 @@ export default function ResultPage() {
   const bff = getType(type.bff);
   const siteUrl = getSiteUrl();
 
+  const captureRef = useRef<HTMLElement>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    window.setTimeout(() => setToast(null), 2200);
+  };
+
   const handleRetry = () => {
     clearMyTypeCode();
     navigate('/quiz', { replace: true });
+  };
+
+  const handleInstagramShare = async () => {
+    if (!captureRef.current) return;
+    const filename = `acti-${type.code}.png`;
+    const shareText = `${type.code} ${type.name} — ${siteUrl}/result/${type.code}`;
+    const result = await shareCaptureToInstagram(captureRef.current, filename, shareText);
+    if (result === 'downloaded') {
+      showToast('이미지 저장됨! 인스타 스토리에 올려주세요');
+    } else if (result === 'shared') {
+      showToast('공유 완료!');
+    }
+  };
+
+  const handleKakaoShare = async () => {
+    if (!ensureKakaoReady()) {
+      showToast('카카오 공유 준비 중이에요');
+      throw new Error('Kakao not ready');
+    }
+    shareToKakao(type, siteUrl);
+  };
+
+  const handleCopyLink = async () => {
+    await copyResultUrl(type.code);
+    showToast('링크가 복사됐어요');
   };
 
   return (
@@ -74,6 +110,7 @@ export default function ResultPage() {
         )}
 
         <CaptureCard
+          ref={captureRef}
           typeIndex={type.index}
           code={type.code}
           name={type.name}
@@ -83,6 +120,32 @@ export default function ResultPage() {
           face={type.face}
           celebrate={isCelebrate}
         />
+
+        {!isRecipient && (
+          <section className="page-result__share">
+            <h3 className="page-result__share-title">친구한테 자랑하기</h3>
+            <div className="share-group">
+              <ShareActionButton
+                type="instagram"
+                icon={Camera}
+                label="스토리"
+                onAction={handleInstagramShare}
+              />
+              <ShareActionButton
+                type="kakao"
+                icon={MessageCircle}
+                label="카카오톡"
+                onAction={handleKakaoShare}
+              />
+              <ShareActionButton
+                type="link"
+                icon={LinkIcon}
+                label="링크복사"
+                onAction={handleCopyLink}
+              />
+            </div>
+          </section>
+        )}
 
         <AxisBreakdown code={type.code} />
 
@@ -132,6 +195,8 @@ export default function ResultPage() {
           </PrimaryButton>
         </BottomCTA>
       )}
+
+      {toast && <Toast message={toast} />}
     </main>
   );
 }

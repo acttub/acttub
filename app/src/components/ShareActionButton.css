@@ -32,6 +32,12 @@
 .share--kakao .share__icon { color: #3C1E1E; }
 .share--link .share__icon  { color: var(--text-default); }
 .share--image .share__icon { color: var(--text-default); }
+.share--instagram { background: linear-gradient(135deg, #F58529 0%, #DD2A7B 50%, #8134AF 100%); }
+.share--instagram .share__icon,
+.share--instagram .share__label { color: #FFFFFF; }
+@media (hover: hover) {
+  .share--instagram:hover { filter: brightness(1.05); background: linear-gradient(135deg, #F58529 0%, #DD2A7B 50%, #8134AF 100%); }
+}
 
 .share__label {
   font-size: var(--text-xs);
