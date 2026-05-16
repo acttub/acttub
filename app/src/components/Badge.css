@@ -6,9 +6,9 @@
   border: 1px solid var(--border-default);
   padding: 6px var(--space-3);
   border-radius: var(--radius-pill);
-  font-family: var(--font-mono);
-  font-weight: var(--fw-bold);
-  letter-spacing: 0.08em;
+  font-family: var(--font-sans);
+  font-weight: 900;
+  letter-spacing: 0.06em;
   line-height: 1;
 }
 

@@ -2,28 +2,22 @@
  * S3 / S3' — 결과 페이지 (v3: 토스 카드 위계 + BottomCTA).
  */
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import {
-  ChevronLeft, RotateCcw, ArrowRight,
-  ImageDown, Link2, MessageCircle,
-} from 'lucide-react';
+import { ChevronLeft, RotateCcw, ArrowRight } from 'lucide-react';
 
 import CaptureCard from '../components/CaptureCard';
 import TypeCard from '../components/TypeCard';
 import AxisBreakdown from '../components/AxisBreakdown';
 import PrimaryButton from '../components/PrimaryButton';
 import SecondaryButton from '../components/SecondaryButton';
-import ShareActionButton from '../components/ShareActionButton';
 import BottomCTA from '../components/BottomCTA';
-import Toast from '../components/Toast';
 
 import { isTypeCode } from '../content/schema';
 import { getType } from '../content/types';
 import { getMyTypeCode, clearMyTypeCode } from '../lib/storage';
-import { saveCaptureAsImage, copyResultUrl, getSiteUrl } from '../lib/share';
-import { shareToKakao } from '../lib/kakao';
+import { getSiteUrl } from '../lib/share';
 
 import NotFoundPage from './NotFoundPage';
 import './ResultPage.css';
@@ -31,8 +25,6 @@ import './ResultPage.css';
 export default function ResultPage() {
   const { code: rawCode } = useParams<{ code: string }>();
   const navigate = useNavigate();
-  const captureRef = useRef<HTMLElement>(null);
-  const [toast, setToast] = useState<string | null>(null);
 
   if (!rawCode || !isTypeCode(rawCode)) {
     return <NotFoundPage />;
@@ -48,28 +40,6 @@ export default function ResultPage() {
   const bff = getType(type.bff);
   const siteUrl = getSiteUrl();
 
-  useEffect(() => {
-    if (toast) {
-      const t = setTimeout(() => setToast(null), 1800);
-      return () => clearTimeout(t);
-    }
-  }, [toast]);
-
-  const handleSaveImage = async () => {
-    if (!captureRef.current) return;
-    await saveCaptureAsImage(captureRef.current, `acti-${code}.png`);
-    setToast('이미지가 저장됐어요');
-  };
-
-  const handleCopyLink = async () => {
-    await copyResultUrl(code);
-    setToast('링크가 복사됐어요');
-  };
-
-  const handleKakao = () => {
-    shareToKakao(type, siteUrl);
-  };
-
   const handleRetry = () => {
     clearMyTypeCode();
     navigate('/quiz', { replace: true });
@@ -78,9 +48,9 @@ export default function ResultPage() {
   return (
     <main className="page page-enter page-result">
       <Helmet>
-        <title>[{code}] {type.name} — ACTI</title>
+        <title>{code} {type.name} — ACTI</title>
         <meta name="description" content={type.tagline} />
-        <meta property="og:title" content={`[${code}] ${type.name}`} />
+        <meta property="og:title" content={`${code} ${type.name}`} />
         <meta property="og:description" content={type.tagline} />
         <meta property="og:image" content={`${siteUrl}/og/${code}.png`} />
         <meta property="og:url" content={`${siteUrl}/result/${code}`} />
@@ -104,7 +74,6 @@ export default function ResultPage() {
         )}
 
         <CaptureCard
-          ref={captureRef}
           typeIndex={type.index}
           code={type.code}
           name={type.name}
@@ -148,15 +117,6 @@ export default function ResultPage() {
           </div>
         </section>
 
-        <section className="page-result__share">
-          <p className="page-result__share-title">단톡방에 던지기</p>
-          <div className="share-group">
-            <ShareActionButton type="image" icon={ImageDown} onAction={handleSaveImage} label="이미지" />
-            <ShareActionButton type="link"  icon={Link2}     onAction={handleCopyLink}  label="링크" />
-            <ShareActionButton type="kakao" icon={MessageCircle} onAction={handleKakao} label="카톡" />
-          </div>
-        </section>
-
         <SecondaryButton size="lg" fullWidth onClick={handleRetry}>
           <RotateCcw size={18} aria-hidden="true" /> 다시 풀어보기
         </SecondaryButton>
@@ -172,8 +132,6 @@ export default function ResultPage() {
           </PrimaryButton>
         </BottomCTA>
       )}
-
-      {toast && <Toast message={toast} />}
     </main>
   );
 }

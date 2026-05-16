@@ -38,15 +38,19 @@ const CaptureCard = forwardRef<HTMLElement, Props>(function CaptureCard(
           size="xl"
           label={`${code} 캐릭터`}
         />
+        <Badge code={code} size="lg" />
       </div>
       <div className="capture__body">
-        <Badge code={code} size="lg" />
         <h1 className="capture__name">{name}</h1>
-        <p className="capture__tagline">{tagline}</p>
-        <div className="capture__divider" />
+        <div className="capture__bubble">
+          <p className="capture__tagline">"{tagline}"</p>
+        </div>
         <ul className="capture__traits">
           {traits.map((t, i) => (
-            <li key={i}>{t}</li>
+            <li key={i} className="capture__trait">
+              <span className="capture__trait-num">{String(i + 1).padStart(2, '0')}</span>
+              <span className="capture__trait-text">{t}</span>
+            </li>
           ))}
         </ul>
         <span className="capture__watermark">ACTI · 연기 스타일 MBTI</span>

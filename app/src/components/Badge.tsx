@@ -20,7 +20,7 @@ export default function Badge({ code, variant = 'default', size = 'md' }: Props)
       className={`badge badge--${variant} badge--${size}`}
       aria-label={`유형 코드 ${code}`}
     >
-      [{code}]
+      {code}
     </span>
   );
 }

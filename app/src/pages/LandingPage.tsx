@@ -18,7 +18,7 @@ export default function LandingPage() {
   return (
     <main className="page page-enter page-landing">
       <div className="page-landing__top">
-        <p className="page-landing__brand">ACTI</p>
+        <p className="page-landing__brand">연기스타일 찾기</p>
       </div>
 
       <section className="page-landing__hero">
@@ -33,8 +33,8 @@ export default function LandingPage() {
         </div>
 
         <h1 className="page-landing__title">
-          연영과 / 배우만<br />
-          이해할 진단.
+          연기 스타일을<br />
+          찾아봐요!
         </h1>
         <p className="page-landing__sub">
           4축 16유형으로 정리한<br />

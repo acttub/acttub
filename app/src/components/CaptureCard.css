@@ -12,7 +12,9 @@
   background: var(--bg-capture, var(--gray-100));
   padding: var(--space-8) var(--space-6) var(--space-6);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
   position: relative;
 }
 
@@ -24,6 +26,11 @@
   pointer-events: none;
 }
 
+.capture__hero > * {
+  position: relative;
+  z-index: 1;
+}
+
 .capture__body {
   display: flex;
   flex-direction: column;
@@ -33,8 +40,9 @@
 }
 
 .capture .badge {
-  background: var(--gray-50);
+  background: var(--white);
   border-color: transparent;
+  box-shadow: var(--shadow-1);
 }
 
 .capture__name {
@@ -47,21 +55,36 @@
   max-width: 320px;
 }
 
-.capture__tagline {
-  font-size: var(--text-base);
-  line-height: 1.55;
+.capture__bubble {
+  position: relative;
+  align-self: stretch;
   margin: 0 0 var(--space-5);
-  color: var(--text-secondary);
-  max-width: 320px;
-  font-weight: var(--fw-medium);
+  padding: var(--space-4) var(--space-5);
+  background: var(--primary-50, var(--gray-50));
+  border: 1px solid var(--primary-200, var(--border-default));
+  border-radius: var(--radius-2xl);
 }
 
-.capture__divider {
-  width: 24px;
-  height: 3px;
-  background: var(--gray-200);
-  border-radius: var(--radius-pill);
-  margin: 0 0 var(--space-5);
+.capture__bubble::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  background: var(--primary-50, var(--gray-50));
+  border-top: 1px solid var(--primary-200, var(--border-default));
+  border-left: 1px solid var(--primary-200, var(--border-default));
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.capture__tagline {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--text-default);
+  font-weight: var(--fw-semibold);
+  text-align: center;
 }
 
 .capture__traits {
@@ -70,37 +93,51 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
   text-align: left;
   align-self: stretch;
 }
 
-.capture__traits li {
+.capture__trait {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
   font-size: var(--text-base);
   line-height: 1.55;
   color: var(--text-default);
-  padding-left: var(--space-4);
-  position: relative;
   font-weight: var(--fw-medium);
 }
 
-.capture__traits li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 10px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+.capture__trait-num {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
   background: var(--primary-500);
+  color: var(--white);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.capture__trait-text {
+  flex: 1;
+  padding-top: 3px;
 }
 
 .capture__watermark {
   margin-top: var(--space-5);
-  font-size: var(--text-xs);
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: var(--text-sm);
   color: var(--text-muted);
-  letter-spacing: 0.06em;
-  font-weight: var(--fw-semibold);
+  letter-spacing: 0.02em;
+  font-weight: 600;
 }
 
 /* ----- 셀럽레이션 ----- */
@@ -128,14 +165,14 @@
   animation: fade-in var(--duration-base) var(--ease-out) 620ms forwards;
 }
 
-.capture--celebrate .capture__traits li {
+.capture--celebrate .capture__trait {
   opacity: 0; transform: translateY(6px);
   animation: text-rise var(--duration-base) var(--ease-out) forwards;
 }
-.capture--celebrate .capture__traits li:nth-child(1) { animation-delay: 760ms; }
-.capture--celebrate .capture__traits li:nth-child(2) { animation-delay: 820ms; }
-.capture--celebrate .capture__traits li:nth-child(3) { animation-delay: 880ms; }
-.capture--celebrate .capture__traits li:nth-child(4) { animation-delay: 940ms; }
+.capture--celebrate .capture__trait:nth-child(1) { animation-delay: 760ms; }
+.capture--celebrate .capture__trait:nth-child(2) { animation-delay: 820ms; }
+.capture--celebrate .capture__trait:nth-child(3) { animation-delay: 880ms; }
+.capture--celebrate .capture__trait:nth-child(4) { animation-delay: 940ms; }
 
 @keyframes capture-enter {
   to { opacity: 1; transform: scale(1); }

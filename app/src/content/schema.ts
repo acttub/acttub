@@ -77,23 +77,23 @@ export type AxisMeta = {
 export const AXES: readonly AxisMeta[] = [
   {
     key: 'philosophy', title: '접근 철학',
-    left:  { axis: 'M', label: '메소드',  desc: '캐릭터에 잠수해 감정으로 살아본다' },
-    right: { axis: 'T', label: '테크닉',  desc: '구조·기교를 분석해 만든다' },
+    left:  { axis: 'M', label: '메소드',  desc: '캐릭터의 감정에 깊게 잠수해 그 사람으로 살아본 뒤, 그 안에서 길어 올린 진짜 정서로 무대에 선다.' },
+    right: { axis: 'T', label: '테크닉',  desc: '대본의 구조와 인물의 동선을 차분히 분석해, 정확한 기교와 설계로 장면을 빚어낸다.' },
   },
   {
     key: 'operation', title: '현장 운영',
-    left:  { axis: 'I', label: '즉흥',    desc: '현장에서 만들어내는 것이 본체' },
-    right: { axis: 'P', label: '설계',    desc: '미리 준비된 것을 정확히 펼친다' },
+    left:  { axis: 'I', label: '즉흥',    desc: '현장의 공기와 상대의 반응에 맞춰 그 순간에 새로운 무언가를 만들어내는 데서 빛난다.' },
+    right: { axis: 'P', label: '설계',    desc: '리허설에서 미리 다듬어둔 설계대로 정확히 펼쳐낼 때 가장 단단한 연기가 나온다.' },
   },
   {
     key: 'preparation', title: '준비 사고법',
-    left:  { axis: 'N', label: '직관',    desc: '감으로 캐릭터를 잡는다' },
-    right: { axis: 'A', label: '분석',    desc: '근거로 캐릭터를 쌓는다' },
+    left:  { axis: 'N', label: '직관',    desc: '대본을 처음 읽었을 때 떠오른 이미지와 감각으로 캐릭터의 결을 빠르게 잡아낸다.' },
+    right: { axis: 'A', label: '분석',    desc: '인물의 동기·관계·배경을 차곡차곡 뜯어보며 근거 위에 캐릭터를 단단히 쌓아 올린다.' },
   },
   {
     key: 'expression', title: '표현 통로',
-    left:  { axis: 'B', label: '신체',    desc: '몸·동선·표정으로 말한다' },
-    right: { axis: 'S', label: '내면',    desc: '시선·호흡·내면으로 말한다' },
+    left:  { axis: 'B', label: '신체',    desc: '몸의 리듬, 걸음걸이, 표정 같은 바깥의 언어로 캐릭터의 모든 것을 말한다.' },
+    right: { axis: 'S', label: '내면',    desc: '시선의 떨림과 호흡의 결처럼 안에서 새어 나오는 미세한 신호로 인물을 드러낸다.' },
   },
 ] as const;
 
