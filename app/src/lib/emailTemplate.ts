@@ -58,20 +58,7 @@ export function renderResultEmail(type: TypeContent, siteUrl: string): RenderedE
           </ul>
 
           <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;letter-spacing:-0.01em;">깊이 있는 분석</h2>
-          ${details.longAnalysis.map((p) => `<p style="margin:0 0 12px;color:#333;line-height:1.7;">${escapeHtml(p)}</p>`).join('')}
-
-          <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;letter-spacing:-0.01em;">추천 작품</h2>
-          <ul style="margin:0;padding:0 0 0 18px;color:#333;line-height:1.7;">
-            ${details.recommendedWorks.map((w) => `<li><strong>${escapeHtml(w.title)}</strong> — ${escapeHtml(w.note)}</li>`).join('')}
-          </ul>
-
-          <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;letter-spacing:-0.01em;">권장 훈련</h2>
-          <ul style="margin:0;padding:0 0 0 18px;color:#333;line-height:1.7;">
-            ${details.trainingTips.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}
-          </ul>
-
-          <h2 style="margin:24px 0 12px;font-size:18px;font-weight:700;letter-spacing:-0.01em;">관계 팁</h2>
-          <p style="margin:0;color:#333;line-height:1.7;">${escapeHtml(details.collaborationTips)}</p>
+          ${details.longAnalysis.map((p) => `<p style="margin:0 0 14px;color:#333;line-height:1.75;">${escapeHtml(p)}</p>`).join('')}
 
           <div style="margin-top:32px;padding-top:24px;border-top:1px solid #EEE;text-align:center;">
             <a href="${escapeHtml(resultUrl)}" style="display:inline-block;background:#1A1A1A;color:#FFFFFF;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:12px;">웹에서 다시 보기</a>
@@ -100,17 +87,7 @@ export function renderResultEmail(type: TypeContent, siteUrl: string): RenderedE
     ...type.roles.map((r) => `- ${r}`),
     '',
     '[깊이 있는 분석]',
-    ...details.longAnalysis,
-    '',
-    '[추천 작품]',
-    ...details.recommendedWorks.map((w) => `- ${w.title} — ${w.note}`),
-    '',
-    '[권장 훈련]',
-    ...details.trainingTips.map((t) => `- ${t}`),
-    '',
-    '[관계 팁]',
-    details.collaborationTips,
-    '',
+    ...details.longAnalysis.flatMap((p) => [p, '']),
     `웹에서 다시 보기: ${resultUrl}`,
     '',
     '--',

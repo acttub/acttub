@@ -29,7 +29,8 @@ export default function ResultEmailForm({ code }: Props) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const emailValid = EMAIL_RE.test(email);
-  const canSubmit = emailValid && consent && status === 'idle';
+  // 'error' 상태에서도 재시도 허용 — 발송 실패 후 사용자가 다시 누를 수 있어야 함
+  const canSubmit = emailValid && consent && (status === 'idle' || status === 'error');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

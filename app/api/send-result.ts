@@ -7,9 +7,11 @@
  *
  * 환경변수:
  *  - RESEND_API_KEY   (필수)
- *  - RESEND_FROM      (선택, 기본: onboarding@resend.dev)
- *  - RESEND_AUDIENCE_ID (선택, 있으면 contact 자동 등록)
+ *  - RESEND_FROM      (선택, 기본: ACTI <onboarding@resend.dev>)
  *  - SITE_URL         (선택, 메일 본문 링크용)
+ *
+ * 주의: 마케팅 audience 자동 등록은 PIPA 동의 범위 초과 위험이 있어
+ * 의도적으로 빼두었음. 별도 마케팅 동의 체크박스를 도입한 후 다시 붙일 것.
  */
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -54,7 +56,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const from = process.env.RESEND_FROM ?? 'ACTI <onboarding@resend.dev>';
   const siteUrl = process.env.SITE_URL ?? 'https://acti.app';
-  const audienceId = process.env.RESEND_AUDIENCE_ID;
 
   const resend = new Resend(apiKey);
   const type = getType(code);
@@ -72,15 +73,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (sendError) {
       console.error('Resend send error', sendError);
       return res.status(502).json({ error: '메일 발송에 실패했어요' });
-    }
-
-    if (audienceId) {
-      try {
-        await resend.contacts.create({ email, audienceId, unsubscribed: false });
-      } catch (audienceErr) {
-        // 이미 등록된 이메일 등은 무시
-        console.warn('Audience add skipped', audienceErr);
-      }
     }
 
     return res.status(200).json({ ok: true });
