@@ -17,7 +17,7 @@
  *           Johnstone, Grotowski, Mamet, Alfreds, Commedia dell'arte.
  */
 
-import type { TypeCode } from './types';
+import type { TypeCode } from './types.js';
 
 export type TypeDetails = {
   /** 깊이 있는 캐릭터 분석 (7문단 권장) */

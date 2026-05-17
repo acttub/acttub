@@ -5,8 +5,8 @@
  * 사이트 URL은 서버 환경변수에서 읽어 인자로 전달한다.
  */
 
-import type { EmailType } from './types';
-import { getTypeDetails } from './typeDetails';
+import type { EmailType } from './types.js';
+import { getTypeDetails } from './typeDetails.js';
 
 export type RenderedEmail = {
   subject: string;
