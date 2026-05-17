@@ -13,6 +13,7 @@ import AxisBreakdown from '../components/AxisBreakdown';
 import PrimaryButton from '../components/PrimaryButton';
 import SecondaryButton from '../components/SecondaryButton';
 import ShareActionButton from '../components/ShareActionButton';
+import ResultEmailForm from '../components/ResultEmailForm';
 import BottomCTA from '../components/BottomCTA';
 import Toast from '../components/Toast';
 
@@ -179,6 +180,8 @@ export default function ResultPage() {
             />
           </div>
         </section>
+
+        {!isRecipient && <ResultEmailForm code={type.code} />}
 
         <SecondaryButton size="lg" fullWidth onClick={handleRetry}>
           <RotateCcw size={18} aria-hidden="true" /> 다시 풀어보기
