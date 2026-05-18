@@ -1,12 +1,12 @@
 /* 540x960 = 9:16, pixelRatio 2 적용 시 1080x1920 출력 (인스타 스토리 권장 크기). */
 
 .story-canvas {
-  /* 화면 안에 두되 안 보이게 — html-to-image가 오프스크린 좌표를 자주 망쳐서 */
+  /* 뷰포트 아래로 밀어 사용자한텐 안 보이게 — opacity:0 을 쓰면
+     html-to-image가 캡처를 통째로 투명 처리해 인스타가 흰 배경으로
+     채워버린다. 위치만 이동시키면 캡처는 정상. */
   position: fixed;
-  top: 0;
+  top: 200vh;
   left: 0;
-  z-index: -1;
-  opacity: 0;
   width: 540px;
   height: 960px;
   padding: 56px 40px 48px;
