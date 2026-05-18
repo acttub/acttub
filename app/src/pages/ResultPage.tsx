@@ -20,7 +20,7 @@ import Toast from '../components/Toast';
 import { isTypeCode } from '../content/schema';
 import { getType } from '../content/types';
 import { getMyTypeCode, clearMyTypeCode } from '../lib/storage';
-import { getSiteUrl, shareCaptureToInstagram, copyResultUrl } from '../lib/share';
+import { getSiteUrl, shareCaptureToInstagram, copyResultUrl, canShareImageFile } from '../lib/share';
 import { ensureKakaoReady, shareToKakao } from '../lib/kakao';
 
 import NotFoundPage from './NotFoundPage';
@@ -59,12 +59,14 @@ export default function ResultPage() {
 
   const handleInstagramShare = async () => {
     if (!captureRef.current) return;
+    if (!canShareImageFile()) {
+      showToast('스토리 공유는 모바일에서만 가능해요');
+      return;
+    }
     const filename = `acti-${type.code}.png`;
     const shareText = `${type.code} ${type.name} — ${siteUrl}/result/${type.code}`;
     const result = await shareCaptureToInstagram(captureRef.current, filename, shareText);
-    if (result === 'downloaded') {
-      showToast('이미지 저장됨! 인스타 스토리에 올려주세요');
-    } else if (result === 'shared') {
+    if (result === 'shared') {
       showToast('공유 완료!');
     }
   };

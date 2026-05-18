@@ -24,12 +24,29 @@ export async function saveCaptureAsImage(
   link.click();
 }
 
-export type InstagramShareResult = 'shared' | 'downloaded' | 'cancelled';
+export type InstagramShareResult = 'shared' | 'cancelled';
+
+/**
+ * 현재 환경이 파일을 첨부한 Web Share를 지원하는지(=모바일 인스타로 공유 가능한지)
+ * 동기적으로 판정. 데스크탑 브라우저는 false.
+ */
+export function canShareImageFile(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  if (typeof navigator.share !== 'function') return false;
+  if (typeof navigator.canShare !== 'function') return false;
+  try {
+    const probe = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47])], 'probe.png', {
+      type: 'image/png',
+    });
+    return navigator.canShare({ files: [probe] });
+  } catch {
+    return false;
+  }
+}
 
 /**
  * 인스타 스토리(또는 OS 공유시트)로 캡처 카드 보내기.
- * - 지원 기기: navigator.share(files) → OS 시트에서 인스타그램 선택
- * - 미지원 기기: PNG 다운로드 폴백 (사용자가 직접 스토리에 업로드)
+ * 모바일 전용 — 호출 전에 canShareImageFile() 로 환경 확인할 것.
  */
 export async function shareCaptureToInstagram(
   node: HTMLElement,
@@ -40,35 +57,17 @@ export async function shareCaptureToInstagram(
   if (!blob) {
     throw new Error('Failed to render capture as image');
   }
-
   const file = new File([blob], filename, { type: 'image/png' });
 
-  const canShareFiles =
-    typeof navigator !== 'undefined' &&
-    typeof navigator.canShare === 'function' &&
-    navigator.canShare({ files: [file] });
-
-  if (canShareFiles && typeof navigator.share === 'function') {
-    try {
-      await navigator.share({ files: [file], text: shareText });
-      return 'shared';
-    } catch (err) {
-      // 사용자가 시트를 닫은 경우엔 다운로드 폴백을 건너뜀
-      if (err instanceof DOMException && err.name === 'AbortError') {
-        return 'cancelled';
-      }
-      // 그 외 에러는 다운로드 폴백으로
+  try {
+    await navigator.share({ files: [file], text: shareText });
+    return 'shared';
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      return 'cancelled';
     }
+    throw err;
   }
-
-  // 폴백: 다운로드
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.download = filename;
-  link.href = url;
-  link.click();
-  URL.revokeObjectURL(url);
-  return 'downloaded';
 }
 
 /** 결과 URL을 클립보드에 복사. */
