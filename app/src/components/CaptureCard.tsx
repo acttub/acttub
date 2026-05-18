@@ -53,7 +53,10 @@ const CaptureCard = forwardRef<HTMLElement, Props>(function CaptureCard(
             </li>
           ))}
         </ul>
-        <span className="capture__watermark">ACTI · 연기 스타일 MBTI</span>
+        <div className="capture__watermark">
+          <span className="capture__watermark-url">acttub.com</span>
+          <span className="capture__watermark-sub">연기 스타일 MBTI</span>
+        </div>
       </div>
     </section>
   );

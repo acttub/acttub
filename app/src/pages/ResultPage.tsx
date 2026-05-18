@@ -14,13 +14,15 @@ import PrimaryButton from '../components/PrimaryButton';
 import SecondaryButton from '../components/SecondaryButton';
 import ShareActionButton from '../components/ShareActionButton';
 import ResultEmailForm from '../components/ResultEmailForm';
+import ShareSuccessModal from '../components/ShareSuccessModal';
+import StoryCaptureCanvas from '../components/StoryCaptureCanvas';
 import BottomCTA from '../components/BottomCTA';
 import Toast from '../components/Toast';
 
 import { isTypeCode } from '../content/schema';
 import { getType } from '../content/types';
 import { getMyTypeCode, clearMyTypeCode } from '../lib/storage';
-import { getSiteUrl, shareCaptureToInstagram, copyResultUrl } from '../lib/share';
+import { getSiteUrl, shareCaptureToInstagram, copyResultUrl, canShareImageFile } from '../lib/share';
 import { ensureKakaoReady, shareToKakao } from '../lib/kakao';
 
 import NotFoundPage from './NotFoundPage';
@@ -44,8 +46,9 @@ export default function ResultPage() {
   const bff = getType(type.bff);
   const siteUrl = getSiteUrl();
 
-  const captureRef = useRef<HTMLElement>(null);
+  const storyRef = useRef<HTMLElement>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -58,14 +61,29 @@ export default function ResultPage() {
   };
 
   const handleInstagramShare = async () => {
-    if (!captureRef.current) return;
+    if (!storyRef.current) return;
+    if (!canShareImageFile()) {
+      showToast('스토리 공유는 모바일에서만 가능해요');
+      return;
+    }
+    // 캐릭터 PNG가 로드되기 전에 캡처하면 흰 화면이 나옴 — 명시적으로 기다림
+    const images = storyRef.current.querySelectorAll('img');
+    await Promise.all(
+      Array.from(images).map((img) =>
+        img.complete && img.naturalWidth > 0
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              img.addEventListener('load', () => resolve(), { once: true });
+              img.addEventListener('error', () => resolve(), { once: true });
+            })
+      )
+    );
+
     const filename = `acti-${type.code}.png`;
     const shareText = `${type.code} ${type.name} — ${siteUrl}/result/${type.code}`;
-    const result = await shareCaptureToInstagram(captureRef.current, filename, shareText);
-    if (result === 'downloaded') {
-      showToast('이미지 저장됨! 인스타 스토리에 올려주세요');
-    } else if (result === 'shared') {
-      showToast('공유 완료!');
+    const result = await shareCaptureToInstagram(storyRef.current, filename, shareText);
+    if (result === 'shared') {
+      setShareModalOpen(true);
     }
   };
 
@@ -111,7 +129,6 @@ export default function ResultPage() {
         )}
 
         <CaptureCard
-          ref={captureRef}
           typeIndex={type.index}
           code={type.code}
           name={type.name}
@@ -200,6 +217,15 @@ export default function ResultPage() {
       )}
 
       {toast && <Toast message={toast} />}
+
+      {shareModalOpen && (
+        <ShareSuccessModal
+          url={`${siteUrl}/result/${type.code}`}
+          onClose={() => setShareModalOpen(false)}
+        />
+      )}
+
+      {!isRecipient && <StoryCaptureCanvas ref={storyRef} type={type} />}
     </main>
   );
 }
