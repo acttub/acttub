@@ -36,7 +36,6 @@ const StoryCaptureCanvas = forwardRef<HTMLElement, Props>(function StoryCaptureC
           src={`/characters/${type.code}.png`}
           alt=""
           className="story-canvas__avatar"
-          crossOrigin="anonymous"
         />
         <div className="story-canvas__badge">{type.code}</div>
       </div>

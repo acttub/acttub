@@ -66,6 +66,19 @@ export default function ResultPage() {
       showToast('스토리 공유는 모바일에서만 가능해요');
       return;
     }
+    // 캐릭터 PNG가 로드되기 전에 캡처하면 흰 화면이 나옴 — 명시적으로 기다림
+    const images = storyRef.current.querySelectorAll('img');
+    await Promise.all(
+      Array.from(images).map((img) =>
+        img.complete && img.naturalWidth > 0
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              img.addEventListener('load', () => resolve(), { once: true });
+              img.addEventListener('error', () => resolve(), { once: true });
+            })
+      )
+    );
+
     const filename = `acti-${type.code}.png`;
     const shareText = `${type.code} ${type.name} — ${siteUrl}/result/${type.code}`;
     const result = await shareCaptureToInstagram(storyRef.current, filename, shareText);
