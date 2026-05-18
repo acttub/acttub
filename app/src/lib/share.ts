@@ -27,11 +27,20 @@ export async function saveCaptureAsImage(
 export type InstagramShareResult = 'shared' | 'cancelled';
 
 /**
- * 현재 환경이 파일을 첨부한 Web Share를 지원하는지(=모바일 인스타로 공유 가능한지)
- * 동기적으로 판정. 데스크탑 브라우저는 false.
+ * 인스타 스토리 공유 가능 환경인지 판정.
+ *
+ * 필요 조건:
+ *  1. 모바일 (iOS / Android) — 인스타 앱이 OS 공유시트에서 잡혀야 함
+ *  2. Web Share API + 파일 첨부 지원
+ *
+ * 데스크탑 Chrome도 navigator.canShare({files})에 true를 줄 때가 있어서
+ * UA 체크를 1차 게이트로 둠.
  */
 export function canShareImageFile(): boolean {
   if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+  if (!isMobile) return false;
   if (typeof navigator.share !== 'function') return false;
   if (typeof navigator.canShare !== 'function') return false;
   try {
