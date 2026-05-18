@@ -14,6 +14,7 @@ import PrimaryButton from '../components/PrimaryButton';
 import SecondaryButton from '../components/SecondaryButton';
 import ShareActionButton from '../components/ShareActionButton';
 import ResultEmailForm from '../components/ResultEmailForm';
+import ShareSuccessModal from '../components/ShareSuccessModal';
 import BottomCTA from '../components/BottomCTA';
 import Toast from '../components/Toast';
 
@@ -46,6 +47,7 @@ export default function ResultPage() {
 
   const captureRef = useRef<HTMLElement>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -67,7 +69,7 @@ export default function ResultPage() {
     const shareText = `${type.code} ${type.name} — ${siteUrl}/result/${type.code}`;
     const result = await shareCaptureToInstagram(captureRef.current, filename, shareText);
     if (result === 'shared') {
-      showToast('공유 완료!');
+      setShareModalOpen(true);
     }
   };
 
@@ -202,6 +204,13 @@ export default function ResultPage() {
       )}
 
       {toast && <Toast message={toast} />}
+
+      {shareModalOpen && (
+        <ShareSuccessModal
+          url={`${siteUrl}/result/${type.code}`}
+          onClose={() => setShareModalOpen(false)}
+        />
+      )}
     </main>
   );
 }

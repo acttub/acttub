@@ -132,12 +132,27 @@
 
 .capture__watermark {
   margin-top: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+}
+
+.capture__watermark-url {
   font-style: italic;
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
+  color: var(--text-default);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.capture__watermark-sub {
+  font-style: italic;
+  font-size: var(--text-xs);
   color: var(--text-muted);
-  letter-spacing: 0.02em;
-  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-weight: 500;
 }
 
 /* ----- 셀럽레이션 ----- */
