@@ -19,11 +19,11 @@ const StoryCaptureCanvas = forwardRef<HTMLElement, Props>(function StoryCaptureC
   ref
 ) {
   return (
+    <div className="story-canvas-wrapper" aria-hidden="true">
     <section
       ref={ref}
       className="story-canvas"
       data-type={String(type.index).padStart(2, '0')}
-      aria-hidden="true"
     >
       <header className="story-canvas__header">
         <span className="story-canvas__brand">acttub.com</span>
@@ -55,6 +55,7 @@ const StoryCaptureCanvas = forwardRef<HTMLElement, Props>(function StoryCaptureC
         <div className="story-canvas__cta-sub">너의 연기 결, 1분 진단</div>
       </footer>
     </section>
+    </div>
   );
 });
 

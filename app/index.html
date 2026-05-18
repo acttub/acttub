@@ -28,6 +28,20 @@
       integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka"
       crossorigin="anonymous"
     ></script>
+
+    <!-- 모바일 디버그 콘솔 (URL 끝에 ?debug=1 붙이면 켜짐) -->
+    <script>
+      (function () {
+        try {
+          if (location.search.indexOf('debug=1') !== -1) {
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/eruda';
+            s.onload = function () { window.eruda && window.eruda.init(); };
+            document.head.appendChild(s);
+          }
+        } catch (e) { /* ignore */ }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
