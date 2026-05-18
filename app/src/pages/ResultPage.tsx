@@ -15,6 +15,7 @@ import SecondaryButton from '../components/SecondaryButton';
 import ShareActionButton from '../components/ShareActionButton';
 import ResultEmailForm from '../components/ResultEmailForm';
 import ShareSuccessModal from '../components/ShareSuccessModal';
+import StoryCaptureCanvas from '../components/StoryCaptureCanvas';
 import BottomCTA from '../components/BottomCTA';
 import Toast from '../components/Toast';
 
@@ -45,7 +46,7 @@ export default function ResultPage() {
   const bff = getType(type.bff);
   const siteUrl = getSiteUrl();
 
-  const captureRef = useRef<HTMLElement>(null);
+  const storyRef = useRef<HTMLElement>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
@@ -60,14 +61,14 @@ export default function ResultPage() {
   };
 
   const handleInstagramShare = async () => {
-    if (!captureRef.current) return;
+    if (!storyRef.current) return;
     if (!canShareImageFile()) {
       showToast('스토리 공유는 모바일에서만 가능해요');
       return;
     }
     const filename = `acti-${type.code}.png`;
     const shareText = `${type.code} ${type.name} — ${siteUrl}/result/${type.code}`;
-    const result = await shareCaptureToInstagram(captureRef.current, filename, shareText);
+    const result = await shareCaptureToInstagram(storyRef.current, filename, shareText);
     if (result === 'shared') {
       setShareModalOpen(true);
     }
@@ -115,7 +116,6 @@ export default function ResultPage() {
         )}
 
         <CaptureCard
-          ref={captureRef}
           typeIndex={type.index}
           code={type.code}
           name={type.name}
@@ -211,6 +211,8 @@ export default function ResultPage() {
           onClose={() => setShareModalOpen(false)}
         />
       )}
+
+      {!isRecipient && <StoryCaptureCanvas ref={storyRef} type={type} />}
     </main>
   );
 }
