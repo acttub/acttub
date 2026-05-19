@@ -87,4 +87,49 @@ describe('analytics', () => {
     ]);
     expect(JSON.stringify(window.dataLayer)).not.toContain('@');
   });
+
+  it('lazy-initializes when trackPageView is called before initAnalytics', async () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    const { trackPageView } = await loadAnalytics();
+
+    trackPageView('/quiz');
+
+    expect(document.querySelectorAll('script[src*="googletagmanager.com/gtag/js?id=G-TEST123"]')).toHaveLength(1);
+    expect(window.dataLayer).toContainEqual([
+      'event',
+      'page_view',
+      expect.objectContaining({ page_path: '/quiz' }),
+    ]);
+  });
+
+  it('lazy-initializes when trackResultAction is called before initAnalytics', async () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    const { trackResultAction } = await loadAnalytics();
+
+    trackResultAction('copy_link', 'MINB');
+
+    expect(window.gtag).toBeDefined();
+    expect(window.dataLayer).toContainEqual([
+      'event',
+      'result_action_request',
+      { action: 'copy_link', result_code: 'MINB' },
+    ]);
+  });
+
+  it('normalizes paths without a leading slash', async () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    const { initAnalytics, trackPageView } = await loadAnalytics();
+
+    initAnalytics();
+    trackPageView('quiz');
+
+    expect(window.dataLayer).toContainEqual([
+      'event',
+      'page_view',
+      expect.objectContaining({
+        page_path: '/quiz',
+        page_location: 'http://localhost:3000/quiz',
+      }),
+    ]);
+  });
 });
