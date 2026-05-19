@@ -14,7 +14,7 @@ export type ResultAction = 'email_report' | 'instagram_story' | 'kakao_share' | 
 
 declare global {
   interface Window {
-    dataLayer?: GtagCommand[];
+    dataLayer?: IArguments[];
     gtag?: (...args: GtagCommand) => void;
   }
 }
@@ -40,8 +40,8 @@ export function initAnalytics(): void {
   if (window.gtag) return;
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = (...args: GtagCommand) => {
-    window.dataLayer?.push(args);
+  window.gtag = function gtag(..._args: GtagCommand) {
+    window.dataLayer?.push(arguments);
   };
   window.gtag('js', new Date());
   window.gtag('config', measurementId, { send_page_view: false });
