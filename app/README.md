@@ -25,9 +25,13 @@ pnpm dev
 ```env
 VITE_KAKAO_APP_KEY=...   # https://developers.kakao.com 에서 발급
 VITE_SITE_URL=https://acti.example.com
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX  # (선택) GA4 Measurement ID
 ```
 
 키가 비어 있어도 앱은 동작합니다. 카톡 공유만 비활성됩니다.
+GA Measurement ID가 비어 있으면 Google Analytics 스크립트도 로드하지 않습니다.
+
+> **PIPA 동의 안내**: 현재 GA 활성화 시 동의 배너 없이 즉시 트래킹됩니다. 일반 사용자 대상 정식 런칭 전에는 동의 UI 또는 GA `consent mode` 도입을 고려하세요.
 
 ## 빌드 & 배포
 
