@@ -19,6 +19,10 @@ declare global {
   }
 }
 
+// 모듈 스코프 — React StrictMode dev의 시뮬레이션된 remount는 컴포넌트 ref를
+// 재초기화하므로 dedupe 상태는 컴포넌트 밖에 둬야 한다.
+let lastTrackedPath: string | null = null;
+
 export function initAnalytics(): void {
   const measurementId = GA_MEASUREMENT_ID;
   if (!measurementId) return;
@@ -51,19 +55,32 @@ function ensureReady(): boolean {
 }
 
 /**
+ * 입력 path를 안전한 pathname으로 정규화.
+ * - `//evil.com`처럼 protocol-relative URL은 다른 origin으로 해석되므로 거부.
+ * - leading slash 없는 입력은 보정.
+ * - `new URL()` 실패는 null.
+ */
+function normalizePath(path: string): string | null {
+  if (path.startsWith('//')) return null;
+  const safePath = path.startsWith('/') ? path : `/${path}`;
+  try {
+    return new URL(safePath, window.location.origin).pathname;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * SPA 페이지뷰 추적. `path`는 `/`로 시작하는 pathname을 기대하지만,
- * 그렇지 않은 입력도 안전하게 처리.
+ * 그렇지 않은 입력도 안전하게 처리. 동일 path 연속 호출은 dedupe.
  */
 export function trackPageView(path: string): void {
   if (!ensureReady()) return;
 
-  const safePath = path.startsWith('/') ? path : `/${path}`;
-  let pagePath: string;
-  try {
-    pagePath = new URL(safePath, window.location.origin).pathname;
-  } catch {
-    return;
-  }
+  const pagePath = normalizePath(path);
+  if (pagePath === null) return;
+  if (lastTrackedPath === pagePath) return;
+  lastTrackedPath = pagePath;
 
   window.gtag?.('event', 'page_view', {
     page_path: pagePath,

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import LandingPage from './pages/LandingPage';
@@ -9,16 +9,13 @@ import { initAnalytics, trackPageView } from './lib/analytics';
 
 function AnalyticsTracker() {
   const location = useLocation();
-  // StrictMode dev 이중 마운트 + 동일 path 재호출에서 중복 page_view를 방지
-  const lastTrackedPath = useRef<string | null>(null);
 
   useEffect(() => {
     initAnalytics();
   }, []);
 
   useEffect(() => {
-    if (lastTrackedPath.current === location.pathname) return;
-    lastTrackedPath.current = location.pathname;
+    // dedupe는 trackPageView 내부에서 모듈 스코프로 처리됨
     trackPageView(location.pathname);
   }, [location.pathname]);
 
