@@ -56,15 +56,17 @@ function ensureReady(): boolean {
 
 /**
  * 입력 path를 안전한 pathname으로 정규화.
- * - `//evil.com`처럼 protocol-relative URL은 다른 origin으로 해석되므로 거부.
- * - leading slash 없는 입력은 보정.
+ * - 결과 URL의 origin이 현재 페이지와 다르면 거부 (`http://evil.com/x`,
+ *   `//evil.com/x` 등 외부 origin으로 해석되는 모든 입력).
+ * - leading slash 없는 상대 path는 URL 파서가 보정.
  * - `new URL()` 실패는 null.
  */
 function normalizePath(path: string): string | null {
   if (path.startsWith('//')) return null;
-  const safePath = path.startsWith('/') ? path : `/${path}`;
   try {
-    return new URL(safePath, window.location.origin).pathname;
+    const url = new URL(path, window.location.origin);
+    if (url.origin !== window.location.origin) return null;
+    return url.pathname;
   } catch {
     return null;
   }
