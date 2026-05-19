@@ -108,7 +108,7 @@ export const QUESTIONS: Question[] = [
     scenario: '상대 배우와 며칠째 호흡이 어긋난다. 너의 감정이 자꾸 식는다.',
     question: '너의 해법은?',
     choices: [
-      { label: '상대 배우가 왜 그러는 지 파악한다',                    axis: 'A', icon: Coffee },
+      { label: '상대 배우가 왜 그러는지 파악한다',                    axis: 'A', icon: Coffee },
       { label: '"이 비트에서 우리 박자 안 맞아" 라고 짚어준다',          axis: 'T', icon: Ruler },
       { label: '"어차피 무대 위에선 다르게 될 거야" 라며 본 무대 기대',   axis: 'I', icon: Theater },
       { label: '"오늘 셋업부터 다시 짜보자" 라고 제안한다',               axis: 'P', icon: NotebookPen },
