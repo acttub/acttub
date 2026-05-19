@@ -15,6 +15,7 @@ function AnalyticsTracker() {
   }, []);
 
   useEffect(() => {
+    // dedupe는 trackPageView 내부에서 모듈 스코프로 처리됨
     trackPageView(location.pathname);
   }, [location.pathname]);
 
