@@ -144,6 +144,18 @@ describe('analytics', () => {
     expect(pageViews).toHaveLength(0);
   });
 
+  it('rejects absolute URLs that point to a foreign origin', async () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    const { initAnalytics, trackPageView } = await loadAnalytics();
+
+    initAnalytics();
+    trackPageView('http://evil.com/leak');
+    trackPageView('https://evil.com/leak');
+
+    const pageViews = (window.dataLayer ?? []).filter(([cmd, name]) => cmd === 'event' && name === 'page_view');
+    expect(pageViews).toHaveLength(0);
+  });
+
   it('dedupes consecutive page views for the same path', async () => {
     vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics, trackPageView } = await loadAnalytics();
