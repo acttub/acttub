@@ -27,13 +27,13 @@ export const QUESTIONS: Question[] = [
   // ── 1. 리허설 (즉흥 합) ───────────────────────────
   {
     id: 1,
-    scenario: '리허설 중 상대 배우가 갑자기 다른 톤으로 치고 들어왔다.',
+    scenario: '리허설 중 상대 배우가 갑자기 다른 대사로 치고 들어왔다.',
     question: '너의 첫 반응은?',
     choices: [
-      { label: '즉각 그 톤에 맞춰 받아친다',                  axis: 'I', icon: Zap },
-      { label: '일단 약속한 대로 끝까지 가고 끝나고 얘기한다', axis: 'P', icon: Ruler },
-      { label: '그 톤이 어디서 왔는지 감정선부터 짚어본다',    axis: 'N', icon: Waves },
-      { label: '이 장면 비트가 어디서 어긋났는지 분석한다',    axis: 'A', icon: Microscope },
+      { label: '즉각 그 대사에 맞춰 받아친다',                  axis: 'I', icon: Zap },
+      { label: '기존 대사로 계속 한다',                         axis: 'P', icon: Ruler },
+      { label: '잠시 멈춰 그 결을 느껴본다',                    axis: 'N', icon: Waves },
+      { label: '이 장면 비트가 어디서 어긋났는지 분석한다',     axis: 'A', icon: Microscope },
     ],
   },
 
@@ -45,7 +45,7 @@ export const QUESTIONS: Question[] = [
     choices: [
       { label: '캐릭터의 어린 시절을 상상해본다',                   axis: 'M', icon: Cloud },
       { label: '대본의 구조와 비트를 머릿속으로 분해한다',           axis: 'T', icon: Layers },
-      { label: '내일 어떤 옷·헤어·걸음걸이로 갈지 신체부터 떠올린다', axis: 'B', icon: Shirt },
+      { label: '연습 날 어떤 옷·헤어·걸음걸이로 갈지 떠올린다',      axis: 'B', icon: Shirt },
       { label: '캐릭터의 속마음에 한 줄 한 줄 답을 단다',            axis: 'S', icon: BookOpen },
     ],
   },
@@ -70,9 +70,9 @@ export const QUESTIONS: Question[] = [
     question: '너의 다음 액션은?',
     choices: [
       { label: '"잠깐 캐릭터 다시 만나고 올게요" 한 발 빠져나갔다 들어간다', axis: 'S', icon: Moon },
-      { label: '"그 말 듣고 캐릭터가 어떻게 느낄지부터" 감정 다이브',         axis: 'N', icon: Waves },
-      { label: '"부족한 게 정확히 뭐예요?" 짚어달라 한다',                    axis: 'A', icon: HelpCircle },
-      { label: '"다음 컷 때 살짝 다르게 가볼게요" 즉흥 변주 예고',             axis: 'I', icon: Shuffle },
+      { label: '다시 한 번 감정을 생각해본다',                              axis: 'N', icon: Waves },
+      { label: '"부족한 게 정확히 뭐예요?" 짚어달라 한다',                   axis: 'A', icon: HelpCircle },
+      { label: '"다음 컷 때 살짝 다르게 가볼게요"',                          axis: 'I', icon: Shuffle },
     ],
   },
 
@@ -84,7 +84,7 @@ export const QUESTIONS: Question[] = [
     choices: [
       { label: '운동을 가거나 어디든 가서 몸을 움직인다',           axis: 'B', icon: Activity },
       { label: '이불 속에서 두 시간 동안 천장을 본다',               axis: 'S', icon: Moon },
-      { label: '"내가 어떤 결을 못 만난 걸까" 라며 떠올려본다',       axis: 'N', icon: Cloud },
+      { label: '"내가 어떤 걸 못 한 걸까" 라며 떠올려본다',          axis: 'A', icon: Cloud },
       { label: '"이건 이 캐릭터를 못 만난 거야" 라며 캐릭터 핑계',   axis: 'M', icon: Drama },
     ],
   },
@@ -95,10 +95,10 @@ export const QUESTIONS: Question[] = [
     scenario: '리딩 첫 날. 처음 보는 배우들과 같은 테이블에 앉았다.',
     question: '대본 외에 너의 시선이 향하는 곳은?',
     choices: [
-      { label: '그 사람의 손짓·말투를 관찰한다 (캐릭터 자료)', axis: 'M', icon: Eye },
-      { label: '이 사람들 톤·박자가 어떻게 다른지 듣는다',     axis: 'T', icon: AudioLines },
-      { label: '리딩보다 일단 어색한 공기부터 푼다',            axis: 'I', icon: Smile },
-      { label: '대본 마진에 첫 인상을 메모해둔다',              axis: 'P', icon: Pencil },
+      { label: '그 사람의 손짓·말투를 관찰한다',          axis: 'M', icon: Eye },
+      { label: '이 사람들 톤·박자가 어떻게 다른지 듣는다', axis: 'T', icon: AudioLines },
+      { label: '리딩보다 일단 어색한 공기부터 푼다',       axis: 'I', icon: Smile },
+      { label: '대본에 첫 인상을 메모해둔다',              axis: 'P', icon: Pencil },
     ],
   },
 
@@ -108,7 +108,7 @@ export const QUESTIONS: Question[] = [
     scenario: '상대 배우와 며칠째 호흡이 어긋난다. 너의 감정이 자꾸 식는다.',
     question: '너의 해법은?',
     choices: [
-      { label: '쉬는 시간에 가서 그냥 술 한 잔 하자고 한다 (관계부터)', axis: 'M', icon: Coffee },
+      { label: '상대 배우가 왜 그러는지 파악한다',                    axis: 'A', icon: Coffee },
       { label: '"이 비트에서 우리 박자 안 맞아" 라고 짚어준다',          axis: 'T', icon: Ruler },
       { label: '"어차피 무대 위에선 다르게 될 거야" 라며 본 무대 기대',   axis: 'I', icon: Theater },
       { label: '"오늘 셋업부터 다시 짜보자" 라고 제안한다',               axis: 'P', icon: NotebookPen },
@@ -135,8 +135,8 @@ export const QUESTIONS: Question[] = [
     question: '너는 이 5분 동안?',
     choices: [
       { label: '눈 감고 캐릭터 상태로 천천히 들어간다',        axis: 'M', icon: Brain },
-      { label: '대사 마지막 줄을 마이크 톤으로 점검한다',       axis: 'T', icon: AudioLines },
-      { label: '복도 끝까지 걸어갔다 오면서 호흡을 푼다',       axis: 'B', icon: Footprints },
+      { label: '대사를 읽으며 점검한다',                       axis: 'T', icon: AudioLines },
+      { label: '복도 끝까지 걸어갔다 오면서 몸을 푼다',         axis: 'B', icon: Footprints },
       { label: '오늘 어떤 인상이고 싶은지 속으로 정리한다',      axis: 'S', icon: Brain },
     ],
   },
@@ -147,10 +147,10 @@ export const QUESTIONS: Question[] = [
     scenario: '연출이 준 디렉션이 너의 캐릭터 해석과 정반대다.',
     question: '너의 첫 카드는?',
     choices: [
-      { label: '"한 번 그대로 가보고 그 다음에 얘기드릴게요"', axis: 'P', icon: Ruler },
-      { label: '"제가 느낀 결은 좀 다른데" 하고 일단 짚는다',   axis: 'A', icon: HelpCircle },
-      { label: '"그렇게 가면 캐릭터가 죽을 것 같아요" 감정 호소', axis: 'N', icon: Heart },
-      { label: '둘 다 가보고 카메라가 좋아하는 쪽으로 간다',    axis: 'I', icon: Shuffle },
+      { label: '"한 번 그대로 가보고 그 다음에 얘기드릴게요"',        axis: 'P', icon: Ruler },
+      { label: '"제가 느낀 결은 좀 다른데" 하고 일단 짚는다',         axis: 'A', icon: HelpCircle },
+      { label: '"그렇게 가면 캐릭터가 죽을 것 같아요" 감정 호소',     axis: 'N', icon: Heart },
+      { label: '둘 다 가보고 카메라가 좋아하는 쪽으로 간다',          axis: 'I', icon: Shuffle },
     ],
   },
 
