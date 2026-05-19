@@ -5,6 +5,14 @@ async function loadAnalytics() {
   return import('./analytics');
 }
 
+function dataLayerEntries() {
+  return (window.dataLayer ?? []).map((entry) => Array.from(entry));
+}
+
+function expectDataLayerToContain(expected: unknown[]) {
+  expect(dataLayerEntries()).toContainEqual(expected);
+}
+
 describe('analytics', () => {
   beforeEach(() => {
     vi.unstubAllEnvs();
@@ -32,8 +40,18 @@ describe('analytics', () => {
     initAnalytics();
 
     expect(document.querySelectorAll('script[src*="googletagmanager.com/gtag/js?id=G-TEST123"]')).toHaveLength(1);
-    expect(window.dataLayer).toContainEqual(['js', expect.any(Date)]);
-    expect(window.dataLayer).toContainEqual(['config', 'G-TEST123', { send_page_view: false }]);
+    expectDataLayerToContain(['js', expect.any(Date)]);
+    expectDataLayerToContain(['config', 'G-TEST123', { send_page_view: false }]);
+  });
+
+  it('queues native gtag arguments objects for the Google tag runtime', async () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    const { initAnalytics } = await loadAnalytics();
+
+    initAnalytics();
+
+    expect(Array.isArray(window.dataLayer?.[0])).toBe(false);
+    expect(Array.from(window.dataLayer?.[0] ?? [])).toEqual(['js', expect.any(Date)]);
   });
 
   it('tracks explicit SPA page views', async () => {
@@ -43,7 +61,7 @@ describe('analytics', () => {
     initAnalytics();
     trackPageView('/result/MINB');
 
-    expect(window.dataLayer).toContainEqual([
+    expectDataLayerToContain([
       'event',
       'page_view',
       expect.objectContaining({
@@ -60,7 +78,7 @@ describe('analytics', () => {
     initAnalytics();
     trackPageView('/result/MINB?email=user@example.com#private');
 
-    expect(window.dataLayer).toContainEqual([
+    expectDataLayerToContain([
       'event',
       'page_view',
       expect.objectContaining({
@@ -77,7 +95,7 @@ describe('analytics', () => {
     initAnalytics();
     trackResultAction('email_report', 'MINB');
 
-    expect(window.dataLayer).toContainEqual([
+    expectDataLayerToContain([
       'event',
       'result_action_request',
       {
@@ -95,7 +113,7 @@ describe('analytics', () => {
     trackPageView('/quiz');
 
     expect(document.querySelectorAll('script[src*="googletagmanager.com/gtag/js?id=G-TEST123"]')).toHaveLength(1);
-    expect(window.dataLayer).toContainEqual([
+    expectDataLayerToContain([
       'event',
       'page_view',
       expect.objectContaining({ page_path: '/quiz' }),
@@ -109,7 +127,7 @@ describe('analytics', () => {
     trackResultAction('copy_link', 'MINB');
 
     expect(window.gtag).toBeDefined();
-    expect(window.dataLayer).toContainEqual([
+    expectDataLayerToContain([
       'event',
       'result_action_request',
       { action: 'copy_link', result_code: 'MINB' },
@@ -123,7 +141,7 @@ describe('analytics', () => {
     initAnalytics();
     trackPageView('quiz');
 
-    expect(window.dataLayer).toContainEqual([
+    expectDataLayerToContain([
       'event',
       'page_view',
       expect.objectContaining({
@@ -140,7 +158,7 @@ describe('analytics', () => {
     initAnalytics();
     trackPageView('//evil.com/leak');
 
-    const pageViews = (window.dataLayer ?? []).filter(([cmd, name]) => cmd === 'event' && name === 'page_view');
+    const pageViews = dataLayerEntries().filter(([cmd, name]) => cmd === 'event' && name === 'page_view');
     expect(pageViews).toHaveLength(0);
   });
 
@@ -152,7 +170,7 @@ describe('analytics', () => {
     trackPageView('http://evil.com/leak');
     trackPageView('https://evil.com/leak');
 
-    const pageViews = (window.dataLayer ?? []).filter(([cmd, name]) => cmd === 'event' && name === 'page_view');
+    const pageViews = dataLayerEntries().filter(([cmd, name]) => cmd === 'event' && name === 'page_view');
     expect(pageViews).toHaveLength(0);
   });
 
@@ -166,7 +184,7 @@ describe('analytics', () => {
     trackPageView('/result/MINB');
     trackPageView('/result/MINB');
 
-    const pageViews = (window.dataLayer ?? []).filter(([cmd, name]) => cmd === 'event' && name === 'page_view');
+    const pageViews = dataLayerEntries().filter(([cmd, name]) => cmd === 'event' && name === 'page_view');
     expect(pageViews).toHaveLength(2);
     expect(pageViews[0][2]).toMatchObject({ page_path: '/quiz' });
     expect(pageViews[1][2]).toMatchObject({ page_path: '/result/MINB' });
