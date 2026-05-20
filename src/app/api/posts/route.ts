@@ -6,7 +6,11 @@ import { adminDb } from "@/lib/firebase/admin";
 import { COL } from "@/lib/firebase/schema";
 import { requireDbUser } from "@/lib/auth";
 import { listPosts, type PostSort } from "@/lib/posts";
-import { isValidBoardSlug, DEFAULT_BOARD_SLUG } from "@/lib/boards";
+import {
+  isValidBoardSlug,
+  isWritableBoardSlug,
+  DEFAULT_BOARD_SLUG,
+} from "@/lib/boards";
 
 const createSchema = z.object({
   title: z.string().min(1).max(200),
@@ -36,7 +40,7 @@ export async function POST(req: Request) {
 
   const id = nanoid(12);
   const now = FieldValue.serverTimestamp();
-  const boardId = isValidBoardSlug(parsed.data.boardId)
+  const boardId = isWritableBoardSlug(parsed.data.boardId)
     ? parsed.data.boardId!
     : DEFAULT_BOARD_SLUG;
   const anonymous = parsed.data.anonymous === true;

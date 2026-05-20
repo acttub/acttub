@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { listPosts, type PostSort } from "@/lib/posts";
 import { getCurrentDbUser } from "@/lib/auth";
-import { BOARDS, getBoard, isValidBoardSlug } from "@/lib/boards";
+import { BOARDS, HOT_BOARD, getBoard, isValidBoardSlug } from "@/lib/boards";
 import { PostCard } from "@/components/post-card";
 import { SiteSidebar } from "@/components/site-sidebar";
 import { BoardTabs } from "@/components/board-tabs";
@@ -65,33 +65,41 @@ export default async function HomePage({
           )}
         </div>
 
-        <div className="sticky top-14 z-20 border-b border-border bg-background/90 backdrop-blur lg:rounded-t-xl">
-          <div className="flex items-center">
-            <Link href={newSort} className={tabClass(safeSort === "new")}>
-              최신
-              {safeSort === "new" && (
-                <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
-              )}
-            </Link>
-            <Link href={topSort} className={tabClass(safeSort === "top")}>
-              인기
-              {safeSort === "top" && (
-                <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
-              )}
-            </Link>
+        {safeBoard !== HOT_BOARD.slug && (
+          <div className="sticky top-14 z-20 border-b border-border bg-background/90 backdrop-blur lg:rounded-t-xl">
+            <div className="flex items-center">
+              <Link href={newSort} className={tabClass(safeSort === "new")}>
+                최신
+                {safeSort === "new" && (
+                  <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
+                )}
+              </Link>
+              <Link href={topSort} className={tabClass(safeSort === "top")}>
+                인기
+                {safeSort === "top" && (
+                  <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
+                )}
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
 
         {items.length === 0 ? (
           <div className="px-4 py-20 text-center text-sm text-muted-foreground">
-            {activeBoard
-              ? `아직 ${activeBoard.name} 글이 없어요. 첫 글을 써보세요.`
-              : "아직 글이 없어요. 첫 글을 써보세요."}
+            {safeBoard === HOT_BOARD.slug
+              ? "추천 10개 이상의 인기글이 모이는 곳이에요. 아직 비어있네요."
+              : activeBoard
+                ? `아직 ${activeBoard.name} 글이 없어요. 첫 글을 써보세요.`
+                : "아직 글이 없어요. 첫 글을 써보세요."}
           </div>
         ) : (
           <ul className="divide-y-0">
             {items.map((p) => (
-              <PostCard key={p.id} post={p} showBoard={safeBoard === null} />
+              <PostCard
+                key={p.id}
+                post={p}
+                showBoard={safeBoard === null || safeBoard === HOT_BOARD.slug}
+              />
             ))}
           </ul>
         )}
@@ -119,7 +127,11 @@ export default async function HomePage({
 
       {me && (
         <Link
-          href={safeBoard ? `/new?board=${safeBoard}` : "/new"}
+          href={
+            safeBoard && safeBoard !== HOT_BOARD.slug
+              ? `/new?board=${safeBoard}`
+              : "/new"
+          }
           className="fixed bottom-6 right-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 sm:bottom-10 sm:right-10"
           aria-label="글쓰기"
         >

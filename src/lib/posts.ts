@@ -6,7 +6,11 @@ import {
   type AuthorSnapshot,
   type PostDoc,
 } from "@/lib/firebase/schema";
-import { isValidBoardSlug } from "@/lib/boards";
+import {
+  HOT_BOARD,
+  HOT_THRESHOLD,
+  isWritableBoardSlug,
+} from "@/lib/boards";
 
 export type PostAuthor = AuthorSnapshot;
 
@@ -60,14 +64,25 @@ export async function listPosts(
   } = opts;
   const db = adminDb();
 
+  const isHot = boardId === HOT_BOARD.slug;
   let q: Query = db.collection(COL.posts).where("deletedAt", "==", null);
-  if (boardId && isValidBoardSlug(boardId)) {
-    q = q.where("boardId", "==", boardId);
+
+  if (isHot) {
+    // Best board: aggregate highly-voted posts across all boards.
+    // Always score-desc — reuses the (deletedAt, score, createdAt) composite index.
+    q = q
+      .where("score", ">=", HOT_THRESHOLD)
+      .orderBy("score", "desc")
+      .orderBy("createdAt", "desc");
+  } else {
+    if (boardId && isWritableBoardSlug(boardId)) {
+      q = q.where("boardId", "==", boardId);
+    }
+    q =
+      sort === "top"
+        ? q.orderBy("score", "desc").orderBy("createdAt", "desc")
+        : q.orderBy("createdAt", "desc");
   }
-  q =
-    sort === "top"
-      ? q.orderBy("score", "desc").orderBy("createdAt", "desc")
-      : q.orderBy("createdAt", "desc");
   q = q.offset(offset).limit(limit);
 
   const snap = await q.get();
