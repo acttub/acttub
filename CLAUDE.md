@@ -80,12 +80,10 @@ to this project.
 - `npm audit` currently reports 2 moderate vulnerabilities from the dependency tree. No fix was applied because `npm audit fix --force` may introduce breaking changes.
 - The recommendation data is hardcoded sample data in `src/components/recommendation-tool.tsx`. Replace with real show data/API later.
 - The app currently has no auth, database, ticketing integration, or admin flow.
-- The local Git repo has been initialized on `main`, but no commit or remote has been created yet.
 
 ## Recommended Next Work
 
-1. Create the GitHub repo under `acttub/thea` and add it as `origin`.
-2. Decide whether recommendations should come from a static curated list, DB, or external 공연 API.
-3. Add detail pages for recommended plays if real inventory is available.
-4. Add analytics for selected preferences and clicked recommendations.
-5. Wire Vercel deployment with `NEXT_PUBLIC_BASE_PATH=thea`.
+1. Decide whether recommendations should come from a static curated list, DB, or external 공연 API.
+2. Add detail pages for recommended plays if real inventory is available.
+3. Add analytics for selected preferences and clicked recommendations.
+4. Wire Vercel deployment with `NEXT_PUBLIC_BASE_PATH=thea`.
