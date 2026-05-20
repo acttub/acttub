@@ -23,6 +23,7 @@ describe('analytics', () => {
   });
 
   it('does not load Google Analytics when the measurement ID is missing', async () => {
+    vi.stubEnv('VITE_GA_MEASUREMENT_ID', '');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();

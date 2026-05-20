@@ -40,7 +40,10 @@ export function initAnalytics(): void {
   if (window.gtag) return;
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(..._args: GtagCommand) {
+  window.gtag = function gtag(...args: GtagCommand) {
+    void args;
+    // gtag.js queues the native arguments object; tests assert this runtime shape.
+    // eslint-disable-next-line prefer-rest-params
     window.dataLayer?.push(arguments);
   };
   window.gtag('js', new Date());
