@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Home } from "lucide-react";
-import { BOARDS } from "@/lib/boards";
+import { BOARDS, HOT_BOARD } from "@/lib/boards";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -17,6 +17,12 @@ export function SiteSidebar({ currentBoard }: Props) {
             icon={<Home className="h-4 w-4" />}
             label="홈"
             active={currentBoard === null}
+          />
+          <SidebarLink
+            href={`/?board=${HOT_BOARD.slug}`}
+            icon={<span aria-hidden>{HOT_BOARD.emoji}</span>}
+            label={HOT_BOARD.name}
+            active={currentBoard === HOT_BOARD.slug}
           />
         </div>
         <div className="space-y-0.5">

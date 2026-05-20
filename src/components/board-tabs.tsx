@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BOARDS } from "@/lib/boards";
+import { BOARDS, HOT_BOARD } from "@/lib/boards";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -11,6 +11,11 @@ export function BoardTabs({ currentBoard }: Props) {
     <div className="border-b border-border lg:hidden">
       <nav className="flex gap-1 overflow-x-auto px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Tab href="/" label="홈" active={currentBoard === null} />
+        <Tab
+          href={`/?board=${HOT_BOARD.slug}`}
+          label={`${HOT_BOARD.emoji} ${HOT_BOARD.name}`}
+          active={currentBoard === HOT_BOARD.slug}
+        />
         {BOARDS.map((b) => (
           <Tab
             key={b.slug}

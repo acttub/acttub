@@ -97,6 +97,7 @@ export default async function PostPage({
 
         <CommentThread
           postId={post.id}
+          postAuthorId={post.author.id}
           initialComments={commentList}
           currentUserId={me?.id ?? null}
         />

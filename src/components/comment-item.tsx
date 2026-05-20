@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CommentForm } from "./comment-form";
 import { VoteButton } from "./vote-button";
-import { formatRelative } from "@/lib/utils";
+import { cn, formatRelative } from "@/lib/utils";
 import { apiUrl } from "@/lib/api";
 import type { CommentRow } from "@/lib/comments";
 
@@ -19,6 +19,7 @@ type Props = {
   replies: CommentRow[];
   byParent: Map<string | null, CommentRow[]>;
   currentUserId: string | null;
+  anonymousLabels: Map<string, string>;
   depth: number;
 };
 
@@ -27,6 +28,7 @@ export function CommentItem({
   replies,
   byParent,
   currentUserId,
+  anonymousLabels,
   depth,
 }: Props) {
   const router = useRouter();
@@ -38,6 +40,11 @@ export function CommentItem({
   const isOwner = currentUserId !== null && currentUserId === comment.author.id;
   const isDeleted = comment.deletedAt !== null;
   const signedIn = currentUserId !== null;
+
+  const anonymousLabel = comment.anonymous
+    ? anonymousLabels.get(comment.author.id) ?? "익명"
+    : null;
+  const isAuthorBadge = anonymousLabel === "작성자";
 
   const saveEdit = () => {
     const trimmed = editBody.trim();
@@ -70,7 +77,6 @@ export function CommentItem({
   };
 
   const indentClass = depth === 0 ? "" : "border-l-2 border-border pl-3 ml-1";
-  const displayName = comment.anonymous ? "익명" : comment.author.displayName;
 
   return (
     <li className={indentClass}>
@@ -79,16 +85,21 @@ export function CommentItem({
           {isDeleted ? (
             <span>[삭제됨]</span>
           ) : comment.anonymous ? (
-            <span className="font-medium text-foreground/70">익명</span>
+            <span
+              className={cn(
+                "font-medium",
+                isAuthorBadge ? "text-primary" : "text-foreground/70",
+              )}
+            >
+              {anonymousLabel}
+            </span>
           ) : (
-            <>
-              <Link
-                href={`/u/${comment.author.username}`}
-                className="font-medium text-foreground hover:underline"
-              >
-                {displayName}
-              </Link>
-            </>
+            <Link
+              href={`/u/${comment.author.username}`}
+              className="font-medium text-foreground hover:underline"
+            >
+              {comment.author.displayName}
+            </Link>
           )}
           {!isDeleted && (
             <>
@@ -198,6 +209,7 @@ export function CommentItem({
               replies={byParent.get(child.id) ?? []}
               byParent={byParent}
               currentUserId={currentUserId}
+              anonymousLabels={anonymousLabels}
               depth={depth + 1}
             />
           ))}
