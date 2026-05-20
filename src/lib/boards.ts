@@ -3,16 +3,21 @@ export type Board = {
   name: string;
   emoji: string;
   description: string;
+  /** When true, all posts in this board are forced to be anonymous. */
+  alwaysAnonymous?: boolean;
 };
 
 /** Writable boards — users can create posts in these. */
 export const BOARDS: readonly Board[] = [
-  { slug: "free", name: "자유", emoji: "💬", description: "편하게 이야기 나누는 곳" },
-  { slug: "info", name: "정보", emoji: "📢", description: "오디션·작업·교육 정보" },
-  { slug: "qna", name: "질문", emoji: "❓", description: "선배 배우에게 묻기" },
-  { slug: "review", name: "후기", emoji: "📝", description: "현장·오디션 후기" },
-  { slug: "recruit", name: "모집", emoji: "🎯", description: "팀·작품 모집 공고" },
-  { slug: "cheer", name: "응원", emoji: "👏", description: "서로 응원하고 칭찬" },
+  { slug: "free", name: "자유게시판", emoji: "💬", description: "편하게 이야기 나누는 곳" },
+  {
+    slug: "secret",
+    name: "비밀게시판",
+    emoji: "🤫",
+    description: "익명으로만 올라가는 솔직한 공간",
+    alwaysAnonymous: true,
+  },
+  { slug: "promo", name: "홍보게시판", emoji: "📣", description: "활동·채널·작업 홍보" },
 ] as const;
 
 /** Virtual board that aggregates highly-voted posts across all boards. */
@@ -41,4 +46,9 @@ export function isValidBoardSlug(slug: string | undefined | null): boolean {
 export function isWritableBoardSlug(slug: string | undefined | null): boolean {
   if (!slug) return false;
   return BOARDS.some((b) => b.slug === slug);
+}
+
+export function isAlwaysAnonymousBoard(slug: string | undefined | null): boolean {
+  const b = getBoard(slug);
+  return b?.alwaysAnonymous === true;
 }

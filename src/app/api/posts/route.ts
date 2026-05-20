@@ -9,6 +9,7 @@ import { listPosts, type PostSort } from "@/lib/posts";
 import {
   isValidBoardSlug,
   isWritableBoardSlug,
+  isAlwaysAnonymousBoard,
   DEFAULT_BOARD_SLUG,
 } from "@/lib/boards";
 
@@ -43,7 +44,9 @@ export async function POST(req: Request) {
   const boardId = isWritableBoardSlug(parsed.data.boardId)
     ? parsed.data.boardId!
     : DEFAULT_BOARD_SLUG;
-  const anonymous = parsed.data.anonymous === true;
+  // Secret board forces anonymous regardless of client input.
+  const anonymous =
+    isAlwaysAnonymousBoard(boardId) || parsed.data.anonymous === true;
 
   await adminDb()
     .collection(COL.posts)

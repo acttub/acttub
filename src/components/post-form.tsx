@@ -11,7 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { apiUrl } from "@/lib/api";
-import { BOARDS, DEFAULT_BOARD_SLUG } from "@/lib/boards";
+import {
+  BOARDS,
+  DEFAULT_BOARD_SLUG,
+  isAlwaysAnonymousBoard,
+} from "@/lib/boards";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -32,7 +36,11 @@ export function PostForm({ initial, initialBoard }: Props) {
   const [boardId, setBoardId] = useState<string>(
     initial?.boardId ?? initialBoard ?? DEFAULT_BOARD_SLUG,
   );
-  const [anonymous, setAnonymous] = useState<boolean>(initial?.anonymous ?? false);
+  const [anonymousChoice, setAnonymousChoice] = useState<boolean>(
+    initial?.anonymous ?? false,
+  );
+  const boardLocksAnonymous = isAlwaysAnonymousBoard(boardId);
+  const anonymous = boardLocksAnonymous ? true : anonymousChoice;
 
   const {
     register,
@@ -113,18 +121,24 @@ export function PostForm({ initial, initialBoard }: Props) {
       </div>
 
       {/* Anonymous toggle */}
-      <label className="flex items-center gap-2 text-sm text-muted-foreground select-none">
-        <input
-          type="checkbox"
-          checked={anonymous}
-          onChange={(e) => setAnonymous(e.target.checked)}
-          className="h-4 w-4 rounded border-border accent-primary"
-        />
-        <span>익명으로 작성</span>
-        <span className="text-xs text-muted-foreground/70">
-          (작성자가 ‘익명’으로 표시됩니다)
-        </span>
-      </label>
+      {boardLocksAnonymous ? (
+        <p className="text-xs text-muted-foreground">
+          🤫 비밀게시판은 항상 익명으로 올라가요.
+        </p>
+      ) : (
+        <label className="flex items-center gap-2 text-sm text-muted-foreground select-none">
+          <input
+            type="checkbox"
+            checked={anonymousChoice}
+            onChange={(e) => setAnonymousChoice(e.target.checked)}
+            className="h-4 w-4 rounded border-border accent-primary"
+          />
+          <span>익명으로 작성</span>
+          <span className="text-xs text-muted-foreground/70">
+            (작성자가 ‘익명’으로 표시됩니다)
+          </span>
+        </label>
+      )}
 
       <div className="flex justify-end gap-2 border-t border-border pt-4">
         <Button
