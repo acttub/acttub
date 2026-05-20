@@ -32,7 +32,7 @@ export function CommentCard({ comment }: { comment: MyCommentRow }) {
             comment.score < 0 && "text-destructive",
           )}
         >
-          ▲ {comment.score}
+          {comment.score < 0 ? "▼" : "▲"} {Math.abs(comment.score)}
         </span>
       </div>
     </div>
