@@ -7,10 +7,14 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "acttub 커뮤니티",
-    template: "%s · acttub 커뮤니티",
+    default: "acttub 게시판",
+    template: "%s · acttub 게시판",
   },
   description: "배우들이 이야기 나누는 곳",
+  icons: {
+    icon: "/community/icon",
+    apple: "/community/apple-icon",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -21,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-            acttub · 배우들의 커뮤니티
+            acttub · 배우들의 게시판
           </footer>
           <Toaster richColors closeButton position="top-center" />
         </body>
