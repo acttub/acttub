@@ -12,11 +12,11 @@ export const metadata = { title: "내 활동" };
 
 type Tab = "posts" | "comments" | "likes";
 
-const TAB_META: Record<Tab, { label: string; emptyMessage: string }> = {
-  posts: { label: "내 글", emptyMessage: "아직 쓴 글이 없어요." },
-  comments: { label: "내 댓글", emptyMessage: "아직 남긴 댓글이 없어요." },
-  likes: { label: "좋아요", emptyMessage: "추천한 글이 없어요." },
-};
+const TABS: { key: Tab; label: string; emptyMessage: string }[] = [
+  { key: "posts", label: "내 글", emptyMessage: "아직 쓴 글이 없어요." },
+  { key: "comments", label: "내 댓글", emptyMessage: "아직 남긴 댓글이 없어요." },
+  { key: "likes", label: "좋아요", emptyMessage: "추천한 글이 없어요." },
+];
 
 export default async function MePage({
   searchParams,
@@ -36,7 +36,7 @@ export default async function MePage({
     tab === "likes" ? listMyLikedPosts(me.id) : Promise.resolve([]),
   ]);
 
-  const meta = TAB_META[tab];
+  const meta = TABS.find((t) => t.key === tab)!;
 
   const tabClass = (active: boolean) =>
     cn(
@@ -62,24 +62,18 @@ export default async function MePage({
 
         <div className="sticky top-14 z-20 border-b border-border bg-background/90 backdrop-blur lg:rounded-t-xl">
           <div className="flex items-center">
-            <Link href="/me?tab=posts" className={tabClass(tab === "posts")}>
-              내 글
-              {tab === "posts" && (
-                <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
-              )}
-            </Link>
-            <Link href="/me?tab=comments" className={tabClass(tab === "comments")}>
-              내 댓글
-              {tab === "comments" && (
-                <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
-              )}
-            </Link>
-            <Link href="/me?tab=likes" className={tabClass(tab === "likes")}>
-              좋아요
-              {tab === "likes" && (
-                <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
-              )}
-            </Link>
+            {TABS.map((t) => (
+              <Link
+                key={t.key}
+                href={`/me?tab=${t.key}`}
+                className={tabClass(tab === t.key)}
+              >
+                {t.label}
+                {tab === t.key && (
+                  <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary" />
+                )}
+              </Link>
+            ))}
           </div>
         </div>
 
