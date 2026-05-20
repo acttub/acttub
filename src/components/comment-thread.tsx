@@ -22,6 +22,7 @@ type ClientCommentDoc = {
   parentId: string | null;
   authorId: string;
   author: AuthorSnapshot;
+  anonymous?: boolean;
   body: string;
   score: number;
   createdAt: Timestamp | null;
@@ -58,6 +59,7 @@ export function CommentThread({ postId, initialComments, currentUserId }: Props)
           createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
           deletedAt: data.deletedAt ? data.deletedAt.toDate() : null,
           author: data.author,
+          anonymous: data.anonymous === true,
           myVote: myVoteMap.get(d.id) ?? 0,
         };
       });

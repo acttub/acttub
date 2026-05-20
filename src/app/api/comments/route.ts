@@ -9,6 +9,7 @@ const createSchema = z.object({
   postId: z.string().min(1),
   parentId: z.string().nullable().optional(),
   body: z.string().min(1).max(10000),
+  anonymous: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error.message }, { status: 400 });
   }
 
-  const { postId, parentId, body } = parsed.data;
+  const { postId, parentId, body, anonymous } = parsed.data;
   const db = adminDb();
   const commentRef = db.collection(COL.comments).doc();
   const postRef = db.collection(COL.posts).doc(postId);
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
           displayName: user.displayName,
           avatarUrl: user.avatarUrl,
         },
+        anonymous: anonymous === true,
         body,
         score: 0,
         createdAt: FieldValue.serverTimestamp(),

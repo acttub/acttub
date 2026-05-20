@@ -3,12 +3,20 @@ import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { auth } from "@clerk/nextjs/server";
 import { PostForm } from "@/components/post-form";
+import { isValidBoardSlug, DEFAULT_BOARD_SLUG } from "@/lib/boards";
 
 export const metadata = { title: "새 글" };
 
-export default async function NewPostPage() {
+export default async function NewPostPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ board?: string }>;
+}) {
   const { userId } = await auth();
   if (!userId) redirect("/");
+
+  const { board } = await searchParams;
+  const initialBoard = isValidBoardSlug(board) ? (board as string) : DEFAULT_BOARD_SLUG;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -22,7 +30,7 @@ export default async function NewPostPage() {
         </Link>
         <h1 className="text-lg font-semibold">새 글</h1>
       </div>
-      <PostForm />
+      <PostForm initialBoard={initialBoard} />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { VoteButton } from "@/components/vote-button";
 import { getPost } from "@/lib/posts";
 import { listComments } from "@/lib/comments";
 import { getCurrentDbUser } from "@/lib/auth";
+import { getBoard } from "@/lib/boards";
 import { formatRelative } from "@/lib/utils";
 
 export default async function PostPage({
@@ -25,19 +26,34 @@ export default async function PostPage({
 
   const isOwner = me?.id === post.author.id;
   const liveCount = commentList.filter((c) => c.deletedAt === null).length;
+  const board = getBoard(post.boardId);
+  const authorName = post.anonymous ? "익명" : post.author.displayName;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
       <article className="space-y-4">
+        {board && (
+          <Link
+            href={`/?board=${board.slug}`}
+            className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-foreground/70 hover:bg-secondary/80"
+          >
+            <span aria-hidden>{board.emoji}</span>
+            {board.name}
+          </Link>
+        )}
         <header className="space-y-3">
           <h1 className="text-2xl font-bold leading-tight">{post.title}</h1>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Link
-              href={`/u/${post.author.username}`}
-              className="font-medium text-foreground/80 hover:text-foreground"
-            >
-              {post.author.displayName}
-            </Link>
+            {post.anonymous ? (
+              <span className="font-medium text-foreground/80">익명</span>
+            ) : (
+              <Link
+                href={`/u/${post.author.username}`}
+                className="font-medium text-foreground/80 hover:text-foreground"
+              >
+                {authorName}
+              </Link>
+            )}
             <span aria-hidden>·</span>
             <time>{formatRelative(post.createdAt)}</time>
             {isOwner && (

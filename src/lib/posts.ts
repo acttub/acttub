@@ -6,11 +6,13 @@ import {
   type AuthorSnapshot,
   type PostDoc,
 } from "@/lib/firebase/schema";
+import { isValidBoardSlug } from "@/lib/boards";
 
 export type PostAuthor = AuthorSnapshot;
 
 export type PostWithAuthor = {
   id: string;
+  boardId: string;
   title: string;
   body: string;
   score: number;
@@ -18,6 +20,7 @@ export type PostWithAuthor = {
   createdAt: Date;
   updatedAt: Date;
   author: PostAuthor;
+  anonymous: boolean;
   myVote: number;
 };
 
@@ -26,6 +29,7 @@ export type PostSort = "new" | "top";
 function toPost(id: string, d: PostDoc, myVote: number): PostWithAuthor {
   return {
     id,
+    boardId: d.boardId ?? "free",
     title: d.title,
     body: d.body,
     score: d.score,
@@ -33,6 +37,7 @@ function toPost(id: string, d: PostDoc, myVote: number): PostWithAuthor {
     createdAt: d.createdAt.toDate(),
     updatedAt: d.updatedAt.toDate(),
     author: d.author,
+    anonymous: d.anonymous === true,
     myVote,
   };
 }
@@ -43,12 +48,22 @@ export async function listPosts(
     limit?: number;
     offset?: number;
     currentUserId?: string | null;
+    boardId?: string | null;
   } = {},
 ): Promise<PostWithAuthor[]> {
-  const { sort = "new", limit = 30, offset = 0, currentUserId = null } = opts;
+  const {
+    sort = "new",
+    limit = 30,
+    offset = 0,
+    currentUserId = null,
+    boardId = null,
+  } = opts;
   const db = adminDb();
 
   let q: Query = db.collection(COL.posts).where("deletedAt", "==", null);
+  if (boardId && isValidBoardSlug(boardId)) {
+    q = q.where("boardId", "==", boardId);
+  }
   q =
     sort === "top"
       ? q.orderBy("score", "desc").orderBy("createdAt", "desc")
