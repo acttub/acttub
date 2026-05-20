@@ -1,0 +1,26 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 모든 쓰기는 Admin SDK 경유 (API 라우트). 클라이언트는 읽기 전용 onSnapshot 만 허용.
+    match /posts/{postId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /comments/{commentId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    // 투표는 클라이언트가 못 봄 (남의 vote 노출 방지). 본인 투표 상태는 서버에서 join 해서 내려옴.
+    match /post_votes/{voteId} {
+      allow read, write: if false;
+    }
+    match /comment_votes/{voteId} {
+      allow read, write: if false;
+    }
+  }
+}
