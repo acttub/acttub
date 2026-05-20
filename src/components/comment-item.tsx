@@ -70,6 +70,7 @@ export function CommentItem({
   };
 
   const indentClass = depth === 0 ? "" : "border-l-2 border-border pl-3 ml-1";
+  const displayName = comment.anonymous ? "익명" : comment.author.displayName;
 
   return (
     <li className={indentClass}>
@@ -77,14 +78,20 @@ export function CommentItem({
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           {isDeleted ? (
             <span>[삭제됨]</span>
+          ) : comment.anonymous ? (
+            <span className="font-medium text-foreground/70">익명</span>
           ) : (
             <>
               <Link
                 href={`/u/${comment.author.username}`}
                 className="font-medium text-foreground hover:underline"
               >
-                {comment.author.displayName}
+                {displayName}
               </Link>
+            </>
+          )}
+          {!isDeleted && (
+            <>
               <span aria-hidden>·</span>
               <time>{formatRelative(comment.createdAt)}</time>
             </>

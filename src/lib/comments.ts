@@ -17,6 +17,7 @@ export type CommentRow = {
   createdAt: Date;
   deletedAt: Date | null;
   author: CommentAuthor;
+  anonymous: boolean;
   myVote: number;
 };
 
@@ -57,6 +58,7 @@ export async function listComments(
       createdAt: data.createdAt.toDate(),
       deletedAt: data.deletedAt ? data.deletedAt.toDate() : null,
       author: data.author,
+      anonymous: data.anonymous === true,
       myVote: myVotes.get(d.id) ?? 0,
     };
   });

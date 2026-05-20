@@ -26,8 +26,10 @@ export type UserDoc = {
 
 export type PostDoc = {
   id: string;
+  boardId: string;
   authorId: string;
   author: AuthorSnapshot;
+  anonymous: boolean;
   title: string;
   body: string;
   score: number;
@@ -42,6 +44,7 @@ export type CommentDoc = {
   parentId: string | null;
   authorId: string;
   author: AuthorSnapshot;
+  anonymous: boolean;
   body: string;
   score: number;
   createdAt: Timestamplike;
@@ -55,3 +58,10 @@ export function postVoteId(userId: string, postId: string): string {
 export function commentVoteId(userId: string, commentId: string): string {
   return `${userId}_${commentId}`;
 }
+
+export const ANONYMOUS_AUTHOR: AuthorSnapshot = {
+  id: "anonymous",
+  username: "anonymous",
+  displayName: "익명",
+  avatarUrl: null,
+};
