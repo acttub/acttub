@@ -6,10 +6,17 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
-        <Link href="/" className="text-base font-semibold tracking-tight">
-          <span className="text-muted-foreground">acttub</span>
-          <span className="mx-1 text-muted-foreground">/</span>
-          <span>커뮤니티</span>
+        <Link
+          href="/"
+          className="group flex items-center gap-2.5"
+          aria-label="게시판 홈"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-[15px] font-bold leading-none text-primary-foreground transition-transform group-hover:-rotate-6">
+            a
+          </span>
+          <span className="text-[17px] font-bold tracking-tight text-foreground">
+            게시판
+          </span>
         </Link>
         <div className="flex items-center gap-2">
           <Show when="signed-in">
