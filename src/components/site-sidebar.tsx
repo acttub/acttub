@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Home } from "lucide-react";
+import { Home, MessageSquare, FileText, Heart } from "lucide-react";
+import { Show } from "@clerk/nextjs";
 import { BOARDS, HOT_BOARD } from "@/lib/boards";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,31 @@ export function SiteSidebar({ currentBoard }: Props) {
             />
           ))}
         </div>
+        <Show when="signed-in">
+          <div className="space-y-0.5">
+            <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              내 활동
+            </p>
+            <SidebarLink
+              href="/me?tab=posts"
+              icon={<FileText className="h-4 w-4" />}
+              label="내 글"
+              active={false}
+            />
+            <SidebarLink
+              href="/me?tab=comments"
+              icon={<MessageSquare className="h-4 w-4" />}
+              label="내 댓글"
+              active={false}
+            />
+            <SidebarLink
+              href="/me?tab=likes"
+              icon={<Heart className="h-4 w-4" />}
+              label="좋아요"
+              active={false}
+            />
+          </div>
+        </Show>
       </nav>
     </aside>
   );
