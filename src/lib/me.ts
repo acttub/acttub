@@ -12,7 +12,12 @@ export type MyCommentRow = CommentRow & {
   postExists: boolean;
 };
 
-function toPostBasic(id: string, d: PostDoc, myVote: number): PostWithAuthor {
+function toPostBasic(
+  id: string,
+  d: PostDoc,
+  myVote: number,
+  isBookmarked = false,
+): PostWithAuthor {
   return {
     id,
     boardId: d.boardId ?? "free",
@@ -25,6 +30,7 @@ function toPostBasic(id: string, d: PostDoc, myVote: number): PostWithAuthor {
     author: d.author,
     anonymous: d.anonymous === true,
     myVote,
+    isBookmarked,
   };
 }
 
@@ -40,7 +46,7 @@ export async function listMyPosts(
     .orderBy("createdAt", "desc")
     .limit(limit)
     .get();
-  return snap.docs.map((d) => toPostBasic(d.id, d.data() as PostDoc, 0));
+  return snap.docs.map((d) => toPostBasic(d.id, d.data() as PostDoc, 0, false));
 }
 
 export async function listMyComments(
@@ -98,6 +104,36 @@ export async function listMyComments(
   });
 }
 
+export async function listMyBookmarks(
+  userId: string,
+  limit = 50,
+): Promise<PostWithAuthor[]> {
+  const db = adminDb();
+  const bmSnap = await db
+    .collection(COL.bookmarks)
+    .where("userId", "==", userId)
+    .orderBy("createdAt", "desc")
+    .limit(limit)
+    .get();
+
+  if (bmSnap.empty) return [];
+
+  const postIds = bmSnap.docs.map(
+    (d) => (d.data() as { postId: string }).postId,
+  );
+  const postRefs = postIds.map((id) => db.collection(COL.posts).doc(id));
+  const postSnaps = await db.getAll(...postRefs);
+
+  const out: PostWithAuthor[] = [];
+  postSnaps.forEach((p) => {
+    if (!p.exists) return;
+    const data = p.data() as PostDoc;
+    if (data.deletedAt !== null) return;
+    out.push(toPostBasic(p.id, data, 0, true));
+  });
+  return out;
+}
+
 export async function listMyLikedPosts(
   userId: string,
   limit = 50,
@@ -122,7 +158,7 @@ export async function listMyLikedPosts(
     if (!p.exists) return;
     const data = p.data() as PostDoc;
     if (data.deletedAt !== null) return;
-    out.push(toPostBasic(p.id, data, 1));
+    out.push(toPostBasic(p.id, data, 1, false));
   });
   return out;
 }

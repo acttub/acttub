@@ -4,7 +4,18 @@ export const COL = {
   comments: "comments",
   postVotes: "post_votes",
   commentVotes: "comment_votes",
+  bookmarks: "bookmarks",
 } as const;
+
+export type BookmarkDoc = {
+  userId: string;
+  postId: string;
+  createdAt: Timestamplike;
+};
+
+export function bookmarkId(userId: string, postId: string): string {
+  return `${userId}_${postId}`;
+}
 
 export type AuthorSnapshot = {
   id: string;

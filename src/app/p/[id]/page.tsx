@@ -5,6 +5,7 @@ import { PostActions } from "@/components/post-actions";
 import { CommentForm } from "@/components/comment-form";
 import { CommentThread } from "@/components/comment-thread";
 import { VoteButton } from "@/components/vote-button";
+import { BookmarkButton } from "@/components/bookmark-button";
 import { getPost } from "@/lib/posts";
 import { listComments } from "@/lib/comments";
 import { getCurrentDbUser } from "@/lib/auth";
@@ -67,7 +68,7 @@ export default async function PostPage({
         <div className="whitespace-pre-wrap py-2 text-[15px] leading-relaxed text-foreground">
           {post.body}
         </div>
-        <div className="flex justify-center pt-2">
+        <div className="flex items-center justify-center gap-2 pt-2">
           <div className="rounded-full border border-border bg-card px-2 py-1 shadow-sm">
             <VoteButton
               kind="post"
@@ -77,6 +78,11 @@ export default async function PostPage({
               signedIn={me !== null}
             />
           </div>
+          <BookmarkButton
+            postId={post.id}
+            initialBookmarked={post.isBookmarked}
+            signedIn={me !== null}
+          />
         </div>
       </article>
 

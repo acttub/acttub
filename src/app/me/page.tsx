@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentDbUser } from "@/lib/auth";
-import { listMyPosts, listMyComments, listMyLikedPosts } from "@/lib/me";
+import {
+  listMyPosts,
+  listMyComments,
+  listMyLikedPosts,
+  listMyBookmarks,
+} from "@/lib/me";
 import { PostCard } from "@/components/post-card";
 import { CommentCard } from "@/components/comment-card";
 import { SiteSidebar } from "@/components/site-sidebar";
@@ -10,12 +15,13 @@ import { cn } from "@/lib/utils";
 
 export const metadata = { title: "내 활동" };
 
-type Tab = "posts" | "comments" | "likes";
+type Tab = "posts" | "comments" | "likes" | "bookmarks";
 
 const TABS: { key: Tab; label: string; emptyMessage: string }[] = [
   { key: "posts", label: "내 글", emptyMessage: "아직 쓴 글이 없어요." },
   { key: "comments", label: "내 댓글", emptyMessage: "아직 남긴 댓글이 없어요." },
   { key: "likes", label: "좋아요", emptyMessage: "추천한 글이 없어요." },
+  { key: "bookmarks", label: "북마크", emptyMessage: "저장한 글이 없어요." },
 ];
 
 export default async function MePage({
@@ -28,12 +34,19 @@ export default async function MePage({
 
   const { tab: rawTab } = await searchParams;
   const tab: Tab =
-    rawTab === "comments" ? "comments" : rawTab === "likes" ? "likes" : "posts";
+    rawTab === "comments"
+      ? "comments"
+      : rawTab === "likes"
+        ? "likes"
+        : rawTab === "bookmarks"
+          ? "bookmarks"
+          : "posts";
 
-  const [posts, comments, likes] = await Promise.all([
+  const [posts, comments, likes, bookmarks] = await Promise.all([
     tab === "posts" ? listMyPosts(me.id) : Promise.resolve([]),
     tab === "comments" ? listMyComments(me.id) : Promise.resolve([]),
     tab === "likes" ? listMyLikedPosts(me.id) : Promise.resolve([]),
+    tab === "bookmarks" ? listMyBookmarks(me.id) : Promise.resolve([]),
   ]);
 
   const meta = TABS.find((t) => t.key === tab)!;
@@ -113,6 +126,20 @@ export default async function MePage({
           ) : (
             <ul>
               {likes.map((p) => (
+                <PostCard key={p.id} post={p} showBoard />
+              ))}
+            </ul>
+          )
+        )}
+
+        {tab === "bookmarks" && (
+          bookmarks.length === 0 ? (
+            <div className="px-4 py-20 text-center text-sm text-muted-foreground">
+              {meta.emptyMessage}
+            </div>
+          ) : (
+            <ul>
+              {bookmarks.map((p) => (
                 <PostCard key={p.id} post={p} showBoard />
               ))}
             </ul>

@@ -3,6 +3,7 @@ import { adminDb } from "@/lib/firebase/admin";
 import {
   COL,
   postVoteId,
+  bookmarkId,
   type AuthorSnapshot,
   type PostDoc,
 } from "@/lib/firebase/schema";
@@ -26,11 +27,17 @@ export type PostWithAuthor = {
   author: PostAuthor;
   anonymous: boolean;
   myVote: number;
+  isBookmarked: boolean;
 };
 
 export type PostSort = "new" | "top";
 
-function toPost(id: string, d: PostDoc, myVote: number): PostWithAuthor {
+function toPost(
+  id: string,
+  d: PostDoc,
+  myVote: number,
+  isBookmarked = false,
+): PostWithAuthor {
   return {
     id,
     boardId: d.boardId ?? "free",
@@ -43,6 +50,7 @@ function toPost(id: string, d: PostDoc, myVote: number): PostWithAuthor {
     author: d.author,
     anonymous: d.anonymous === true,
     myVote,
+    isBookmarked,
   };
 }
 
@@ -169,13 +177,15 @@ export async function getPost(
   if (data.deletedAt !== null) return null;
 
   let myVote = 0;
+  let isBookmarked = false;
   if (currentUserId) {
-    const v = await db
-      .collection(COL.postVotes)
-      .doc(postVoteId(currentUserId, id))
-      .get();
-    if (v.exists) myVote = (v.data() as { value: number }).value;
+    const [voteSnap, bookmarkSnap] = await Promise.all([
+      db.collection(COL.postVotes).doc(postVoteId(currentUserId, id)).get(),
+      db.collection(COL.bookmarks).doc(bookmarkId(currentUserId, id)).get(),
+    ]);
+    if (voteSnap.exists) myVote = (voteSnap.data() as { value: number }).value;
+    if (bookmarkSnap.exists) isBookmarked = true;
   }
 
-  return toPost(id, data, myVote);
+  return toPost(id, data, myVote, isBookmarked);
 }

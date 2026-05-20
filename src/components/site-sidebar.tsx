@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { Home, MessageSquare, FileText, Heart, Search } from "lucide-react";
+import {
+  Home,
+  MessageSquare,
+  FileText,
+  Heart,
+  Search,
+  Bookmark,
+} from "lucide-react";
 import { Show } from "@clerk/nextjs";
 import { BOARDS, HOT_BOARD } from "@/lib/boards";
 import { cn } from "@/lib/utils";
@@ -67,6 +74,12 @@ export function SiteSidebar({ currentBoard }: Props) {
               href="/me?tab=likes"
               icon={<Heart className="h-4 w-4" />}
               label="좋아요"
+              active={false}
+            />
+            <SidebarLink
+              href="/me?tab=bookmarks"
+              icon={<Bookmark className="h-4 w-4" />}
+              label="북마크"
               active={false}
             />
           </div>
