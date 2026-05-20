@@ -4,6 +4,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
 import { COL, type CommentDoc, type PostDoc } from "@/lib/firebase/schema";
 import { requireDbUser } from "@/lib/auth";
+import { isAlwaysAnonymousBoard } from "@/lib/boards";
 
 const createSchema = z.object({
   postId: z.string().min(1),
@@ -41,6 +42,10 @@ export async function POST(req: Request) {
         if (parent.postId !== postId) throw new Error("PARENT_NOT_FOUND");
       }
 
+      // Comments under a secret-board post are forced anonymous.
+      const forceAnon = isAlwaysAnonymousBoard(post.boardId);
+      const effectiveAnonymous = forceAnon || anonymous === true;
+
       tx.set(commentRef, {
         postId,
         parentId: parentId ?? null,
@@ -51,7 +56,7 @@ export async function POST(req: Request) {
           displayName: user.displayName,
           avatarUrl: user.avatarUrl,
         },
-        anonymous: anonymous === true,
+        anonymous: effectiveAnonymous,
         body,
         score: 0,
         createdAt: FieldValue.serverTimestamp(),
