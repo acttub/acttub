@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, MessageSquare, FileText, Heart } from "lucide-react";
+import { Home, MessageSquare, FileText, Heart, Search } from "lucide-react";
 import { Show } from "@clerk/nextjs";
 import { BOARDS, HOT_BOARD } from "@/lib/boards";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,12 @@ export function SiteSidebar({ currentBoard }: Props) {
             icon={<span aria-hidden>{HOT_BOARD.emoji}</span>}
             label={HOT_BOARD.name}
             active={currentBoard === HOT_BOARD.slug}
+          />
+          <SidebarLink
+            href="/search"
+            icon={<Search className="h-4 w-4" />}
+            label="검색"
+            active={false}
           />
         </div>
         <div className="space-y-0.5">

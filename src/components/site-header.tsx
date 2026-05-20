@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 
@@ -18,7 +19,14 @@ export function SiteHeader() {
             게시판
           </span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          <Link
+            href="/search"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            aria-label="검색"
+          >
+            <Search className="h-4 w-4" />
+          </Link>
           <Show when="signed-in">
             <UserButton />
           </Show>
