@@ -4,8 +4,9 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/ACTI", "destination": "/" },
-    { "source": "/ACTI/:path*", "destination": "/:path*" }
+    { "source": "/ACTI", "destination": "/index.html" },
+    { "source": "/ACTI/(assets/.*|favicon\\.svg|icons\\.svg|characters/.*|og/.*)", "destination": "/$1" },
+    { "source": "/ACTI/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
