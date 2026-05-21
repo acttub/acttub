@@ -47,6 +47,15 @@
   gap: var(--space-5);
 }
 
+/* 첫 화면 인트로 */
+.page-survey__intro {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+  font-weight: var(--fw-medium);
+}
+
 .page-survey__label {
   margin: 0;
   color: var(--text-default);

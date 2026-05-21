@@ -6,7 +6,12 @@
  * entryId는 Google Form 응답 제출 시 필요한 `entry.{id}` 필드 번호.
  */
 
-export type SurveyOption = { value: string; label: string };
+export type SurveyOption = {
+  value: string;
+  label: string;
+  /** Google Form 제출 시 보낼 라벨. 미지정이면 `label` 그대로 사용. */
+  submitLabel?: string;
+};
 
 export type SurveyShowIf = { id: string; equals: string };
 
@@ -140,16 +145,32 @@ export const SURVEY_ITEMS: SurveyItem[] = [
   },
   {
     kind: 'radio',
-    id: 'lottery-entry',
+    id: 'future-updates',
     entryId: 1639858588,
-    label: '아래 중 본인에게 해당하는 것을 골라주세요',
+    label: '추후 서비스에 관련된 정보를 받고 싶으신가요?',
     required: true,
     options: [
-      { value: 'lottery-and-beta', label: '추첨에 응모하고, 베타 테스터로도 참여하고 싶습니다' },
-      { value: 'lottery-and-report', label: '추첨에 응모하고, 결과 리포트도 받고 싶습니다 (베타는 사양)' },
-      { value: 'lottery-only', label: '추첨에만 응모하겠습니다' },
-      { value: 'no-entry', label: '응모하지 않겠습니다' },
+      {
+        value: 'yes',
+        label: '예',
+        submitLabel: '추첨에 응모하고, 결과 리포트도 받고 싶습니다 (베타는 사양)',
+      },
+      {
+        value: 'no',
+        label: '아니오',
+        submitLabel: '응모하지 않겠습니다',
+      },
     ],
+  },
+  {
+    kind: 'text',
+    id: 'contact',
+    entryId: 179241963,
+    label: '연락처를 알려주세요 (전화번호 또는 이메일)',
+    required: true,
+    multiline: false,
+    placeholder: '예: 010-0000-0000 또는 name@example.com',
+    showIf: { id: 'future-updates', equals: 'yes' },
   },
 ];
 

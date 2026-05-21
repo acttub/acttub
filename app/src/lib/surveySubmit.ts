@@ -26,12 +26,12 @@ export function buildSurveyParams(answers: SurveyAnswers): URLSearchParams {
     if (item.kind === 'radio') {
       if (typeof v !== 'string' || v.length === 0) continue;
       const opt = item.options.find((o) => o.value === v);
-      if (opt) params.append(entry, opt.label);
+      if (opt) params.append(entry, opt.submitLabel ?? opt.label);
     } else if (item.kind === 'checkbox') {
       if (!Array.isArray(v)) continue;
       for (const code of v) {
         const opt = item.options.find((o) => o.value === code);
-        if (opt) params.append(entry, opt.label);
+        if (opt) params.append(entry, opt.submitLabel ?? opt.label);
       }
     } else {
       // text

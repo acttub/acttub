@@ -75,6 +75,11 @@ export default function SurveyPage() {
   const item = ITEMS[index];
   if (!resultCode || !item) return null;
 
+  const intro =
+    index === 0 ? (
+      <p className="page-survey__intro">결과 확인을 위해 짧은 설문에 응답해주세요.</p>
+    ) : null;
+
   if (item.kind === 'radio') {
     const selected = answers[item.id];
     const handlePick = (val: string) => {
@@ -87,6 +92,7 @@ export default function SurveyPage() {
       <main className="page page-enter page-survey">
         <div className="page-survey__container">
           <section className="page-survey__body" key={item.id}>
+            {intro}
             <h2 className="page-survey__label">
               {item.label}
               {item.required && (
@@ -139,6 +145,7 @@ export default function SurveyPage() {
       <main className="page page-enter page-survey">
         <div className="page-survey__container">
           <section className="page-survey__body" key={item.id}>
+            {intro}
             <h2 className="page-survey__label">
               {item.label}
               {item.required && (
