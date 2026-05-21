@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { Navigation, Plus, Minus } from "lucide-react";
 import { MapPlaceholder } from "./map-placeholder";
@@ -34,6 +35,7 @@ export function MapView({
   activeSlug?: string | null;
   onActiveChange?: (slug: string | null) => void;
 }) {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMap | null>(null);
   const overlaysRef = useRef<Map<string, KakaoCustomOverlay>>(new Map());
@@ -78,7 +80,7 @@ export function MapView({
       el.addEventListener("mouseenter", () => onActiveChange?.(room.slug));
       el.addEventListener("mouseleave", () => onActiveChange?.(null));
       el.addEventListener("click", () => {
-        window.location.href = `/rooms/${room.slug}`;
+        router.push(`/rooms/${room.slug}`);
       });
 
       if (existingOverlay) {
@@ -93,7 +95,7 @@ export function MapView({
       });
       existing.set(room.slug, overlay);
     }
-  }, [sdkReady, rooms, activeSlug, onActiveChange]);
+  }, [sdkReady, rooms, activeSlug, onActiveChange, router]);
 
   if (!appKey) {
     return (
