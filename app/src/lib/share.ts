@@ -5,6 +5,9 @@
 import { toBlob, toPng } from 'html-to-image';
 import type { TypeCode } from '../content/schema';
 
+/** 호스트가 SPA를 `/ACTI/*`에만 마운트하므로 모든 외부 공유/공유 링크는 이 prefix를 가져야 한다. */
+export const BASE_PATH = '/ACTI';
+
 const PNG_OPTIONS = {
   cacheBust: true,
   pixelRatio: 2,
@@ -81,7 +84,7 @@ export async function shareCaptureToInstagram(
 
 /** 결과 URL을 클립보드에 복사. */
 export async function copyResultUrl(code: TypeCode): Promise<void> {
-  const url = `${window.location.origin}/result/${code}`;
+  const url = `${window.location.origin}${BASE_PATH}/result/${code}`;
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(url);
     return;

@@ -6,6 +6,7 @@
  */
 
 import type { TypeContent } from '../content/schema';
+import { BASE_PATH } from './share';
 
 type KakaoSDK = {
   isInitialized: () => boolean;
@@ -39,8 +40,9 @@ export function shareToKakao(type: TypeContent, siteUrl: string): void {
     console.warn('Kakao SDK not ready');
     return;
   }
-  const resultUrl = `${siteUrl}/result/${type.code}`;
-  const imageUrl = `${siteUrl}/og/${type.code}.png`;
+  const appUrl = `${siteUrl}${BASE_PATH}`;
+  const resultUrl = `${appUrl}/result/${type.code}`;
+  const imageUrl = `${appUrl}/og/${type.code}.png`;
 
   window.Kakao.Share.sendDefault({
     objectType: 'feed',
@@ -53,7 +55,7 @@ export function shareToKakao(type: TypeContent, siteUrl: string): void {
     buttons: [
       {
         title: '나도 풀어보기',
-        link: { mobileWebUrl: siteUrl, webUrl: siteUrl },
+        link: { mobileWebUrl: appUrl, webUrl: appUrl },
       },
     ],
   });

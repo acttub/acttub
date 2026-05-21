@@ -7,6 +7,7 @@ import SurveyPage from './pages/SurveyPage';
 import ResultPage from './pages/ResultPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { initAnalytics, trackPageView } from './lib/analytics';
+import { BASE_PATH } from './lib/share';
 
 function AnalyticsTracker() {
   const location = useLocation();
@@ -26,7 +27,7 @@ function AnalyticsTracker() {
 export default function App() {
   return (
     <HelmetProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={BASE_PATH}>
         <AnalyticsTracker />
         <Routes>
           <Route path="/" element={<LandingPage />} />
