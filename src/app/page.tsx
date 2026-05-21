@@ -3,8 +3,11 @@ import Link from "next/link";
 import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
 import { RecommendationTool } from "@/components/recommendation-tool";
 import { Button } from "@/components/ui/button";
+import { getEnrichedPlays } from "@/lib/kopis";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { plays, source } = await getEnrichedPlays();
+
   return (
     <>
       <section className="relative overflow-hidden border-b border-border">
@@ -53,7 +56,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <RecommendationTool />
+      <RecommendationTool plays={plays} source={source} />
     </>
   );
 }

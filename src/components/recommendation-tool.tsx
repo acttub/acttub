@@ -16,23 +16,8 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-type Mood = "light" | "deep" | "romance" | "music" | "experimental";
-type Companion = "alone" | "date" | "friends" | "family";
-type Pace = "calm" | "balanced" | "dynamic";
-
-type Play = {
-  id: string;
-  title: string;
-  venue: string;
-  area: string;
-  pitch: string;
-  tags: string[];
-  moods: Mood[];
-  companions: Companion[];
-  pace: Pace;
-  price: string;
-};
+import type { Mood, Companion, Pace } from "@/data/curation";
+import type { EnrichedPlay } from "@/lib/kopis";
 
 const moods: Array<{ id: Mood; label: string; icon: ElementType }> = [
   { id: "light", label: "가볍게 웃고 싶어요", icon: Laugh },
@@ -55,79 +40,22 @@ const paceOptions: Array<{ id: Pace; label: string }> = [
   { id: "dynamic", label: "빠르게" },
 ];
 
-const plays: Play[] = [
-  {
-    id: "old-letters-night",
-    title: "오래된 편지의 밤",
-    venue: "대학로 소극장 봄",
-    area: "혜화",
-    pitch: "조용한 대화와 섬세한 감정선을 따라가는 2인극. 혼자 봐도 생각할 거리가 남습니다.",
-    tags: ["감성", "2인극", "여운"],
-    moods: ["deep", "romance"],
-    companions: ["alone", "date"],
-    pace: "calm",
-    price: "3만원대",
-  },
-  {
-    id: "after-work-uproar",
-    title: "퇴근 후 대소동",
-    venue: "아트원씨어터",
-    area: "대학로",
-    pitch: "빠른 호흡의 코미디와 직장인 공감 포인트가 강한 작품. 친구와 보기 좋습니다.",
-    tags: ["코미디", "직장인", "빠른 전개"],
-    moods: ["light"],
-    companions: ["friends", "date"],
-    pace: "dynamic",
-    price: "4만원대",
-  },
-  {
-    id: "blue-room-session",
-    title: "블루 룸 세션",
-    venue: "서촌 스테이지",
-    area: "서촌",
-    pitch: "라이브 연주와 독백이 만나는 음악극. 잔잔하지만 무대 밀도가 높습니다.",
-    tags: ["음악극", "라이브", "분위기"],
-    moods: ["music", "deep", "experimental"],
-    companions: ["alone", "date", "friends"],
-    pace: "balanced",
-    price: "5만원대",
-  },
-  {
-    id: "beyond-the-fourth-wall",
-    title: "네 번째 벽 너머",
-    venue: "프로젝트박스 씨어터",
-    area: "성수",
-    pitch: "관객과 배우의 거리를 의도적으로 흔드는 실험적인 무대. 새로운 형식을 찾는 분께 맞습니다.",
-    tags: ["실험극", "몰입형", "성수"],
-    moods: ["experimental"],
-    companions: ["alone", "friends"],
-    pace: "dynamic",
-    price: "3만원대",
-  },
-  {
-    id: "our-family-table",
-    title: "우리 집 식탁",
-    venue: "정동극장 스튜디오",
-    area: "정동",
-    pitch: "세대별 대화가 따뜻하게 이어지는 가족 드라마. 부모님과 함께 보기 편합니다.",
-    tags: ["가족", "따뜻함", "드라마"],
-    moods: ["deep", "light"],
-    companions: ["family", "date"],
-    pace: "balanced",
-    price: "4만원대",
-  },
-];
-
-function scorePlay(play: Play, mood: Mood, companion: Companion, pace: Pace) {
+function scorePlay(play: EnrichedPlay, mood: Mood, companion: Companion, pace: Pace) {
   let score = 0;
   if (play.moods.includes(mood)) score += 4;
   if (play.companions.includes(companion)) score += 3;
   if (play.pace === pace) score += 2;
   else if (play.pace === "balanced") score += 1;
+  if (play.isLive) score += 1;
   return score;
 }
 
-export function RecommendationTool() {
+type Props = {
+  plays: EnrichedPlay[];
+  source: "kopis" | "fallback";
+};
+
+export function RecommendationTool({ plays, source }: Props) {
   const [mood, setMood] = useState<Mood>("deep");
   const [companion, setCompanion] = useState<Companion>("date");
   const [pace, setPace] = useState<Pace>("balanced");
@@ -141,7 +69,7 @@ export function RecommendationTool() {
           return a.title.localeCompare(b.title, "ko");
         })
         .slice(0, 3),
-    [mood, companion, pace],
+    [plays, mood, companion, pace],
   );
 
   return (
@@ -184,6 +112,12 @@ export function RecommendationTool() {
             </div>
           </div>
         </div>
+
+        <p className="mt-6 text-xs leading-5 text-muted-foreground">
+          {source === "kopis"
+            ? "공연 정보는 KOPIS(공연예술통합전산망) 데이터를 매일 갱신해 반영합니다."
+            : "현재 KOPIS 실시간 데이터 연결 전입니다. 큐레이션 작품을 우선 보여드리고 있어요."}
+        </p>
       </div>
 
       <div id="picks" className="space-y-3">
@@ -191,7 +125,14 @@ export function RecommendationTool() {
           <article key={play.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <div className="text-xs font-bold text-primary">추천 {index + 1}</div>
+                <div className="flex items-center gap-2 text-xs font-bold text-primary">
+                  추천 {index + 1}
+                  {play.isLive && (
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      공연중
+                    </span>
+                  )}
+                </div>
                 <h3 className="mt-1 text-xl font-extrabold tracking-tight">{play.title}</h3>
               </div>
               <div className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
@@ -209,11 +150,11 @@ export function RecommendationTool() {
             <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <MapPin className="size-3.5" />
-                {play.area} · {play.venue}
+                {play.area ? `${play.area} · ` : ""}{play.venue}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDays className="size-3.5" />
-                이번 주말 추천
+                {play.period}
               </span>
             </div>
           </article>

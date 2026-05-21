@@ -30,3 +30,5 @@ pnpm-debug.log*
 
 # oh-my-claudecode local state
 /.omc
+
+.vercel

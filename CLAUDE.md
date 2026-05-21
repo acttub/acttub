@@ -17,22 +17,25 @@ The app is scaffolded and working as a static single-page recommendation tool.
 Implemented:
 
 - Hero landing section with generated theater stage image.
-- Interactive client-side recommendation form.
-- Recommendation ranking based on mood, companion, and pacing.
-- Minimal shared UI button component.
+- Interactive recommendation form (mood / companion / pacing).
+- Recommendation ranking against a hybrid play pool: curated metadata + live KOPIS schedule data.
+- Server Component fetch of KOPIS (`prfstate=02`, 서울, 향후 7일) with daily `revalidate` cache.
+- Graceful fallback to curated list when `KOPIS_API_KEY` is unset or the API fails.
 - Header and footer matching acttub branding.
 - Optional `/thea` base path support via environment variable.
 
 Important files:
 
-- `src/app/page.tsx`: Main page and hero.
-- `src/components/recommendation-tool.tsx`: Client recommendation UI and sample play data.
+- `src/app/page.tsx`: Server Component — fetches enriched plays, renders hero, mounts client tool.
+- `src/components/recommendation-tool.tsx`: Client recommendation UI; receives `plays` + `source` via props.
+- `src/data/curation.ts`: Curated play metadata (mood/companion/pace/pitch/tags + KOPIS title-match regex).
+- `src/lib/kopis.ts`: KOPIS Open API client (XML via `fast-xml-parser`) and curation merge logic.
 - `src/components/site-header.tsx`: Header navigation.
 - `src/components/ui/button.tsx`: Local shadcn-style button.
 - `src/app/globals.css`: Design tokens and global styles.
 - `public/theater-hero.png`: Generated hero image used by the page.
 - `next.config.ts`: Enables `basePath: "/thea"` when `NEXT_PUBLIC_BASE_PATH=thea`.
-- `.env.example`: Documents the base path env var.
+- `.env.example`: Documents `NEXT_PUBLIC_BASE_PATH` and `KOPIS_API_KEY`.
 
 ## Commands
 
@@ -78,12 +81,15 @@ to this project.
 ## Known Notes
 
 - `npm audit` currently reports 2 moderate vulnerabilities from the dependency tree. No fix was applied because `npm audit fix --force` may introduce breaking changes.
-- The recommendation data is hardcoded sample data in `src/components/recommendation-tool.tsx`. Replace with real show data/API later.
+- Curated play list lives in `src/data/curation.ts`. Each entry holds a `titleMatch` regex used to attach KOPIS data to the same production across seasons/venues. Add new productions there to expand recommendations.
+- KOPIS responses are XML. Parsed with `fast-xml-parser` and cached for 24h via Next.js `fetch` `revalidate`.
+- When `KOPIS_API_KEY` is missing or KOPIS returns no curation matches, the UI falls back to the curated list with a "공연 일정 확인 필요" period label.
 - The app currently has no auth, database, ticketing integration, or admin flow.
 
 ## Recommended Next Work
 
-1. Decide whether recommendations should come from a static curated list, DB, or external 공연 API.
-2. Add detail pages for recommended plays if real inventory is available.
-3. Add analytics for selected preferences and clicked recommendations.
-4. Wire Vercel deployment with `NEXT_PUBLIC_BASE_PATH=thea`.
+1. Provision `KOPIS_API_KEY` on Vercel so production uses live schedule data.
+2. Expand `src/data/curation.ts` with more curated productions to widen recommendation coverage.
+3. Add detail pages (poster, full description) using KOPIS `pblprfr/{mt20id}` endpoint.
+4. Add analytics for selected preferences and clicked recommendations.
+5. Wire Vercel deployment with `NEXT_PUBLIC_BASE_PATH=thea`.
