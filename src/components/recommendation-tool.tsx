@@ -49,6 +49,7 @@ function scorePlay(play: EnrichedPlay, mood: Mood, companion: Companion, pace: P
   if (play.pace === pace) score += 2;
   else if (play.pace === "balanced") score += 1;
   if (play.isLive) score += 1;
+  if (play.isCurated) score += 2;
   return score;
 }
 

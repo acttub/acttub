@@ -5,6 +5,7 @@ import {
   matchCuration,
   type CurationEntry,
 } from "@/data/curation";
+import { autoTagShow } from "@/lib/auto-tag";
 
 const KOPIS_ENDPOINT = "https://www.kopis.or.kr/openApi/restful/pblprfr";
 
@@ -34,6 +35,7 @@ export type EnrichedPlay = {
   period: string;
   poster: string | null;
   isLive: boolean;
+  isCurated: boolean;
 };
 
 export type KopisDetail = {
@@ -60,10 +62,12 @@ export type KopisDetail = {
 };
 
 export type PlayDetail = {
-  entry: CurationEntry;
+  isCurated: boolean;
+  entry: CurationEntry | null;
   show: KopisShow | null;
   detail: KopisDetail | null;
   displayPeriod: string;
+  title: string;
 };
 
 function toHttps(url: string): string {
@@ -85,6 +89,11 @@ function formatDisplayDate(input: string): string {
     return `${input.slice(0, 4)}.${input.slice(4, 6)}.${input.slice(6, 8)}`;
   }
   return input;
+}
+
+function periodOf(startDate: string, endDate: string): string {
+  if (!startDate && !endDate) return "공연 일정 확인 필요";
+  return `${formatDisplayDate(startDate)} ~ ${formatDisplayDate(endDate)}`;
 }
 
 function pickString(value: unknown): string {
@@ -194,26 +203,6 @@ async function fetchKopisDetail(mt20id: string): Promise<KopisDetail | null> {
   }
 }
 
-export async function getPlayDetail(curationId: string): Promise<PlayDetail | null> {
-  const entry = curation.find((e) => e.id === curationId);
-  if (!entry) return null;
-
-  const shows = await fetchCurrentShows();
-  const show = shows.find((s) => entry.titleMatch.test(s.title)) ?? null;
-  const detail = show ? await fetchKopisDetail(show.id) : null;
-
-  let displayPeriod: string;
-  if (detail) {
-    displayPeriod = `${formatDisplayDate(detail.startDate)} ~ ${formatDisplayDate(detail.endDate)}`;
-  } else if (show) {
-    displayPeriod = `${formatDisplayDate(show.startDate)} ~ ${formatDisplayDate(show.endDate)}`;
-  } else {
-    displayPeriod = "공연 일정 확인 필요";
-  }
-
-  return { entry, show, detail, displayPeriod };
-}
-
 export async function fetchCurrentShows(): Promise<KopisShow[]> {
   const apiKey = process.env.KOPIS_API_KEY;
   if (!apiKey) return [];
@@ -250,77 +239,133 @@ export async function fetchCurrentShows(): Promise<KopisShow[]> {
   return all;
 }
 
+function buildCuratedPlay(entry: CurationEntry, show: KopisShow): EnrichedPlay {
+  return {
+    id: entry.id,
+    title: show.title || entry.title,
+    venue: show.venue || entry.defaultVenue,
+    area: show.area || entry.defaultArea,
+    pitch: entry.pitch,
+    tags: entry.tags,
+    moods: entry.moods,
+    companions: entry.companions,
+    pace: entry.pace,
+    price: entry.priceHint,
+    period: periodOf(show.startDate, show.endDate),
+    poster: show.poster || null,
+    isLive: true,
+    isCurated: true,
+  };
+}
+
+function buildUnmatchedCurationPlay(entry: CurationEntry): EnrichedPlay {
+  return {
+    id: entry.id,
+    title: entry.title,
+    venue: entry.defaultVenue,
+    area: entry.defaultArea,
+    pitch: entry.pitch,
+    tags: entry.tags,
+    moods: entry.moods,
+    companions: entry.companions,
+    pace: entry.pace,
+    price: entry.priceHint,
+    period: "이번 주 공연 없음",
+    poster: null,
+    isLive: false,
+    isCurated: true,
+  };
+}
+
+function buildAutoTaggedPlay(show: KopisShow): EnrichedPlay {
+  const auto = autoTagShow({
+    title: show.title,
+    genre: show.genre,
+    area: show.area,
+    venue: show.venue,
+  });
+  return {
+    id: show.id,
+    title: show.title,
+    venue: show.venue,
+    area: show.area,
+    pitch: auto.pitch,
+    tags: auto.tags,
+    moods: auto.moods,
+    companions: auto.companions,
+    pace: auto.pace,
+    price: "예매처 확인",
+    period: periodOf(show.startDate, show.endDate),
+    poster: show.poster || null,
+    isLive: true,
+    isCurated: false,
+  };
+}
+
 export async function getEnrichedPlays(): Promise<{
   plays: EnrichedPlay[];
   source: "kopis" | "fallback";
 }> {
   const shows = await fetchCurrentShows();
 
-  const matches = new Map<string, { entry: CurationEntry; show: KopisShow }>();
-  for (const show of shows) {
-    const entry = matchCuration(show.title);
-    if (!entry) continue;
-    if (!matches.has(entry.id)) {
-      matches.set(entry.id, { entry, show });
-    }
-  }
-
-  if (matches.size === 0) {
-    const fallback: EnrichedPlay[] = curation.map((entry) => ({
-      id: entry.id,
-      title: entry.title,
-      venue: entry.defaultVenue,
-      area: entry.defaultArea,
-      pitch: entry.pitch,
-      tags: entry.tags,
-      moods: entry.moods,
-      companions: entry.companions,
-      pace: entry.pace,
-      price: entry.priceHint,
-      period: "공연 일정 확인 필요",
-      poster: null,
-      isLive: false,
-    }));
+  if (shows.length === 0) {
+    const fallback = curation.map((entry) => buildUnmatchedCurationPlay(entry));
     return { plays: fallback, source: "fallback" };
   }
 
   const plays: EnrichedPlay[] = [];
-  for (const entry of curation) {
-    const matched = matches.get(entry.id);
-    if (matched) {
-      plays.push({
-        id: entry.id,
-        title: matched.show.title || entry.title,
-        venue: matched.show.venue || entry.defaultVenue,
-        area: matched.show.area || entry.defaultArea,
-        pitch: entry.pitch,
-        tags: entry.tags,
-        moods: entry.moods,
-        companions: entry.companions,
-        pace: entry.pace,
-        price: entry.priceHint,
-        period: `${formatDisplayDate(matched.show.startDate)} ~ ${formatDisplayDate(matched.show.endDate)}`,
-        poster: matched.show.poster || null,
-        isLive: true,
-      });
-    } else {
-      plays.push({
-        id: entry.id,
-        title: entry.title,
-        venue: entry.defaultVenue,
-        area: entry.defaultArea,
-        pitch: entry.pitch,
-        tags: entry.tags,
-        moods: entry.moods,
-        companions: entry.companions,
-        pace: entry.pace,
-        price: entry.priceHint,
-        period: "이번 주 공연 없음",
-        poster: null,
-        isLive: false,
-      });
+  const matchedCurationIds = new Set<string>();
+
+  for (const show of shows) {
+    const entry = matchCuration(show.title);
+    if (entry && !matchedCurationIds.has(entry.id)) {
+      matchedCurationIds.add(entry.id);
+      plays.push(buildCuratedPlay(entry, show));
+    } else if (!entry) {
+      plays.push(buildAutoTaggedPlay(show));
     }
   }
 
+  for (const entry of curation) {
+    if (matchedCurationIds.has(entry.id)) continue;
+    plays.push(buildUnmatchedCurationPlay(entry));
+  }
+
   return { plays, source: "kopis" };
+}
+
+export async function getPlayDetail(id: string): Promise<PlayDetail | null> {
+  const entry = curation.find((e) => e.id === id);
+  if (entry) {
+    const shows = await fetchCurrentShows();
+    const show = shows.find((s) => entry.titleMatch.test(s.title)) ?? null;
+    const detail = show ? await fetchKopisDetail(show.id) : null;
+    return {
+      isCurated: true,
+      entry,
+      show,
+      detail,
+      displayPeriod: detail
+        ? periodOf(detail.startDate, detail.endDate)
+        : show
+        ? periodOf(show.startDate, show.endDate)
+        : "공연 일정 확인 필요",
+      title: detail?.title || show?.title || entry.title,
+    };
+  }
+
+  if (/^PF[A-Z0-9]+$/i.test(id)) {
+    const detail = await fetchKopisDetail(id);
+    if (!detail) return null;
+    return {
+      isCurated: false,
+      entry: null,
+      show: null,
+      detail,
+      displayPeriod: periodOf(detail.startDate, detail.endDate),
+      title: detail.title,
+    };
+  }
+
+  return null;
 }

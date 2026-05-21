@@ -19,17 +19,20 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
   return curation.map((entry) => ({ id: entry.id }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const entry = curation.find((e) => e.id === id);
-  if (!entry) return {};
+  const data = await getPlayDetail(id);
+  if (!data) return {};
+  const description = data.entry?.pitch || data.detail?.story?.slice(0, 120) || undefined;
   return {
-    title: entry.title,
-    description: entry.pitch,
+    title: data.title,
+    description,
   };
 }
 
@@ -38,10 +41,10 @@ export default async function PlayDetailPage({ params }: Props) {
   const data = await getPlayDetail(id);
   if (!data) notFound();
 
-  const { entry, show, detail, displayPeriod } = data;
+  const { entry, show, detail, displayPeriod, title, isCurated } = data;
   const poster = detail?.poster || show?.poster || null;
-  const venue = detail?.venue || show?.venue || entry.defaultVenue;
-  const area = detail?.area || show?.area || entry.defaultArea;
+  const venue = detail?.venue || show?.venue || entry?.defaultVenue || "";
+  const area = detail?.area || show?.area || entry?.defaultArea || "";
   const genre = detail?.genre || "";
   const runtime = detail?.runtime?.trim() ?? "";
   const ageGuide = detail?.ageGuide?.trim() ?? "";
@@ -51,7 +54,10 @@ export default async function PlayDetailPage({ params }: Props) {
   const cast = detail?.cast?.trim() ?? "";
   const crew = detail?.crew?.trim() ?? "";
   const relatedUrl = detail?.relatedUrl?.trim() ?? "";
-  const isLive = Boolean(show);
+  const isLive = Boolean(show) || Boolean(detail);
+  const subtitle = entry?.pitch || (genre ? `${genre} · ${venue}` : "");
+  const displayTags = entry?.tags ?? (genre ? [genre] : []);
+  const showPriceHint = !detail && entry !== null;
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-10">
@@ -71,7 +77,7 @@ export default async function PlayDetailPage({ params }: Props) {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={poster}
-              alt={`${entry.title} 포스터`}
+              alt={`${title} 포스터`}
               className="aspect-[2/3] w-full object-cover"
             />
           ) : (
@@ -92,21 +98,28 @@ export default async function PlayDetailPage({ params }: Props) {
                 큐레이션
               </span>
             )}
-            {genre && (
+            {isCurated && (
               <span className="rounded-full bg-accent px-2.5 py-1 text-[11px] text-accent-foreground">
+                감수자 추천
+              </span>
+            )}
+            {genre && (
+              <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] text-secondary-foreground">
                 {genre}
               </span>
             )}
           </div>
 
           <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-            {detail?.title || show?.title || entry.title}
+            {title}
           </h1>
-          <p className="mt-3 text-sm leading-7 text-muted-foreground">{entry.pitch}</p>
+          {subtitle && (
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">{subtitle}</p>
+          )}
 
           <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
             <MetaRow icon={MapPin} label="공연장">
-              {area ? `${area} · ${venue}` : venue}
+              {area ? `${area} · ${venue}` : venue || "공연장 미확인"}
             </MetaRow>
             <MetaRow icon={CalendarDays} label="공연 기간">
               {displayPeriod}
@@ -126,23 +139,25 @@ export default async function PlayDetailPage({ params }: Props) {
                 {producer}
               </MetaRow>
             )}
-            {!detail && (
+            {showPriceHint && entry && (
               <MetaRow icon={Ticket} label="예상 가격대">
                 {entry.priceHint}
               </MetaRow>
             )}
           </dl>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            {entry.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          {displayTags.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {displayTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
 
           {relatedUrl && (
             <div className="mt-6">
@@ -159,33 +174,44 @@ export default async function PlayDetailPage({ params }: Props) {
 
       <section className="mt-12 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
         <div className="space-y-6">
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <h2 className="text-lg font-extrabold tracking-tight">작품 소개</h2>
-            <div className="mt-3 space-y-3 text-sm leading-7 text-foreground">
-              {entry.body.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-            </div>
-            {entry.highlights.length > 0 && (
-              <ul className="mt-5 flex flex-wrap gap-2">
-                {entry.highlights.map((highlight) => (
-                  <li
-                    key={highlight}
-                    className="rounded-full border border-border bg-secondary/60 px-3 py-1 text-xs font-semibold text-secondary-foreground"
-                  >
-                    {highlight}
-                  </li>
+          {entry && (
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="text-lg font-extrabold tracking-tight">작품 소개</h2>
+              <div className="mt-3 space-y-3 text-sm leading-7 text-foreground">
+                {entry.body.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
                 ))}
-              </ul>
-            )}
-          </div>
+              </div>
+              {entry.highlights.length > 0 && (
+                <ul className="mt-5 flex flex-wrap gap-2">
+                  {entry.highlights.map((highlight) => (
+                    <li
+                      key={highlight}
+                      className="rounded-full border border-border bg-secondary/60 px-3 py-1 text-xs font-semibold text-secondary-foreground"
+                    >
+                      {highlight}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {story && (
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <h2 className="text-lg font-extrabold tracking-tight">줄거리 (KOPIS 등록 기준)</h2>
+              <h2 className="text-lg font-extrabold tracking-tight">
+                {entry ? "줄거리 (KOPIS 등록 기준)" : "줄거리"}
+              </h2>
               <p className="mt-3 whitespace-pre-line text-sm leading-7 text-muted-foreground">
                 {story}
               </p>
+            </div>
+          )}
+
+          {!entry && !story && (
+            <div className="rounded-2xl border border-dashed border-border bg-secondary/40 p-6 text-sm leading-6 text-muted-foreground">
+              이 공연은 큐레이션 본문이 없고 KOPIS에 줄거리도 등록되지 않았어요.
+              예매처에서 상세 정보를 확인해 주세요.
             </div>
           )}
         </div>
@@ -222,7 +248,7 @@ export default async function PlayDetailPage({ params }: Props) {
             </div>
           )}
 
-          {!detail && (
+          {entry && !detail && (
             <div className="rounded-2xl border border-dashed border-border bg-secondary/40 p-6 text-sm leading-6 text-muted-foreground">
               현재 이번 주 서울 공연 일정에서 매칭된 회차가 없어 큐레이션 정보로 보여드리고 있어요.
               실시간 일정·캐스팅·가격은 KOPIS에 등록된 시즌이 열리는 시점부터 자동으로 반영됩니다.
