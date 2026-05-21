@@ -40,12 +40,9 @@ export function initAnalytics(): void {
   if (window.gtag) return;
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: GtagCommand) {
-    void args;
-    // gtag.js queues the native arguments object; tests assert this runtime shape.
-    // eslint-disable-next-line prefer-rest-params
-    window.dataLayer?.push(arguments);
-  };
+  // gtag.js queue consumer expects the native arguments object, not an array — see google's snippet.
+  // eslint-disable-next-line prefer-rest-params
+  window.gtag = function gtag() { window.dataLayer?.push(arguments); };
   window.gtag('js', new Date());
   window.gtag('config', measurementId, { send_page_view: false });
 }
