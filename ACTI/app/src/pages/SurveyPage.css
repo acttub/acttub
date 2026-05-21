@@ -1,0 +1,163 @@
+.page-survey {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: var(--bg-page);
+}
+
+.page-survey__container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  width: 100%;
+  padding: var(--space-8) var(--container-gutter) calc(var(--space-16) + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* 섹션 헤더 (전환 화면) */
+.page-survey__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-8);
+}
+
+.page-survey__eyebrow {
+  margin: 0;
+  color: var(--primary-600);
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  font-weight: var(--fw-bold);
+}
+
+.page-survey__section-title {
+  margin: 0;
+  color: var(--text-default);
+  font-size: var(--text-3xl, var(--text-2xl));
+  line-height: var(--lh-2xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: 0;
+}
+
+/* 문항 본문 */
+.page-survey__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* 첫 화면 인트로 */
+.page-survey__intro {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+  font-weight: var(--fw-medium);
+}
+
+.page-survey__label {
+  margin: 0;
+  color: var(--text-default);
+  font-size: var(--text-xl, var(--text-lg));
+  line-height: var(--lh-lg);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: 0;
+}
+
+.page-survey__required {
+  margin-left: var(--space-1);
+  color: var(--primary-600);
+}
+
+.page-survey__hint {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  font-weight: var(--fw-medium);
+}
+
+/* 선택형 보기 (라디오/체크박스 공용 카드) */
+.page-survey__choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.survey-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--text-default);
+  font-size: var(--text-base);
+  line-height: var(--lh-base);
+  font-weight: var(--fw-semibold);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.survey-choice:hover:not(:disabled) {
+  border-color: var(--primary-300);
+}
+
+.survey-choice--selected {
+  border-color: var(--primary-500);
+  background: var(--primary-100);
+  box-shadow: inset 0 0 0 1px var(--primary-500);
+}
+
+.survey-choice:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.survey-choice__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.survey-choice__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--primary-600);
+}
+
+/* 텍스트 입력 */
+.page-survey__input {
+  width: 100%;
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--text-default);
+  font-size: var(--text-base);
+  line-height: var(--lh-base);
+  font-weight: var(--fw-medium);
+  font-family: inherit;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.page-survey__input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.page-survey__input--area {
+  min-height: 140px;
+  resize: vertical;
+}
