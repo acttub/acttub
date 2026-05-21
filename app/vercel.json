@@ -5,6 +5,7 @@
   "framework": "vite",
   "rewrites": [
     { "source": "/ACTI", "destination": "/index.html" },
+    { "source": "/ACTI/api/:path*", "destination": "/api/:path*" },
     { "source": "/ACTI/(assets/.*|favicon\\.svg|icons\\.svg|characters/.*|og/.*)", "destination": "/$1" },
     { "source": "/ACTI/(.*)", "destination": "/index.html" }
   ],

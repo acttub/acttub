@@ -3,6 +3,7 @@
  */
 
 import type { TypeCode } from '../content/schema';
+import { BASE_PATH } from './share';
 
 export type SendResultRequest = {
   email: string;
@@ -14,7 +15,7 @@ export type SendResultRequest = {
  * @throws Error (서버 4xx/5xx 또는 네트워크 실패 시)
  */
 export async function sendResultEmail(payload: SendResultRequest): Promise<void> {
-  const res = await fetch('/api/send-result', {
+  const res = await fetch(`${BASE_PATH}/api/send-result`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     // honeypot: 빈 값이어야 함 (봇 차단용)
