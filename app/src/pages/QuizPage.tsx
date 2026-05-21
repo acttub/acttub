@@ -34,7 +34,7 @@ export default function QuizPage() {
         const filled = next.filter((c): c is Choice => c !== null);
         const code = computeType(filled);
         setMyTypeCode(code);
-        navigate(`/result/${code}`, { replace: true });
+        navigate('/survey', { replace: true });
       }, 320);
     }
   };
