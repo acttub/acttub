@@ -1,0 +1,6 @@
+slug,name,region,subway,lat,lng,price_hour,price_note,open_time,close_time,days,phone,booking_url,photos,mirror,soundproof,size_pyeong,lighting,scriptstand,microphone,active
+hyehwa-coral-studio,혜화 코랄 스튜디오,종로구 동숭동,혜화역,37.5826,127.0019,15000,,09:00,24:00,"0,1,2,3,4,5,6",02-000-0001,,,true,strong,15,bright,true,false,true
+daehakro-script-lab,대학로 스크립트 랩,종로구 동숭동,혜화역;동대문역,37.5817,127.0036,10000,,10:00,23:00,"1,2,3,4,5,6",02-000-0002,https://example.com/book/daehakro,,true,medium,10,normal,true,false,true
+hongdae-mirror-room,홍대 미러룸,마포구 서교동,홍대입구역,37.5571,126.9237,20000,,10:00,26:00,"0,1,2,3,4,5,6",02-000-0003,https://example.com/book/hongdae,,true,strong,22,bright,true,true,true
+gangnam-quiet-stage,강남 콰이엇 스테이지,강남구 역삼동,역삼역;강남역,37.5006,127.0364,25000,,08:00,24:00,"0,1,2,3,4,5,6",02-000-0004,,,true,strong,18,normal,false,false,true
+sungshin-small-stage,성신여대 소극장 연습실,성북구 동선동,성신여대입구역,37.5928,127.0163,8000,,11:00,22:00,"1,2,3,4,5",02-000-0005,,,false,medium,8,dim,true,false,true
