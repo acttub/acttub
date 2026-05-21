@@ -2,9 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { SURVEY_ITEMS } from './survey';
 
 describe('content.survey invariants', () => {
-  it('defines at least one section header and one question', () => {
+  it('defines at least one renderable question', () => {
     expect(SURVEY_ITEMS.length).toBeGreaterThan(0);
-    expect(SURVEY_ITEMS.some((it) => it.kind === 'section')).toBe(true);
     expect(SURVEY_ITEMS.some((it) => it.kind !== 'section')).toBe(true);
   });
 

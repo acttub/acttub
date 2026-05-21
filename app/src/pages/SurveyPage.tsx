@@ -2,8 +2,8 @@
  * SurveyPage — 결과 보기 전 게이트 설문.
  *
  * 와이저드 패턴: 한 화면 = 한 항목. 라디오는 선택 시 자동 진행(240ms).
- * 체크박스/텍스트는 "다음" 버튼으로 수동 진행. 섹션 헤더는 1.1초 후
- * 자동 다음. 마지막 항목 완료 시 Google Form 으로 응답 전송 후
+ * 체크박스/텍스트는 "다음" 버튼으로 수동 진행. 상단 진행률·섹션 헤더는
+ * 노출하지 않음. 마지막 항목 완료 시 Google Form 으로 응답 전송 후
  * /result/:code 로 이동.
  */
 
@@ -12,7 +12,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
 
 import PrimaryButton from '../components/PrimaryButton';
-import ProgressBar from '../components/ProgressBar';
 import {
   SURVEY_ITEMS,
   isVisible,
@@ -24,10 +23,14 @@ import { submitSurveyResponse } from '../lib/surveySubmit';
 import './SurveyPage.css';
 
 const AUTO_ADVANCE_MS = 240;
-const SECTION_HOLD_MS = 1100;
 
-function questionAnswered(item: SurveyItem, answers: SurveyAnswers): boolean {
-  if (item.kind === 'section') return true;
+/** 섹션 헤더는 노출하지 않으므로 사용자에게 보일 항목만 모아둔다. */
+type RenderableItem = Exclude<SurveyItem, { kind: 'section' }>;
+const ITEMS: RenderableItem[] = SURVEY_ITEMS.filter(
+  (it): it is RenderableItem => it.kind !== 'section'
+);
+
+function answerReady(item: RenderableItem, answers: SurveyAnswers): boolean {
   const v = answers[item.id];
   if (!item.required) return true;
   if (item.kind === 'radio') return typeof v === 'string' && v.length > 0;
@@ -46,25 +49,16 @@ export default function SurveyPage() {
     if (!resultCode) navigate('/quiz', { replace: true });
   }, [navigate, resultCode]);
 
-  const item = SURVEY_ITEMS[index] as SurveyItem | undefined;
-
   const findNext = (from: number) => {
-    for (let i = from + 1; i < SURVEY_ITEMS.length; i++) {
-      if (isVisible(SURVEY_ITEMS[i], answers)) return i;
+    for (let i = from + 1; i < ITEMS.length; i++) {
+      if (isVisible(ITEMS[i], answers)) return i;
     }
-    return SURVEY_ITEMS.length;
-  };
-
-  const findPrev = (from: number) => {
-    for (let i = from - 1; i >= 0; i--) {
-      if (isVisible(SURVEY_ITEMS[i], answers)) return i;
-    }
-    return -1;
+    return ITEMS.length;
   };
 
   const moveNext = async () => {
     const next = findNext(index);
-    if (next >= SURVEY_ITEMS.length) {
+    if (next >= ITEMS.length) {
       if (!resultCode) return;
       setSubmitting(true);
       try {
@@ -78,60 +72,8 @@ export default function SurveyPage() {
     setIndex(next);
   };
 
-  const moveBack = () => {
-    const prev = findPrev(index);
-    if (prev >= 0) setIndex(prev);
-  };
-
-  // 섹션 헤더: 잠시 보여주고 자동 진행
-  useEffect(() => {
-    if (!item || item.kind !== 'section') return;
-    const t = setTimeout(() => {
-      void moveNext();
-    }, SECTION_HOLD_MS);
-    return () => clearTimeout(t);
-    // moveNext는 클로저 — index/answers 만 의존
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index]);
-
-  const totalVisible = useMemo(
-    () =>
-      SURVEY_ITEMS.filter((it) => it.kind !== 'section' && isVisible(it, answers)).length,
-    [answers]
-  );
-
-  const currentVisibleIndex = useMemo(() => {
-    if (!item) return 0;
-    const upto = item.kind === 'section' ? index : index + 1;
-    return SURVEY_ITEMS.slice(0, upto).filter(
-      (it) => it.kind !== 'section' && isVisible(it, answers)
-    ).length;
-  }, [index, item, answers]);
-
+  const item = ITEMS[index];
   if (!resultCode || !item) return null;
-
-  const canBack = findPrev(index) >= 0;
-  const header = (
-    <ProgressBar
-      current={Math.max(1, currentVisibleIndex)}
-      total={Math.max(1, totalVisible)}
-      onBack={canBack ? moveBack : undefined}
-    />
-  );
-
-  if (item.kind === 'section') {
-    return (
-      <main className="page page-enter page-survey">
-        {header}
-        <div className="page-survey__container">
-          <section className="page-survey__section" key={item.id}>
-            <p className="page-survey__eyebrow">다음 섹션</p>
-            <h2 className="page-survey__section-title">{item.title}</h2>
-          </section>
-        </div>
-      </main>
-    );
-  }
 
   if (item.kind === 'radio') {
     const selected = answers[item.id];
@@ -143,7 +85,6 @@ export default function SurveyPage() {
     };
     return (
       <main className="page page-enter page-survey">
-        {header}
         <div className="page-survey__container">
           <section className="page-survey__body" key={item.id}>
             <h2 className="page-survey__label">
@@ -193,10 +134,9 @@ export default function SurveyPage() {
       }
       setAnswers((prev) => ({ ...prev, [item.id]: next }));
     };
-    const ready = questionAnswered(item, { ...answers, [item.id]: current });
+    const ready = answerReady(item, { ...answers, [item.id]: current });
     return (
       <main className="page page-enter page-survey">
-        {header}
         <div className="page-survey__container">
           <section className="page-survey__body" key={item.id}>
             <h2 className="page-survey__label">
@@ -248,7 +188,7 @@ export default function SurveyPage() {
     );
   }
 
-  // text
+  // text — 현재 데이터엔 없지만 향후 재도입 대비 방어 렌더링
   const stored = answers[item.id];
   const value = typeof stored === 'string' ? stored : '';
   const ready = !item.required || value.trim().length > 0;
@@ -263,7 +203,6 @@ export default function SurveyPage() {
 
   return (
     <main className="page page-enter page-survey">
-      {header}
       <div className="page-survey__container">
         <section className="page-survey__body" key={item.id}>
           <h2 className="page-survey__label">

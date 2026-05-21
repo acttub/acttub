@@ -1,7 +1,8 @@
 /**
  * 결과 보기 전 게이트 설문 — Google Form (id: 1B8AbCOplBCICb-lhG4t2yzc21OsTgZssUgP87vCt_pA)
- * 의 문항/보기/필수 여부를 그대로 반영. SurveyPage는 한 화면 = 한 항목 wizard로 진행.
+ * 의 객관식·다중선택 문항만 추려서 와이저드로 노출.
  *
+ * 사용자 결정으로 섹션 헤더와 서술형(텍스트) 문항은 페이지에 표시하지 않음.
  * entryId는 Google Form 응답 제출 시 필요한 `entry.{id}` 필드 번호.
  */
 
@@ -68,8 +69,6 @@ export const SURVEY_ITEMS: SurveyItem[] = [
       { value: 'over-7-years', label: '7년 이상' },
     ],
   },
-
-  { kind: 'section', id: 'section-recent-feedback', title: '최근 피드백 경험' },
   {
     kind: 'radio',
     id: 'feedback-frequency',
@@ -112,26 +111,6 @@ export const SURVEY_ITEMS: SurveyItem[] = [
     ],
   },
   {
-    kind: 'text',
-    id: 'feedback-frustration',
-    entryId: 1887808516,
-    label: '피드백을 받지 못해(또는 충분치 못해) 답답하거나 아쉬웠던 구체적인 상황이 있었다면 적어주세요',
-    required: true,
-    multiline: true,
-    placeholder: '구체적인 상황을 자유롭게 적어주세요.',
-  },
-
-  { kind: 'section', id: 'section-desired-feedback', title: '어떤 피드백을 받고 싶으신가요?' },
-  {
-    kind: 'text',
-    id: 'feedback-from-whom',
-    entryId: 1055825393,
-    label: '누구의 피드백을 받고 싶나요? 간단히 이유도 서술해주세요',
-    required: true,
-    multiline: true,
-    placeholder: '예: 연출가의 피드백 — 작품 전체 흐름을 봐주는 시각이 필요해서',
-  },
-  {
     kind: 'checkbox',
     id: 'feedback-types',
     entryId: 1868085474,
@@ -148,38 +127,6 @@ export const SURVEY_ITEMS: SurveyItem[] = [
     ],
   },
   {
-    kind: 'text',
-    id: 'feedback-reason',
-    entryId: 561279537,
-    label: '왜 그런 피드백을 받고 싶은지 작성해주세요',
-    required: true,
-    multiline: true,
-    placeholder: '이유를 자유롭게 적어주세요.',
-  },
-
-  { kind: 'section', id: 'section-additional', title: '추가적인 피드백을 받을 수 있으면 어떤가요?' },
-  {
-    kind: 'radio',
-    id: 'video-share',
-    entryId: 1269541085,
-    label: '연기 영상을 공유할 수 있나요?',
-    required: true,
-    options: [
-      { value: 'yes', label: '네' },
-      { value: 'no', label: '아니오' },
-    ],
-  },
-  {
-    kind: 'text',
-    id: 'video-share-reason',
-    entryId: 625483783,
-    label: '(아니오) 왜 공유할 수 없나요?',
-    required: false,
-    multiline: true,
-    placeholder: '편하게 적어주세요.',
-    showIf: { id: 'video-share', equals: 'no' },
-  },
-  {
     kind: 'radio',
     id: 'others-feedback',
     entryId: 1397425298,
@@ -192,17 +139,6 @@ export const SURVEY_ITEMS: SurveyItem[] = [
     ],
   },
   {
-    kind: 'text',
-    id: 'others-feedback-reason',
-    entryId: 582783326,
-    label: '위 질문의 선택 이유를 서술해주세요',
-    required: true,
-    multiline: true,
-    placeholder: '이유를 자유롭게 적어주세요.',
-  },
-
-  { kind: 'section', id: 'section-final', title: '마무리' },
-  {
     kind: 'radio',
     id: 'lottery-entry',
     entryId: 1639858588,
@@ -214,15 +150,6 @@ export const SURVEY_ITEMS: SurveyItem[] = [
       { value: 'lottery-only', label: '추첨에만 응모하겠습니다' },
       { value: 'no-entry', label: '응모하지 않겠습니다' },
     ],
-  },
-  {
-    kind: 'text',
-    id: 'contact',
-    entryId: 179241963,
-    label: '연락처를 작성해주세요 (응모하시는 경우에만 입력해주세요)',
-    required: false,
-    multiline: false,
-    placeholder: '예: 010-0000-0000 / name@example.com',
   },
 ];
 
