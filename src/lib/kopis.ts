@@ -222,17 +222,32 @@ export async function fetchCurrentShows(): Promise<KopisShow[]> {
   const oneWeek = new Date(today);
   oneWeek.setDate(today.getDate() + 7);
 
+  const stdate = formatKopisDate(today);
+  const eddate = formatKopisDate(oneWeek);
+  const rows = 100;
+  const maxPages = 10;
+  const seen = new Set<string>();
+  const all: KopisShow[] = [];
+
   try {
-    return await fetchKopisPage(
-      apiKey,
-      formatKopisDate(today),
-      formatKopisDate(oneWeek),
-      100,
-      1,
-    );
+    for (let page = 1; page <= maxPages; page++) {
+      const items = await fetchKopisPage(apiKey, stdate, eddate, rows, page);
+      if (items.length === 0) break;
+      let added = 0;
+      for (const item of items) {
+        if (!item.id || seen.has(item.id)) continue;
+        seen.add(item.id);
+        all.push(item);
+        added++;
+      }
+      if (items.length < rows) break;
+      if (added === 0) break;
+    }
   } catch {
-    return [];
+    return all;
   }
+
+  return all;
 }
 
 export async function getEnrichedPlays(): Promise<{

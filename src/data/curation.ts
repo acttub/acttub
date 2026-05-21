@@ -42,7 +42,7 @@ export const curation: CurationEntry[] = [
   {
     id: "laundry-musical",
     title: "빨래",
-    titleMatch: /^빨래($|\s|\(|【|\[)/,
+    titleMatch: /^빨래($|\s|:|,|·|\(|【|\[)/,
     pitch:
       "서울 변두리 옥탑에서 살아가는 사람들의 하루를 따뜻하게 그린 추민주 작 창작 뮤지컬. 2005년 초연 이후 한국 창작뮤지컬의 대표작으로 자리잡았습니다.",
     body: [
@@ -161,10 +161,16 @@ export const curation: CurationEntry[] = [
   },
 ];
 
+function normalizeKopisTitle(title: string): string {
+  return title.replace(/^\s*\[[^\]]+\]\s*/, "").trim();
+}
+
 export function matchCuration(title: string): CurationEntry | null {
   if (!title) return null;
+  const normalized = normalizeKopisTitle(title);
   for (const entry of curation) {
-    if (entry.titleMatch.test(title)) return entry;
+    if (entry.titleMatch.test(normalized)) return entry;
+    if (normalized !== title && entry.titleMatch.test(title)) return entry;
   }
   return null;
 }
