@@ -1,64 +1,59 @@
 # acttub
 
-acttub 서비스 전체를 한눈에 보는 umbrella 레포지토리입니다.
-각 서브프로젝트는 **독립된 GitHub 레포지토리**로 운영되며, 이 레포는 git submodule로 그 위치를 가리킬 뿐입니다.
-
-> **배포에 영향 없음.** Vercel은 각 서브프로젝트의 원본 레포(`acttub/thea`, `acttub/comm` 등)의 `main`을 그대로 바라보고 있고, 이 umbrella 레포는 그 흐름에 끼어들지 않습니다.
+acttub 전체 서비스의 **모노레포**입니다. 각 서브프로젝트는 이 레포의 하위 디렉토리로 들어있고, 히스토리도 보존되어 있습니다.
 
 ## 구성
 
-| 서브프로젝트 | 설명 | 원본 레포 | 배포 URL |
-|---|---|---|---|
-| `acttub-landing` | 메인 랜딩 페이지 | [acttub/acttub-landing](https://github.com/acttub/acttub-landing) | https://www.acttub.com |
-| `thea` | 연극 추천 도구 | [acttub/thea](https://github.com/acttub/thea) | https://www.acttub.com/thea |
-| `comm` | 커뮤니티 | [acttub/comm](https://github.com/acttub/comm) | https://www.acttub.com/community |
-| `ACTI` | 연기 스타일 MBTI | [acttub/ACTI](https://github.com/acttub/ACTI) | acttub.com |
-| `excer` | 서울 연습실 지도 | [acttub/excer](https://github.com/acttub/excer) | acttub.com/excer |
-| `arch` | 연기 영상 아카이브 | [acttub/arch](https://github.com/acttub/arch) | - |
+| 디렉토리 | 설명 | 배포 URL |
+|---|---|---|
+| [`acttub-landing/`](./acttub-landing) | 메인 랜딩 페이지 | https://www.acttub.com |
+| [`thea/`](./thea) | 연극 추천 도구 | https://www.acttub.com/thea |
+| [`comm/`](./comm) | 커뮤니티 | https://www.acttub.com/community |
+| [`ACTI/`](./ACTI) | 연기 스타일 MBTI | acttub.com |
+| [`excer/`](./excer) | 서울 연습실 지도 | acttub.com/excer |
+| [`arch/`](./arch) | 연기 영상 아카이브 | - |
 
-기획/내부 문서 전용 레포(`acttub/second_brain`)는 이 umbrella에 포함하지 않습니다.
+기획/내부 문서 전용 레포(`acttub/second_brain`)는 이 모노레포에 포함하지 않습니다.
 
-## 클론 방법
+## 작업 방법
 
-전체 한 번에:
-
-```bash
-git clone --recursive https://github.com/acttub/acttub.git
-```
-
-이미 클론한 뒤 서브모듈만 받기:
+각 서브프로젝트는 **독립적인 Next.js 앱**이고, 각자 자기 디렉토리 안에서 평소처럼 작업합니다.
 
 ```bash
-git submodule update --init --recursive
+git clone https://github.com/acttub/acttub.git
+cd acttub/thea
+npm install
+npm run dev
 ```
 
-## 일상 작업 흐름
+수정 → 커밋 → main에 푸시하면 Vercel이 각 프로젝트의 Root Directory를 보고 변경분에 해당하는 프로젝트만 배포합니다.
 
-개별 서브프로젝트의 코드를 수정할 때는 **항상 해당 서브프로젝트 디렉토리 안에서** 평소처럼 작업하세요. Vercel은 그 레포의 `main`을 보고 있습니다.
+## Vercel 배포 설정
 
-```bash
-cd thea
-# ... 수정 ...
-git add . && git commit -m "..."
-git push origin main      # → Vercel 자동배포 트리거
-```
+Vercel은 한 GitHub 레포 안의 여러 디렉토리를 각각 별도 프로젝트로 배포할 수 있습니다. 각 Vercel 프로젝트가 자기 서브디렉토리의 `package.json`을 보도록 다음과 같이 설정되어 있습니다:
 
-umbrella 레포가 가리키는 커밋 포인터를 최신으로 올리고 싶다면 (선택사항):
+| Vercel 프로젝트 | Repository | Root Directory |
+|---|---|---|
+| acttub-landing | `acttub/acttub` | `acttub-landing` |
+| thea | `acttub/acttub` | `thea` |
+| comm | `acttub/acttub` | `comm` |
+| ACTI | `acttub/acttub` | `ACTI` |
+| excer | `acttub/acttub` | `excer` |
 
-```bash
-# 루트에서
-git submodule update --remote --merge
-git add <서브프로젝트명>
-git commit -m "chore: bump <서브프로젝트명> pointer"
-git push
-```
-
-umbrella의 포인터를 올리지 않아도 각 서브프로젝트는 독립적으로 동작합니다. 포인터 갱신은 "이 시점의 모든 서브프로젝트 상태"를 한 커밋으로 스냅샷 찍고 싶을 때만 하면 됩니다.
+Vercel은 **변경된 파일이 해당 Root Directory 하위에 있을 때만** 그 프로젝트를 재배포합니다 (Ignored Build Step 기본 동작). 따라서 한 모노레포 안에 있어도 서로 다른 프로젝트끼리 배포가 간섭하지 않습니다.
 
 ## 새 서브프로젝트 추가
 
 ```bash
-git submodule add https://github.com/acttub/<new-repo>.git <new-repo>
-git commit -m "feat: add <new-repo> submodule"
+mkdir new-project
+cd new-project
+# Next.js 등 원하는 프레임워크 setup
+git add . && git commit -m "feat: add new-project"
 git push
 ```
+
+이후 Vercel 대시보드에서 New Project → `acttub/acttub` import → Root Directory를 `new-project`로 지정.
+
+## 히스토리
+
+각 서브프로젝트가 통합되기 전 독립 레포로 운영되던 시기의 커밋도 모두 이 레포 히스토리에 보존되어 있습니다 (git subtree merge). 원본 레포(`acttub/thea` 등)는 archive 처리되어 read-only 상태로 남아있습니다.
