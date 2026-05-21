@@ -33,7 +33,7 @@ const StoryCaptureCanvas = forwardRef<HTMLElement, Props>(function StoryCaptureC
 
       <div className="story-canvas__hero">
         <img
-          src={`/characters/${type.code}.png`}
+          src={`${import.meta.env.BASE_URL}characters/${type.code}.png`}
           alt=""
           className="story-canvas__avatar"
         />
