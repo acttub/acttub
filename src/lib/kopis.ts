@@ -6,6 +6,8 @@ import {
   type CurationEntry,
 } from "@/data/curation";
 
+const KOPIS_ENDPOINT = "https://www.kopis.or.kr/openApi/restful/pblprfr";
+
 export type KopisShow = {
   id: string;
   title: string;
@@ -34,7 +36,40 @@ export type EnrichedPlay = {
   isLive: boolean;
 };
 
-const KOPIS_ENDPOINT = "https://www.kopis.or.kr/openApi/restful/pblprfr";
+export type KopisDetail = {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  venue: string;
+  poster: string;
+  area: string;
+  genre: string;
+  state: string;
+  cast: string;
+  crew: string;
+  runtime: string;
+  ageGuide: string;
+  producer: string;
+  priceGuide: string;
+  story: string;
+  storyImages: string[];
+  scheduleGuide: string;
+  relatedUrl: string;
+  openRun: string;
+};
+
+export type PlayDetail = {
+  entry: CurationEntry;
+  show: KopisShow | null;
+  detail: KopisDetail | null;
+  displayPeriod: string;
+};
+
+function toHttps(url: string): string {
+  if (!url) return url;
+  return url.replace(/^http:\/\//i, "https://");
+}
 
 function formatKopisDate(date: Date): string {
   const y = date.getFullYear();
@@ -94,11 +129,89 @@ async function fetchKopisPage(
     startDate: pickString(item.prfpdfrom),
     endDate: pickString(item.prfpdto),
     venue: pickString(item.fcltynm),
-    poster: pickString(item.poster),
+    poster: toHttps(pickString(item.poster)),
     area: pickString(item.area),
     genre: pickString(item.genrenm),
     state: pickString(item.prfstate),
   }));
+}
+
+async function fetchKopisDetail(mt20id: string): Promise<KopisDetail | null> {
+  const apiKey = process.env.KOPIS_API_KEY;
+  if (!apiKey || !mt20id) return null;
+
+  const url = new URL(`${KOPIS_ENDPOINT}/${encodeURIComponent(mt20id)}`);
+  url.searchParams.set("service", apiKey);
+
+  try {
+    const res = await fetch(url.toString(), {
+      next: { revalidate: 86400, tags: ["kopis-detail"] },
+    });
+    if (!res.ok) return null;
+
+    const xml = await res.text();
+    const parser = new XMLParser({ ignoreAttributes: true });
+    const parsed = parser.parse(xml);
+    const node = parsed?.dbs?.db;
+    if (!node) return null;
+
+    const item: Record<string, unknown> = Array.isArray(node) ? node[0] : node;
+
+    const styurlsNode = item.styurls as Record<string, unknown> | undefined;
+    const styurlValue = styurlsNode?.styurl;
+    const storyImagesRaw = Array.isArray(styurlValue)
+      ? styurlValue
+      : styurlValue != null
+      ? [styurlValue]
+      : [];
+
+    return {
+      id: pickString(item.mt20id),
+      title: pickString(item.prfnm),
+      startDate: pickString(item.prfpdfrom),
+      endDate: pickString(item.prfpdto),
+      venue: pickString(item.fcltynm),
+      poster: toHttps(pickString(item.poster)),
+      area: pickString(item.area),
+      genre: pickString(item.genrenm),
+      state: pickString(item.prfstate),
+      cast: pickString(item.prfcast),
+      crew: pickString(item.prfcrew),
+      runtime: pickString(item.prfruntime),
+      ageGuide: pickString(item.prfage),
+      producer: pickString(item.entrpsnm),
+      priceGuide: pickString(item.pcseguidance),
+      story: pickString(item.sty),
+      storyImages: storyImagesRaw
+        .map((v) => toHttps(pickString(v)))
+        .filter((s) => Boolean(s)),
+      scheduleGuide: pickString(item.dtguidance),
+      relatedUrl: pickString(item.relateurl),
+      openRun: pickString(item.openrun),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function getPlayDetail(curationId: string): Promise<PlayDetail | null> {
+  const entry = curation.find((e) => e.id === curationId);
+  if (!entry) return null;
+
+  const shows = await fetchCurrentShows();
+  const show = shows.find((s) => entry.titleMatch.test(s.title)) ?? null;
+  const detail = show ? await fetchKopisDetail(show.id) : null;
+
+  let displayPeriod: string;
+  if (detail) {
+    displayPeriod = `${formatDisplayDate(detail.startDate)} ~ ${formatDisplayDate(detail.endDate)}`;
+  } else if (show) {
+    displayPeriod = `${formatDisplayDate(show.startDate)} ~ ${formatDisplayDate(show.endDate)}`;
+  } else {
+    displayPeriod = "공연 일정 확인 필요";
+  }
+
+  return { entry, show, detail, displayPeriod };
 }
 
 export async function fetchCurrentShows(): Promise<KopisShow[]> {

@@ -2,7 +2,9 @@
 
 import type { ElementType } from "react";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
+  ArrowUpRight,
   CalendarDays,
   Drama,
   Heart,
@@ -122,42 +124,51 @@ export function RecommendationTool({ plays, source }: Props) {
 
       <div id="picks" className="space-y-3">
         {recommendations.map((play, index) => (
-          <article key={play.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-primary">
-                  추천 {index + 1}
-                  {play.isLive && (
-                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                      공연중
-                    </span>
-                  )}
+          <Link
+            key={play.id}
+            href={`/plays/${play.id}`}
+            className="group block rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-primary hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <article>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-primary">
+                    추천 {index + 1}
+                    {play.isLive && (
+                      <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                        공연중
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="mt-1 inline-flex items-center gap-1.5 text-xl font-extrabold tracking-tight">
+                    {play.title}
+                    <ArrowUpRight className="size-4 text-muted-foreground transition group-hover:text-primary" />
+                  </h3>
                 </div>
-                <h3 className="mt-1 text-xl font-extrabold tracking-tight">{play.title}</h3>
+                <div className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
+                  {play.price}
+                </div>
               </div>
-              <div className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
-                {play.price}
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{play.pitch}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {play.tags.map((tag) => (
+                  <span key={tag} className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">
+                    {tag}
+                  </span>
+                ))}
               </div>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">{play.pitch}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {play.tags.map((tag) => (
-                <span key={tag} className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">
-                  {tag}
+              <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="size-3.5" />
+                  {play.area ? `${play.area} · ` : ""}{play.venue}
                 </span>
-              ))}
-            </div>
-            <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5">
-                <MapPin className="size-3.5" />
-                {play.area ? `${play.area} · ` : ""}{play.venue}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CalendarDays className="size-3.5" />
-                {play.period}
-              </span>
-            </div>
-          </article>
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarDays className="size-3.5" />
+                  {play.period}
+                </span>
+              </div>
+            </article>
+          </Link>
         ))}
       </div>
     </section>
