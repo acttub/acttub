@@ -17,13 +17,13 @@ acttub 전체 서비스의 **모노레포**입니다. 각 서브프로젝트는 
 
 ## 작업 방법
 
-각 서브프로젝트는 **독립적인 Next.js 앱**이고, 각자 자기 디렉토리 안에서 평소처럼 작업합니다.
+각 서브프로젝트는 **독립적인 앱**이고, 각자 자기 디렉토리 안에서 작업합니다. 대부분은 Next.js 앱이며, `ACTI/`는 Vite React 앱, `acttub-landing/`은 정적 페이지입니다.
 
 ```bash
 git clone https://github.com/acttub/acttub.git
 cd acttub/thea
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 수정 → 커밋 → main에 푸시하면 Vercel이 각 프로젝트의 Root Directory를 보고 변경분에 해당하는 프로젝트만 배포합니다.
