@@ -236,7 +236,7 @@ export default function CoachPage() {
     formData.set("endTime", String(endTime));
 
     try {
-      const response = await fetch("/api/analyze", {
+      const response = await fetch("/coach/api/analyze", {
         method: "POST",
         body: formData,
       });

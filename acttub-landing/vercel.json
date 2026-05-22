@@ -7,6 +7,8 @@
     { "source": "/archive/:path*", "destination": "https://acttub-archive.vercel.app/archive/:path*" },
     { "source": "/community", "destination": "https://acttub-comm.vercel.app/community" },
     { "source": "/community/:path*", "destination": "https://acttub-comm.vercel.app/community/:path*" },
+    { "source": "/coach", "destination": "https://acttub-coach.vercel.app/coach" },
+    { "source": "/coach/:path*", "destination": "https://acttub-coach.vercel.app/coach/:path*" },
     { "source": "/excer", "destination": "https://acttub-excer.vercel.app/excer" },
     { "source": "/excer/:path*", "destination": "https://acttub-excer.vercel.app/excer/:path*" },
     { "source": "/thea", "destination": "https://thea-zeta.vercel.app/thea" },
