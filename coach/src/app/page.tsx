@@ -54,6 +54,7 @@ export default function CoachPage() {
   const [error, setError] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isStartingRecording, setIsStartingRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -62,6 +63,9 @@ export default function CoachPage() {
   const chunksRef = useRef<BlobPart[]>([]);
 
   const segmentLength = useMemo(() => Math.max(0, endTime - startTime), [endTime, startTime]);
+  const selectedVideoLabel = videoFile
+    ? `${videoFile.name} · ${(videoFile.size / 1024 / 1024).toFixed(1)}MB`
+    : "mp4, mov, webm";
 
   useEffect(() => {
     return () => {
@@ -123,10 +127,19 @@ export default function CoachPage() {
   async function startRecording() {
     setError("");
     setFeedback(null);
+    setIsStartingRecording(true);
 
     try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setError("이 브라우저에서는 직접 녹화를 지원하지 않습니다. 영상 업로드를 사용해 주세요.");
+        return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      const recorder = new MediaRecorder(stream);
+      const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")
+        ? "video/webm;codecs=vp8,opus"
+        : "video/webm";
+      const recorder = new MediaRecorder(stream, { mimeType });
       chunksRef.current = [];
       streamRef.current = stream;
       recorderRef.current = recorder;
@@ -149,6 +162,8 @@ export default function CoachPage() {
       setIsRecording(true);
     } catch {
       setError("카메라와 마이크 권한을 허용해야 직접 녹화할 수 있습니다.");
+    } finally {
+      setIsStartingRecording(false);
     }
   }
 
@@ -255,8 +270,13 @@ export default function CoachPage() {
             {mode === "upload" ? (
               <label className="flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-primary/50 bg-primary-soft/55 p-5 text-center transition hover:bg-primary-soft">
                 <FileVideo className="text-primary-deep" size={28} />
-                <span className="mt-3 text-sm font-bold text-ink">영상 파일 선택</span>
-                <span className="mt-1 text-xs text-muted">mp4, mov, webm</span>
+                <span className="mt-3 text-sm font-bold text-ink">
+                  {videoFile ? "업로드 완료" : "영상 파일 선택"}
+                </span>
+                <span className="mt-1 max-w-full truncate text-xs text-muted">{selectedVideoLabel}</span>
+                <span className="mt-3 rounded-full bg-white px-3 py-1 text-xs font-bold text-primary-deep">
+                  {videoFile ? "다른 영상 선택" : "파일 고르기"}
+                </span>
                 <input
                   className="sr-only"
                   type="file"
@@ -271,17 +291,24 @@ export default function CoachPage() {
               <div className="flex min-h-32 flex-col justify-center rounded-xl border border-line bg-surface-muted p-5">
                 <div className="flex items-center gap-2 text-sm font-bold text-ink">
                   <Mic size={18} />
-                  {isRecording ? `녹화 중 ${formatTime(recordingSeconds)}` : "브라우저 녹화"}
+                  {isStartingRecording
+                    ? "권한 요청 중"
+                    : isRecording
+                      ? `녹화 중 ${formatTime(recordingSeconds)}`
+                      : "브라우저 녹화"}
                 </div>
+                <p className="mt-2 text-xs leading-5 text-muted">
+                  시작을 누르면 브라우저의 카메라/마이크 권한 창이 열립니다.
+                </p>
                 <div className="mt-4 flex gap-2">
                   <button
                     type="button"
                     onClick={startRecording}
-                    disabled={isRecording}
+                    disabled={isRecording || isStartingRecording}
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-ink px-3 py-2.5 text-sm font-bold text-white transition hover:bg-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Camera size={16} />
-                    시작
+                    {isStartingRecording ? <Loader2 className="animate-spin" size={16} /> : <Camera size={16} />}
+                    {isStartingRecording ? "권한 확인" : "시작"}
                   </button>
                   <button
                     type="button"
@@ -335,6 +362,11 @@ export default function CoachPage() {
             <Scissors size={18} />
             분석 구간
           </div>
+          {videoFile ? (
+            <p className="mt-2 text-xs font-semibold text-success">
+              {videoFile.name} 업로드됨. 아래 미리보기에서 분석할 구간을 조정하세요.
+            </p>
+          ) : null}
 
           <div className="mt-4 overflow-hidden rounded-xl bg-black">
             {videoUrl ? (
