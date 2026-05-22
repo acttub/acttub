@@ -3,9 +3,9 @@
   "private": true,
   "packageManager": "pnpm@11.1.2",
   "scripts": {
-    "local": "corepack pnpm --dir acttub-landing dev --port 4000",
-    "local:landing": "corepack pnpm --dir acttub-landing dev --port 4000",
-    "prod:landing": "corepack pnpm --dir acttub-landing build",
+    "local": "python3 -m http.server 4000 --bind 127.0.0.1 --directory acttub-landing",
+    "local:landing": "python3 -m http.server 4000 --bind 127.0.0.1 --directory acttub-landing",
+    "prod:landing": "test -f acttub-landing/index.html",
     "local:acti": "corepack pnpm --dir ACTI dev --host 127.0.0.1 --port 5173",
     "local:thea": "env NEXT_PUBLIC_BASE_PATH=thea corepack pnpm --dir thea dev --port 3000",
     "local:comm": "corepack pnpm --dir comm dev --port 3001",
