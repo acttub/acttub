@@ -5,3 +5,8 @@ Thumbs.db
 *.log
 node_modules/
 .pnpm-store/
+.next/
+.playwright-cli/
+.env
+.env.local
+.env.*.local
