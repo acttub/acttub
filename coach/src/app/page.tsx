@@ -15,7 +15,7 @@ import {
   Sparkles,
   Upload,
 } from "lucide-react";
-import { ACTING_CATEGORIES, type CoachFeedback, formatTime } from "@/lib/evaluation";
+import { ACTING_CATEGORIES, type CoachFeedback, type EvaluationMetric, formatTime } from "@/lib/evaluation";
 
 type InputMode = "upload" | "record";
 
@@ -32,6 +32,36 @@ function FeedbackList({ title, items }: { title: string; items: string[] }) {
         ))}
       </ul>
     </section>
+  );
+}
+
+function MetricGauge({ metric }: { metric: EvaluationMetric }) {
+  const score = Math.max(0, Math.min(100, metric.score));
+
+  return (
+    <article className="rounded-xl border border-line bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-4">
+        <div
+          role="meter"
+          aria-label={`${metric.label} 점수`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={score}
+          className="grid h-20 w-20 flex-none place-items-center rounded-full"
+          style={{
+            background: `conic-gradient(var(--primary) ${score * 3.6}deg, #edf0f2 0deg)`,
+          }}
+        >
+          <div className="grid h-14 w-14 place-items-center rounded-full bg-white text-lg font-black text-ink">
+            {score}
+          </div>
+        </div>
+        <div className="min-w-0">
+          <h3 className="text-sm font-black text-ink">{metric.label}</h3>
+          <p className="mt-1 text-sm leading-5 text-muted">{metric.note}</p>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -492,6 +522,17 @@ export default function CoachPage() {
 
         {feedback ? (
           <>
+            <section className="rounded-2xl border border-line bg-white/80 p-4 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-sm font-black text-ink">평가 게이지</h2>
+                <span className="text-xs font-bold text-muted">100점 기준</span>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                {feedback.evaluationMetrics.map((metric) => (
+                  <MetricGauge key={metric.label} metric={metric} />
+                ))}
+              </div>
+            </section>
             <FeedbackList title="부족한 부분" items={feedback.weaknesses} />
             <FeedbackList title="의도에 부합한 부분" items={feedback.alignedMoments} />
             <FeedbackList title="연습 방식 추천" items={feedback.practiceRecommendations} />
