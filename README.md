@@ -12,7 +12,7 @@ acttub 전체 서비스의 **모노레포**입니다. 각 서브프로젝트는 
 | [`ACTI/`](./ACTI) | 연기 스타일 MBTI | acttub.com |
 | [`excer/`](./excer) | 서울 연습실 지도 | acttub.com/excer |
 | [`arch/`](./arch) | 연기 영상 아카이브 | - |
-| [`coach/`](./coach) | Gemini 기반 연기 연습 영상 피드백 MVP | - |
+| [`coach/`](./coach) | Gemini 기반 연기 연습 영상 피드백 MVP | https://www.acttub.com/coach |
 
 기획/내부 문서 전용 레포(`acttub/second_brain`)는 이 모노레포에 포함하지 않습니다.
 
