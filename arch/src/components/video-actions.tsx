@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
@@ -192,9 +193,9 @@ export function VideoActions({
             {playlists.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 아직 플레이리스트가 없어요.{" "}
-                <a href="/playlists/new" className="underline">
+                <Link href="/playlists/new" className="underline">
                   새로 만들기
-                </a>
+                </Link>
               </p>
             ) : (
               playlists.map((p) => (
@@ -211,7 +212,7 @@ export function VideoActions({
           </div>
           <DialogFooter>
             <Button variant="outline" asChild>
-              <a href="/playlists/new">+ 새 플레이리스트</a>
+              <Link href="/playlists/new">+ 새 플레이리스트</Link>
             </Button>
           </DialogFooter>
         </DialogContent>

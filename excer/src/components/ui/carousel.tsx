@@ -54,6 +54,8 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
 
     React.useEffect(() => {
       if (!api) return;
+      // Embla exposes snap points only after its API is ready.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setScrollSnaps(api.scrollSnapList());
       onSelect(api);
       api.on("select", onSelect);
