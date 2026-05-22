@@ -1,12 +1,14 @@
 packages:
   - "acttub-landing"
   - "ACTI"
+  - "coach"
   - "thea"
   - "comm"
   - "arch"
   - "excer"
 
 allowBuilds:
+  '@google/genai': true
   '@clerk/shared': true
   '@firebase/util': true
   esbuild: true
@@ -15,6 +17,7 @@ allowBuilds:
   unrs-resolver: true
 
 onlyBuiltDependencies:
+  - '@google/genai'
   - '@clerk/shared'
   - '@firebase/util'
   - esbuild
