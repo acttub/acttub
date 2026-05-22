@@ -1,0 +1,34 @@
+{
+  "name": "acttub-monorepo",
+  "private": true,
+  "packageManager": "pnpm@11.1.2",
+  "scripts": {
+    "local": "node scripts/local-gateway.js",
+    "local:gateway": "node scripts/local-gateway.js",
+    "local:landing": "node scripts/local-gateway.js",
+    "local:acti": "corepack pnpm --dir ACTI dev --host 127.0.0.1 --port 5173",
+    "local:thea": "env NEXT_PUBLIC_BASE_PATH=thea corepack pnpm --dir thea dev --port 3000",
+    "local:comm": "corepack pnpm --dir comm dev --port 3001",
+    "local:arch": "corepack pnpm --dir arch dev --port 3002",
+    "local:excer": "corepack pnpm --dir excer dev --port 3003",
+    "prod": "corepack pnpm -r --if-present build",
+    "prod:acti": "corepack pnpm --dir ACTI build",
+    "prod:thea": "corepack pnpm --dir thea build",
+    "prod:comm": "corepack pnpm --dir comm build",
+    "prod:arch": "corepack pnpm --dir arch build",
+    "prod:excer": "corepack pnpm --dir excer build",
+    "lint": "corepack pnpm -r --if-present lint",
+    "build": "corepack pnpm prod",
+    "test": "corepack pnpm -r --if-present test"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@firebase/util",
+      "esbuild",
+      "protobufjs",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

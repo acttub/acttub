@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This monorepo contains independent Acttub web apps. Each app owns its dependencies, scripts, and deployment root.
+This monorepo contains independent Acttub web apps. Dependencies and common commands are managed from the root pnpm workspace, while each app keeps its own deployment root.
 
 - `acttub-landing/`: static landing page (`index.html`) for `www.acttub.com`.
 - `thea/`, `comm/`, `arch/`, `excer/`: Next.js apps with source in `src/app`, UI in `src/components`, and utilities in `src/lib`.
@@ -12,22 +12,24 @@ This monorepo contains independent Acttub web apps. Each app owns its dependenci
 
 ## Build, Test, and Development Commands
 
-Run commands from the app directory you are changing.
+Install dependencies from the repository root.
 
 ```bash
-cd thea && pnpm install && pnpm dev
-cd comm && pnpm install && pnpm lint && pnpm build
-cd ACTI && pnpm test
-cd excer && pnpm db:generate
+corepack pnpm install
+corepack pnpm local
+corepack pnpm local:thea
+corepack pnpm --filter excer db:generate
 ```
 
 Common scripts:
 
-- `pnpm dev`: start local development.
-- `pnpm build`: create a production build.
-- `pnpm lint`: run ESLint checks.
-- `ACTI`: also supports `test` and `test:watch` via Vitest.
-- `arch` and `excer`: use `db:generate`, `db:migrate`, and `db:studio` for Drizzle workflows.
+- `corepack pnpm local`: serve `acttub-landing/` locally on `localhost:4000` and proxy app subpaths to their Vercel deployments.
+- `corepack pnpm local:gateway`: explicit alias for the same gateway.
+- `corepack pnpm local:acti`, `local:thea`, `local:comm`, `local:arch`, `local:excer`: run one app locally on its assigned development port.
+- `corepack pnpm prod`: run every workspace production build script.
+- `corepack pnpm lint`: run every workspace lint script.
+- `corepack pnpm test`: run every workspace test script.
+- `corepack pnpm --filter arch db:migrate` / `corepack pnpm --filter excer db:migrate`: run Drizzle migrations for one app.
 
 ## Coding Style & Naming Conventions
 
