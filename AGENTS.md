@@ -28,6 +28,7 @@ Common scripts:
 - `corepack pnpm prod`: run every workspace production build script.
 - `corepack pnpm lint`: run every workspace lint script.
 - `corepack pnpm test`: run every workspace test script.
+- `corepack pnpm verify`: run the env-independent check suite: frozen install, lint, test, and builds for `acttub-landing`, `ACTI`, `thea`, and `excer`.
 - `corepack pnpm --filter arch db:migrate` / `corepack pnpm --filter excer db:migrate`: run Drizzle migrations for one app.
 
 ## Coding Style & Naming Conventions

@@ -40,6 +40,7 @@ corepack pnpm local
 | `corepack pnpm prod:thea` | `thea/`만 production build 실행 |
 | `corepack pnpm lint` | workspace 내 lint 스크립트 실행 |
 | `corepack pnpm test` | workspace 내 test 스크립트 실행 |
+| `corepack pnpm verify` | env 없이 가능한 기본 검증: install lockfile 확인, lint, test, landing/ACTI/thea/excer build |
 
 `pnpm` shim을 활성화한 환경에서는 `corepack pnpm` 대신 `pnpm`만 입력해도 됩니다. `comm`, `arch`, `excer`는 로컬 실행/빌드 시 앱별 `.env.local` 값이 필요할 수 있습니다.
 

@@ -19,7 +19,8 @@
     "prod:excer": "corepack pnpm --dir excer build",
     "lint": "corepack pnpm -r --if-present lint",
     "build": "corepack pnpm prod",
-    "test": "corepack pnpm -r --if-present test"
+    "test": "corepack pnpm -r --if-present test",
+    "verify": "corepack pnpm install --frozen-lockfile && corepack pnpm lint && corepack pnpm test && corepack pnpm prod:landing && corepack pnpm prod:acti && corepack pnpm prod:thea && corepack pnpm prod:excer"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
