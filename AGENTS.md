@@ -24,7 +24,6 @@ corepack pnpm --filter excer db:generate
 Common scripts:
 
 - `corepack pnpm local`: serve `acttub-landing/` locally on `localhost:4000` and proxy app subpaths to their Vercel deployments.
-- `corepack pnpm local:gateway`: explicit alias for the same gateway.
 - `corepack pnpm local:acti`, `local:thea`, `local:comm`, `local:arch`, `local:excer`: run one app locally on its assigned development port.
 - `corepack pnpm prod`: run every workspace production build script.
 - `corepack pnpm lint`: run every workspace lint script.

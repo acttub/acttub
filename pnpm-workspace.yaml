@@ -1,4 +1,5 @@
 packages:
+  - "acttub-landing"
   - "ACTI"
   - "thea"
   - "comm"

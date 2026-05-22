@@ -31,7 +31,6 @@ corepack pnpm local
 | 명령 | 설명 |
 |---|---|
 | `corepack pnpm local` | `localhost:4000`에서 landing은 로컬, 하위 앱 경로는 Vercel 배포본으로 프록시 |
-| `corepack pnpm local:gateway` | `corepack pnpm local`과 동일한 명시적 alias |
 | `corepack pnpm local:acti` | `ACTI/` Vite 앱 실행 |
 | `corepack pnpm local:thea` | `/thea` basePath로 thea 실행 |
 | `corepack pnpm local:comm` | `/community` basePath로 comm 실행 |

@@ -87,6 +87,37 @@ importers:
         specifier: ^4.1.6
         version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@24.12.4)(@vitest/ui@4.1.7)(jsdom@29.1.1)(vite@8.0.13(@types/node@24.12.4)(jiti@2.7.0))
 
+  acttub-landing:
+    dependencies:
+      next:
+        specifier: 16.2.6
+        version: 16.2.6(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
+    devDependencies:
+      '@types/node':
+        specifier: ^20
+        version: 20.19.41
+      '@types/react':
+        specifier: ^19
+        version: 19.2.15
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.3(@types/react@19.2.15)
+      eslint:
+        specifier: ^9
+        version: 9.39.4(jiti@2.7.0)
+      eslint-config-next:
+        specifier: 16.2.6
+        version: 16.2.6(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   arch:
     dependencies:
       '@clerk/localizations':
@@ -6332,7 +6363,7 @@ snapshots:
   '@grpc/grpc-js@1.9.16':
     dependencies:
       '@grpc/proto-loader': 0.7.15
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
   '@grpc/proto-loader@0.7.15':
     dependencies:
@@ -7647,7 +7678,7 @@ snapshots:
   '@types/jsonwebtoken@9.0.10':
     dependencies:
       '@types/ms': 2.1.0
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
 
   '@types/long@4.0.2':
     optional: true
@@ -7673,7 +7704,7 @@ snapshots:
   '@types/request@2.48.13':
     dependencies:
       '@types/caseless': 0.12.5
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
       '@types/tough-cookie': 4.0.5
       form-data: 2.5.5
     optional: true
@@ -9857,7 +9888,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.1
-      '@types/node': 20.19.41
+      '@types/node': 24.12.4
       long: 5.3.2
 
   punycode@2.3.1: {}
