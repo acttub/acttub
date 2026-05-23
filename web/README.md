@@ -1,6 +1,6 @@
 # Acttub Web
 
-Unified Vite React app for:
+Unified Next.js React app for:
 
 - `/`: Acttub landing
 - `/ACTI`: acting style MBTI
@@ -12,11 +12,11 @@ Unified Vite React app for:
 
 ## Stack
 
-- Vite 8
+- Next.js App Router
 - React 19
 - TypeScript 6
 - React Router 7
-- Vercel Functions
+- Next route handlers
 - Drizzle ORM
 - Neon Postgres
 - Vercel Blob
@@ -33,13 +33,13 @@ corepack pnpm local
 From this directory:
 
 ```bash
-corepack pnpm dev --host 127.0.0.1 --port 4000
+corepack pnpm dev --hostname 127.0.0.1 --port 4000
 ```
 
 LAN/mobile testing:
 
 ```bash
-corepack pnpm dev --host 0.0.0.0 --port 4000
+corepack pnpm dev --hostname 0.0.0.0 --port 4000
 ```
 
 ## Environment
@@ -93,7 +93,7 @@ pnpm build
 Output directory:
 
 ```txt
-dist
+.next
 ```
 
-Path rewrites are configured in `vercel.json` for SPA routes.
+The App Router catch-all page serves the existing client UI routes.

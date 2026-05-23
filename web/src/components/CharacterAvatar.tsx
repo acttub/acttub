@@ -8,7 +8,6 @@
 
 import type { FaceVariant, TypeCode, TypeIndex } from '../content/schema';
 import { TYPE_CODES } from '../content/schema';
-import './CharacterAvatar.css';
 
 type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -36,7 +35,7 @@ export default function CharacterAvatar({
 }: Props) {
   const px = SIZE_PX[size];
   const resolvedCode = code ?? TYPE_CODES[typeIndex];
-  const src = `${import.meta.env.BASE_URL}characters/${resolvedCode}.png`;
+  const src = `/characters/${resolvedCode}.png`;
 
   return (
     <div

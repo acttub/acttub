@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { COMMUNITY_BOARDS } from '../community/communityData.js';
-import { ARCHIVE_VIDEO_CONTENT_TYPES } from './blobUpload.js';
-import { createActtubStorage } from './storageFactory.js';
-import type { ActtubStorage } from './storage.js';
+import { COMMUNITY_BOARDS } from '../community/communityData';
+import { ARCHIVE_VIDEO_CONTENT_TYPES } from './blobUpload';
+import { createActtubStorage } from './storageFactory';
+import type { ActtubStorage } from './storage';
 
 export type ApiRequestInput = {
   method: string;

@@ -1,17 +1,17 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import LegacyLandingPage from './pages/LegacyLandingPage';
-import TheaPage from './pages/TheaPage';
-import ExcerPage from './pages/ExcerPage';
-import CommunityPage from './pages/CommunityPage';
-import ArchivePage from './pages/ArchivePage';
-import CoachPage from './pages/CoachPage';
-import LandingPage from './pages/LandingPage';
-import QuizPage from './pages/QuizPage';
-import SurveyPage from './pages/SurveyPage';
-import ResultPage from './pages/ResultPage';
-import NotFoundPage from './pages/NotFoundPage';
+import LegacyLandingPage from './views/LegacyLandingPage';
+import TheaPage from './views/TheaPage';
+import ExcerPage from './views/ExcerPage';
+import CommunityPage from './views/CommunityPage';
+import ArchivePage from './views/ArchivePage';
+import CoachPage from './views/CoachPage';
+import LandingPage from './views/LandingPage';
+import QuizPage from './views/QuizPage';
+import SurveyPage from './views/SurveyPage';
+import ResultPage from './views/ResultPage';
+import NotFoundPage from './views/NotFoundPage';
 import { initAnalytics, trackPageView } from './lib/analytics';
 
 function AnalyticsTracker() {

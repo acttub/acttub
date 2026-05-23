@@ -3,7 +3,6 @@
  */
 
 import { ChevronLeft } from 'lucide-react';
-import './ProgressBar.css';
 
 type Props = {
   current: number;

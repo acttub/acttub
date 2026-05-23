@@ -6,7 +6,6 @@
  */
 
 import { AXES, poleOf, type TypeCode } from '../content/schema';
-import './AxisBreakdown.css';
 
 type Props = {
   code: TypeCode;

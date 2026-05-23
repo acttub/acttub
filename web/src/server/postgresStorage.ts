@@ -1,8 +1,8 @@
 import { neon } from '@neondatabase/serverless';
 import { and, desc, eq, gte, ilike, or, sql } from 'drizzle-orm';
 import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
-import { HOT_BOARD, HOT_THRESHOLD, getCommunityBoard, isWritableCommunityBoard } from '../community/communityData.js';
-import type { ArchiveVisibility } from '../archive/archiveData.js';
+import { HOT_BOARD, HOT_THRESHOLD, getCommunityBoard, isWritableCommunityBoard } from '../community/communityData';
+import type { ArchiveVisibility } from '../archive/archiveData';
 import {
   archiveVideosTable,
   communityCommentsTable,
@@ -10,14 +10,14 @@ import {
   type ArchiveVideoRow,
   type CommunityCommentRow,
   type CommunityPostRow,
-} from './schema.js';
+} from './schema';
 import {
   normalizeArchiveVideoInput,
   type ActtubStorage,
   type CreateArchiveVideoInput,
   type CreateCommunityCommentInput,
   type CreateCommunityPostInput,
-} from './storage.js';
+} from './storage';
 
 const schema = {
   archiveVideosTable,
@@ -38,7 +38,7 @@ function nextId(prefix: string) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function selectStorageBackend(env: Partial<Pick<NodeJS.ProcessEnv, 'DATABASE_URL'>>) {
+export function selectStorageBackend(env: { DATABASE_URL?: string }) {
   return env.DATABASE_URL ? 'postgres' : 'memory';
 }
 

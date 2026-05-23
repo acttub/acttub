@@ -1,4 +1,4 @@
-import type { ArchiveVideo } from './archiveData.js';
+import type { ArchiveVideo } from './archiveData';
 
 const now = Date.now();
 const daysAgo = (days: number) => new Date(now - days * 86_400_000);

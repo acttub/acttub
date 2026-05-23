@@ -4,7 +4,6 @@
 
 import { useState } from 'react';
 import { Check, Loader2, type LucideIcon } from 'lucide-react';
-import './ShareActionButton.css';
 
 type ShareType = 'image' | 'link' | 'kakao' | 'instagram';
 

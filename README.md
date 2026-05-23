@@ -6,7 +6,7 @@ Acttub web monorepo.
 
 | Directory | Role |
 |---|---|
-| `web/` | Unified Vite React app for landing, ACTI, thea, excer, community, archive, and coach |
+| `web/` | Unified Next.js React app for landing, ACTI, thea, excer, community, archive, and coach |
 
 Legacy source folders such as `ACTI/`, `thea/`, `comm/`, `arch/`, `excer/`, and `acttub-landing/` may still exist for history/reference, but they are no longer part of the pnpm workspace or normal build path.
 
@@ -56,8 +56,8 @@ Vercel projects:
 
 The `web` project uses:
 
-- Vite React for UI
-- Vercel Functions under `web/api`
+- Next.js App Router for UI shell and API routes
+- Route handlers under `web/src/app/api`
 - Neon Postgres via `DATABASE_URL`
 - Vercel Blob via `BLOB_READ_WRITE_TOKEN`
 - Gemini coach analysis via `GEMINI_API_KEY`
@@ -73,4 +73,4 @@ set +a
 corepack pnpm db:migrate
 ```
 
-Do not commit `.env.local`, `.vercel/`, `node_modules/`, or `dist/`.
+Do not commit `.env.local`, `.vercel/`, `.next/`, or `node_modules/`.

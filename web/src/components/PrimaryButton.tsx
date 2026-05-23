@@ -7,7 +7,6 @@
  */
 
 import type { ReactNode, MouseEventHandler } from 'react';
-import './PrimaryButton.css';
 
 type Variant = 'fill' | 'weak';
 type Size = 'md' | 'lg' | 'xl';

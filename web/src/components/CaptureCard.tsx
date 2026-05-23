@@ -6,7 +6,6 @@ import { forwardRef } from 'react';
 import Badge from './Badge';
 import CharacterAvatar from './CharacterAvatar';
 import type { FaceVariant, TypeIndex } from '../content/schema';
-import './CaptureCard.css';
 
 type Props = {
   typeIndex: TypeIndex;

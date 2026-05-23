@@ -3,7 +3,6 @@
  */
 
 import { Check, type LucideIcon } from 'lucide-react';
-import './ChoiceCard.css';
 
 type Props = {
   icon: LucideIcon;

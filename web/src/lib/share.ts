@@ -105,7 +105,7 @@ export async function copyResultUrl(code: TypeCode): Promise<void> {
 
 /** 원본 사이트 URL (OG, 카카오 공유에 사용) */
 export function getSiteUrl(): string {
-  const env = import.meta.env.VITE_SITE_URL as string | undefined;
+  const env = process.env.NEXT_PUBLIC_SITE_URL;
   if (env) return env.replace(/\/$/, '');
   if (typeof window !== 'undefined') return window.location.origin;
   return '';

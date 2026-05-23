@@ -7,7 +7,6 @@ import { ChevronRight, Swords, Heart, Sparkles } from 'lucide-react';
 import Badge from './Badge';
 import CharacterAvatar from './CharacterAvatar';
 import type { FaceVariant, TypeCode, TypeIndex } from '../content/schema';
-import './TypeCard.css';
 
 type Props = {
   relation?: 'rival' | 'bff' | 'preview';

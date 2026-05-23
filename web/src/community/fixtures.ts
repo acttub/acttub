@@ -1,4 +1,4 @@
-import type { CommunityAuthor, CommunityComment, CommunityPost } from './communityData.js';
+import type { CommunityAuthor, CommunityComment, CommunityPost } from './communityData';
 
 const now = Date.now();
 const daysAgo = (days: number) => new Date(now - days * 86_400_000);

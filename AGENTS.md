@@ -4,7 +4,7 @@
 
 This repository now has one active workspace app:
 
-- `web/`: unified Vite React app for landing, ACTI, thea, excer, community, archive, and coach.
+- `web/`: unified Next.js React app for landing, ACTI, thea, excer, community, archive, and coach.
 
 The former app folders may remain as reference material, but normal development, linting, testing, and deployment go through `web/`.
 
@@ -28,7 +28,7 @@ Common commands:
 
 ## Coding Style
 
-Use TypeScript and React functional components. Keep unified product code inside `web/src`, Vercel Functions inside `web/api`, and DB schema/migrations inside `web/src/server` and `web/drizzle`.
+Use TypeScript and React functional components. Keep unified product code inside `web/src`, Next route handlers inside `web/src/app/api`, and DB schema/migrations inside `web/src/server` and `web/drizzle`.
 
 Prefer existing helpers and page/component patterns before adding new abstractions. Keep UI unchanged unless the task explicitly asks for a UI change.
 
@@ -50,7 +50,7 @@ Never commit local env or Vercel metadata:
 - `web/.env.local`
 - `web/.vercel/`
 - `web/node_modules/`
-- `web/dist/`
+- `web/.next/`
 
 Production env is managed in Vercel. Required web env includes `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN`, and `GEMINI_API_KEY`.
 

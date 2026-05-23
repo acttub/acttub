@@ -23,7 +23,7 @@ describe('analytics', () => {
   });
 
   it('does not load Google Analytics when the measurement ID is missing', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', '');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', '');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
@@ -34,7 +34,7 @@ describe('analytics', () => {
   });
 
   it('loads the Google tag once and disables automatic page_view', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics } = await loadAnalytics();
 
     initAnalytics();
@@ -46,7 +46,7 @@ describe('analytics', () => {
   });
 
   it('queues native gtag arguments objects for the Google tag runtime', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics } = await loadAnalytics();
 
     initAnalytics();
@@ -56,7 +56,7 @@ describe('analytics', () => {
   });
 
   it('tracks explicit SPA page views', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
@@ -73,7 +73,7 @@ describe('analytics', () => {
   });
 
   it('strips query strings and hashes from page views', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
@@ -90,7 +90,7 @@ describe('analytics', () => {
   });
 
   it('tracks result action requests without personal data', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics, trackResultAction } = await loadAnalytics();
 
     initAnalytics();
@@ -108,7 +108,7 @@ describe('analytics', () => {
   });
 
   it('lazy-initializes when trackPageView is called before initAnalytics', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { trackPageView } = await loadAnalytics();
 
     trackPageView('/quiz');
@@ -122,7 +122,7 @@ describe('analytics', () => {
   });
 
   it('lazy-initializes when trackResultAction is called before initAnalytics', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { trackResultAction } = await loadAnalytics();
 
     trackResultAction('copy_link', 'MINB');
@@ -136,7 +136,7 @@ describe('analytics', () => {
   });
 
   it('normalizes paths without a leading slash', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
@@ -153,7 +153,7 @@ describe('analytics', () => {
   });
 
   it('rejects protocol-relative paths that would resolve to a foreign origin', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
@@ -164,7 +164,7 @@ describe('analytics', () => {
   });
 
   it('rejects absolute URLs that point to a foreign origin', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
@@ -176,7 +176,7 @@ describe('analytics', () => {
   });
 
   it('dedupes consecutive page views for the same path', async () => {
-    vi.stubEnv('VITE_GA_MEASUREMENT_ID', 'G-TEST123');
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();

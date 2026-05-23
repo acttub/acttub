@@ -3,7 +3,6 @@
  * Small result badge used across ACTI cards.
  */
 
-import './Badge.css';
 
 type Variant = 'default' | 'muted' | 'unknown';
 type Size = 'sm' | 'md' | 'lg';

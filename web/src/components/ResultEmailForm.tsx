@@ -9,7 +9,6 @@ import { useId, useState, type FormEvent } from 'react';
 import { Mail, Loader2, Check } from 'lucide-react';
 import type { TypeCode } from '../content/schema';
 import { sendResultEmail } from '../lib/sendResult';
-import './ResultEmailForm.css';
 
 type Props = {
   code: TypeCode;

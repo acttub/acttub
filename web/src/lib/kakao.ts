@@ -2,7 +2,7 @@
  * Kakao JS SDK v2 래퍼.
  *
  * - index.html 의 외부 스크립트로 window.Kakao 가 로드되어 있음
- * - 앱 키는 .env.local 의 VITE_KAKAO_APP_KEY (미설정 시 공유 비활성)
+ * - 앱 키는 .env.local 의 NEXT_PUBLIC_KAKAO_APP_KEY (미설정 시 공유 비활성)
  */
 
 import type { TypeContent } from '../content/schema';
@@ -22,7 +22,7 @@ declare global {
   }
 }
 
-const APP_KEY = import.meta.env.VITE_KAKAO_APP_KEY as string | undefined;
+const APP_KEY = process.env.NEXT_PUBLIC_KAKAO_APP_KEY;
 
 /** 멱등 초기화. 호출 시 SDK 사용 가능 여부 반환. */
 export function ensureKakaoReady(): boolean {

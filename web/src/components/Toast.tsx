@@ -3,7 +3,6 @@
  */
 
 import { Check } from 'lucide-react';
-import './Toast.css';
 
 type Props = {
   message: string;

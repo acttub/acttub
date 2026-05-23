@@ -2,12 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const filesCheckedByVercelFunctionCompiler = [
-  'api/archive/upload.ts',
-  'api/archive/videos.ts',
-  'api/coach/analyze.ts',
-  'api/community/comments.ts',
-  'api/community/posts.ts',
+const filesCheckedByNextCompiler = [
+  'src/app/api/archive/upload/route.ts',
+  'src/app/api/archive/videos/route.ts',
+  'src/app/api/coach/analyze/route.ts',
+  'src/app/api/community/comments/route.ts',
+  'src/app/api/community/posts/route.ts',
+  'src/app/api/send-result/route.ts',
   'src/coach/evaluation.ts',
   'src/archive/fixtures.ts',
   'src/community/fixtures.ts',
@@ -19,13 +20,13 @@ const filesCheckedByVercelFunctionCompiler = [
   'src/server/webRequest.ts',
 ];
 
-describe('vercel function import compatibility', () => {
-  it('uses explicit js extensions for relative imports reached by serverless functions', () => {
-    const extensionlessRelativeImport = /from ['"]\.{1,2}\/(?!.*\.(?:js|json|css|png|svg)['"])/;
+describe('next function import compatibility', () => {
+  it('does not use emitted js extensions for TypeScript source imports reached by Next routes', () => {
+    const emittedJsSourceImport = /from ['"]\.{1,2}\/.*\.js['"]/;
 
-    const offenders = filesCheckedByVercelFunctionCompiler.filter((file) => {
+    const offenders = filesCheckedByNextCompiler.filter((file) => {
       const source = readFileSync(join(process.cwd(), file), 'utf8');
-      return source.split('\n').some((line) => extensionlessRelativeImport.test(line));
+      return source.split('\n').some((line) => emittedJsSourceImport.test(line));
     });
 
     expect(offenders).toEqual([]);

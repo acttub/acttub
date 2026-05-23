@@ -7,7 +7,6 @@
 
 import { useState } from 'react';
 import { X, Copy, Check } from 'lucide-react';
-import './ShareSuccessModal.css';
 
 type Props = {
   url: string;

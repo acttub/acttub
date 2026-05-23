@@ -3,8 +3,8 @@ import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createPartFromUri, createUserContent, GoogleGenAI } from '@google/genai';
-import { buildEvaluationPrompt, parseGeminiFeedback, type CoachFeedback } from '../coach/evaluation.js';
-import type { ApiResult } from './apiCore.js';
+import { buildEvaluationPrompt, parseGeminiFeedback, type CoachFeedback } from '../coach/evaluation';
+import type { ApiResult } from './apiCore';
 
 type GeminiFileState = {
   name?: string;
