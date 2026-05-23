@@ -7,16 +7,16 @@ import {
   searchCommunityPosts,
   type CommunityComment,
   type CommunityPost,
-} from '../community/communityData';
-import { COMMUNITY_FIXTURE_COMMENTS, COMMUNITY_FIXTURE_POSTS } from '../community/fixtures';
+} from '../community/communityData.js';
+import { COMMUNITY_FIXTURE_COMMENTS, COMMUNITY_FIXTURE_POSTS } from '../community/fixtures.js';
 import {
   filterArchiveVideos,
   getArchiveVideo,
   type ArchiveFilter,
   type ArchiveVideo,
   type ArchiveVisibility,
-} from '../archive/archiveData';
-import { ARCHIVE_FIXTURE_VIDEOS } from '../archive/fixtures';
+} from '../archive/archiveData.js';
+import { ARCHIVE_FIXTURE_VIDEOS } from '../archive/fixtures.js';
 
 export type CreateCommunityPostInput = {
   title: string;

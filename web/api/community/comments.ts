@@ -1,4 +1,4 @@
-import { handleCommunityComments } from '../../src/server/apiCore';
+import { handleCommunityComments } from '../../src/server/apiCore.js';
 
 type VercelRequestLike = {
   method?: string;

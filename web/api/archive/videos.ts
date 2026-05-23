@@ -1,4 +1,4 @@
-import { handleArchiveVideos } from '../../src/server/apiCore';
+import { handleArchiveVideos } from '../../src/server/apiCore.js';
 
 type VercelRequestLike = {
   method?: string;

@@ -1,5 +1,5 @@
-import { createDb, createPostgresActtubStorage, selectStorageBackend } from './postgresStorage';
-import { createMemoryActtubStorage } from './storage';
+import { createDb, createPostgresActtubStorage, selectStorageBackend } from './postgresStorage.js';
+import { createMemoryActtubStorage } from './storage.js';
 
 export function createActtubStorage(env: Partial<Pick<NodeJS.ProcessEnv, 'DATABASE_URL'>> = process.env) {
   if (selectStorageBackend(env) === 'postgres') {

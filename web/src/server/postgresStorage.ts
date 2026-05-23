@@ -1,8 +1,8 @@
 import { neon } from '@neondatabase/serverless';
 import { and, desc, eq, gte, ilike, or, sql } from 'drizzle-orm';
 import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
-import { HOT_BOARD, HOT_THRESHOLD, getCommunityBoard, isWritableCommunityBoard } from '../community/communityData';
-import type { ArchiveVisibility } from '../archive/archiveData';
+import { HOT_BOARD, HOT_THRESHOLD, getCommunityBoard, isWritableCommunityBoard } from '../community/communityData.js';
+import type { ArchiveVisibility } from '../archive/archiveData.js';
 import {
   archiveVideosTable,
   communityCommentsTable,
@@ -10,14 +10,14 @@ import {
   type ArchiveVideoRow,
   type CommunityCommentRow,
   type CommunityPostRow,
-} from './schema';
+} from './schema.js';
 import {
   normalizeArchiveVideoInput,
   type ActtubStorage,
   type CreateArchiveVideoInput,
   type CreateCommunityCommentInput,
   type CreateCommunityPostInput,
-} from './storage';
+} from './storage.js';
 
 const schema = {
   archiveVideosTable,

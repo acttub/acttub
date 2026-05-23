@@ -1,6 +1,6 @@
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
-import { handleArchiveUpload } from '../../src/server/apiCore';
-import { createArchiveUploadTokenOptions } from '../../src/server/blobUpload';
+import { handleArchiveUpload } from '../../src/server/apiCore.js';
+import { createArchiveUploadTokenOptions } from '../../src/server/blobUpload.js';
 import type { IncomingMessage } from 'node:http';
 
 type VercelRequestLike = IncomingMessage & {
