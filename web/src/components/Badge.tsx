@@ -1,6 +1,6 @@
 /**
  * Badge — 유형 코드 배지 [MINB].
- * 명세: outputs/stage-2/component-spec-web.md C1
+ * Small result badge used across ACTI cards.
  */
 
 import './Badge.css';
