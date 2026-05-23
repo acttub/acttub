@@ -1,0 +1,54 @@
+.share {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--gray-50);
+  border: none;
+  padding: var(--space-4) var(--space-3);
+  border-radius: var(--radius-md);
+  min-height: 76px;
+  cursor: pointer;
+  color: var(--text-default);
+  font-family: inherit;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .share:hover { background: var(--gray-100); }
+}
+
+.share:active { transform: scale(0.98); }
+.share:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.share__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-default);
+}
+
+.share--kakao .share__icon { color: #3C1E1E; }
+.share--link .share__icon  { color: var(--text-default); }
+.share--image .share__icon { color: var(--text-default); }
+.share--instagram { background: linear-gradient(135deg, #F58529 0%, #DD2A7B 50%, #8134AF 100%); }
+.share--instagram .share__icon,
+.share--instagram .share__label { color: #FFFFFF; }
+@media (hover: hover) {
+  .share--instagram:hover { filter: brightness(1.05); background: linear-gradient(135deg, #F58529 0%, #DD2A7B 50%, #8134AF 100%); }
+}
+
+.share__label {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  color: var(--text-secondary);
+}
+
+.share__spin {
+  animation: share-spin 1s linear infinite;
+}
+
+@keyframes share-spin {
+  to { transform: rotate(360deg); }
+}

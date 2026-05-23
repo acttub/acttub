@@ -3,7 +3,8 @@
   "private": true,
   "packageManager": "pnpm@11.1.2",
   "scripts": {
-    "local": "python3 -m http.server 4000 --bind 127.0.0.1 --directory acttub-landing",
+    "local": "corepack pnpm --dir web dev --host 127.0.0.1 --port 4000",
+    "local:web": "corepack pnpm --dir web dev --host 127.0.0.1 --port 4000",
     "local:landing": "python3 -m http.server 4000 --bind 127.0.0.1 --directory acttub-landing",
     "prod:landing": "test -f acttub-landing/index.html",
     "local:acti": "corepack pnpm --dir ACTI dev --host 127.0.0.1 --port 5173",
@@ -12,17 +13,18 @@
     "local:comm": "corepack pnpm --dir comm dev --port 3001",
     "local:arch": "corepack pnpm --dir arch dev --port 3002",
     "local:excer": "corepack pnpm --dir excer dev --port 3003",
-    "prod": "corepack pnpm -r --if-present build",
+    "prod": "corepack pnpm prod:web && corepack pnpm prod:coach",
+    "prod:web": "corepack pnpm --dir web build",
     "prod:acti": "corepack pnpm --dir ACTI build",
     "prod:coach": "corepack pnpm --dir coach build",
     "prod:thea": "corepack pnpm --dir thea build",
     "prod:comm": "corepack pnpm --dir comm build",
     "prod:arch": "corepack pnpm --dir arch build",
     "prod:excer": "corepack pnpm --dir excer build",
-    "lint": "corepack pnpm -r --if-present lint",
+    "lint": "corepack pnpm --dir web lint && corepack pnpm --dir coach lint",
     "build": "corepack pnpm prod",
-    "test": "corepack pnpm -r --if-present test",
-    "verify": "corepack pnpm install --frozen-lockfile && corepack pnpm lint && corepack pnpm test && corepack pnpm prod:landing && corepack pnpm prod:acti && corepack pnpm prod:coach && corepack pnpm prod:thea && corepack pnpm prod:excer"
+    "test": "corepack pnpm --dir web test",
+    "verify": "corepack pnpm install --frozen-lockfile && corepack pnpm lint && corepack pnpm test && corepack pnpm prod"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

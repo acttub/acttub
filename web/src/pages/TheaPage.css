@@ -1,0 +1,512 @@
+.thea-page {
+  --thea-background: #fafbfc;
+  --thea-foreground: #191f28;
+  --thea-card: #ffffff;
+  --thea-primary: #ff7a5c;
+  --thea-primary-foreground: #ffffff;
+  --thea-secondary: #f2f4f6;
+  --thea-secondary-foreground: #333d4b;
+  --thea-muted-foreground: #6b7684;
+  --thea-accent: #ffe8e0;
+  --thea-accent-foreground: #c8553a;
+  --thea-border: #e5e8eb;
+  --thea-input: #e5e8eb;
+  min-height: 100vh;
+  background: var(--thea-background);
+  color: var(--thea-foreground);
+  font-family:
+    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.thea-page *,
+.thea-page *::before,
+.thea-page *::after {
+  box-sizing: border-box;
+}
+
+.thea-page a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.thea-main {
+  min-height: calc(100vh - 113px);
+}
+
+.thea-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  width: 100%;
+  border-bottom: 1px solid rgb(229 232 235 / 60%);
+  background: rgb(250 251 252 / 85%);
+  backdrop-filter: blur(8px);
+}
+
+.thea-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1152px;
+  height: 64px;
+  padding: 0 16px;
+  margin: 0 auto;
+}
+
+.thea-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.thea-brand > span {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.thea-brand > span span {
+  color: var(--thea-primary);
+}
+
+.thea-brand small {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--thea-muted-foreground);
+  text-transform: uppercase;
+}
+
+.thea-header__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.thea-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.thea-button svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.thea-button--primary {
+  color: var(--thea-primary-foreground);
+  background: var(--thea-primary);
+  box-shadow: 0 1px 2px rgb(25 31 40 / 0.04);
+}
+
+.thea-button--primary:hover {
+  background: rgb(255 122 92 / 90%);
+}
+
+.thea-button--outline {
+  color: var(--thea-foreground);
+  background: var(--thea-card);
+  border: 1px solid var(--thea-input);
+}
+
+.thea-button--outline:hover,
+.thea-button--ghost:hover {
+  background: var(--thea-secondary);
+}
+
+.thea-button--ghost {
+  color: var(--thea-foreground);
+  background: transparent;
+}
+
+.thea-button--sm {
+  height: 36px;
+  padding: 0 14px;
+}
+
+.thea-button--lg {
+  height: 48px;
+  padding: 0 24px;
+}
+
+.thea-hero {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--thea-border);
+}
+
+.thea-hero__image {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(250 251 252 / 96%) 0%, rgb(250 251 252 / 88%) 42%, rgb(250 251 252 / 28%) 100%),
+    url("/thea/theater-hero.png") center / cover no-repeat;
+}
+
+.thea-hero__inner {
+  position: relative;
+  display: grid;
+  align-items: center;
+  max-width: 1152px;
+  min-height: 520px;
+  padding: 56px 16px;
+  margin: 0 auto;
+}
+
+.thea-hero__copy {
+  max-width: 576px;
+}
+
+.thea-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 90%);
+  color: var(--thea-primary);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgb(25 31 40 / 0.08);
+}
+
+.thea-kicker svg {
+  width: 14px;
+  height: 14px;
+}
+
+.thea-hero h1 {
+  margin: 20px 0 0;
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.thea-hero p {
+  max-width: 512px;
+  margin: 16px 0 0;
+  color: var(--thea-muted-foreground);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.thea-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.thea-recommend {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 24px;
+  max-width: 1152px;
+  padding: 32px 16px;
+  margin: 0 auto;
+}
+
+.thea-panel {
+  padding: 20px;
+  border: 1px solid var(--thea-border);
+  border-radius: 24px;
+  background: var(--thea-card);
+  box-shadow: 0 1px 2px rgb(25 31 40 / 0.04);
+}
+
+.thea-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--thea-primary);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.thea-section-label svg {
+  width: 16px;
+  height: 16px;
+}
+
+.thea-panel h2 {
+  margin: 12px 0 0;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.thea-choice-stack {
+  display: grid;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.thea-choice-title {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.thea-choice-group {
+  display: grid;
+  gap: 8px;
+}
+
+.thea-choice-group button {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  gap: 12px;
+  padding: 0 12px;
+  border: 1px solid var(--thea-border);
+  border-radius: 12px;
+  background: var(--thea-card);
+  color: var(--thea-foreground);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.thea-choice-group button:hover {
+  background: var(--thea-secondary);
+}
+
+.thea-choice-group button.is-selected {
+  border-color: var(--thea-primary);
+  background: var(--thea-accent);
+  color: var(--thea-accent-foreground);
+}
+
+.thea-choice-group svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.thea-pace-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--thea-secondary);
+}
+
+.thea-pace-group button {
+  height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--thea-muted-foreground);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.thea-pace-group button:hover {
+  color: var(--thea-foreground);
+}
+
+.thea-pace-group button.is-selected {
+  background: var(--thea-card);
+  color: var(--thea-foreground);
+  box-shadow: 0 1px 2px rgb(25 31 40 / 0.08);
+}
+
+.thea-source-note {
+  margin: 24px 0 0;
+  color: var(--thea-muted-foreground);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.thea-picks {
+  display: grid;
+  gap: 12px;
+}
+
+.thea-pick-card {
+  display: block;
+  padding: 20px;
+  border: 1px solid var(--thea-border);
+  border-radius: 24px;
+  background: var(--thea-card);
+  box-shadow: 0 1px 2px rgb(25 31 40 / 0.04);
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.thea-pick-card:hover {
+  border-color: var(--thea-primary);
+  box-shadow: 0 4px 12px rgb(25 31 40 / 0.08);
+  transform: translateY(-2px);
+}
+
+.thea-pick-card__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.thea-rank {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--thea-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.thea-rank span {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--thea-primary);
+  color: var(--thea-primary-foreground);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.thea-pick-card h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.thea-pick-card h3 svg {
+  width: 16px;
+  height: 16px;
+  color: var(--thea-muted-foreground);
+  transition: color 0.15s ease;
+}
+
+.thea-pick-card:hover h3 svg {
+  color: var(--thea-primary);
+}
+
+.thea-price {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: var(--thea-accent);
+  color: var(--thea-accent-foreground);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.thea-pick-card p {
+  margin: 12px 0 0;
+  color: var(--thea-muted-foreground);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.thea-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.thea-tags span {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: var(--thea-secondary);
+  color: var(--thea-secondary-foreground);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.thea-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  color: var(--thea-muted-foreground);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.thea-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.thea-meta svg {
+  width: 14px;
+  height: 14px;
+}
+
+.thea-footer {
+  border-top: 1px solid var(--thea-border);
+  padding: 24px 16px;
+  background: var(--thea-background);
+  color: var(--thea-muted-foreground);
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 1023px) {
+  .thea-recommend {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 639px) {
+  .thea-header__recommend {
+    display: none;
+  }
+
+  .thea-hero__inner {
+    min-height: 520px;
+  }
+
+  .thea-hero h1 {
+    font-size: 36px;
+  }
+
+  .thea-hero p {
+    font-size: 15px;
+  }
+}

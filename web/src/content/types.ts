@@ -1,0 +1,372 @@
+/**
+ * 16유형 콘텐츠 — Phase 2 본문 (16유형 전체 폴리싱 1차 초안)
+ *
+ * 톤: idea-brief — 진지 30 / 재미 70, B급, 단톡방 짤맛, 도메인 양념 필수.
+ * 5항목 × 16유형 = 80셀 + accessory 16개 (CharacterAvatar 식별).
+ */
+
+import type { TypeCode, TypeContent, TypeIndex } from './schema';
+import { TYPE_CODES } from './schema';
+
+const POLISHED: Record<TypeCode, Omit<TypeContent, 'index'>> = {
+  MINB: {
+    code: 'MINB',
+    name: '비 오는 날 뛰쳐나가는 햄릿형',
+    tagline: '감정에 잠겼다 가버리는, 그러나 무대 위에선 누구보다 진짜다.',
+    traits: [
+      '새벽 3시까지 캐릭터한테 전화',
+      '대본 한 페이지에 형광펜 5색',
+      '한 번 빠지면 일주일은 헤맨다',
+      '무대 위에서만 사실 살아 있다',
+    ],
+    roles: [
+      '광기 어린 로맨틱 안티히어로',
+      '누아르 조연',
+      '사극 비극의 주인공',
+      '옴니버스 단편의 단독 주연',
+    ],
+    rival: 'TPAS',
+    bff: 'MIAS',
+    accessory: 'CloudRain',
+    face: 'intense',
+  },
+
+  MIAS: {
+    code: 'MIAS',
+    name: '새벽 3시에 캐릭터한테 전화하는 타입',
+    tagline: '감정과 분석을 동시에 메모하는 사람.',
+    traits: [
+      '메소드는 메소드대로, 분석은 분석대로',
+      '캐릭터의 일기장을 들고 다님',
+      '연습 끝나고 한 시간씩 노트',
+      '쉬는 시간에도 캐릭터로 있다',
+    ],
+    roles: [
+      '심리 스릴러 단독 주연',
+      '시대극의 내적 갈등 캐릭터',
+      '독립영화 단편',
+      '모놀로그 무대',
+    ],
+    rival: 'TPNB',
+    bff: 'MINB',
+    accessory: 'Phone',
+    face: 'cool',
+  },
+
+  MPNB: {
+    code: 'MPNB',
+    name: '리허설장 가장 먼저 와서 무대 한 바퀴 도는 사람',
+    tagline: '발이 먼저 캐릭터를 외운다. 동선이 곧 내면이다.',
+    traits: [
+      '공연 전 무대 답사 30분 필수',
+      '대본 받으면 무대 그림부터 그린다',
+      '즉흥은 잘 안 함, 그러나 미리 짠 게 즉흥처럼 보임',
+      '신체 디테일이 살벌하다',
+    ],
+    roles: [
+      '사극 비극의 주연',
+      '무용·연극 결합 작품',
+      '묵직한 시대극',
+      '시간의 흐름이 중요한 장편',
+    ],
+    rival: 'TIAS',
+    bff: 'MPNS',
+    accessory: 'Footprints',
+    face: 'dreamy',
+  },
+
+  MPAS: {
+    code: 'MPAS',
+    name: '캐릭터 분석 노트 8장 쓰는 인간',
+    tagline: '대본 옆에 항상 자기만의 백과사전이 있다.',
+    traits: [
+      '작품 자료를 도서관 사람보다 더 찾는다',
+      '캐릭터 백스토리를 혼자 다 만든다',
+      '연습 노트가 학기말 보고서급',
+      '무대 위에선 정확하고 깊다',
+    ],
+    roles: [
+      '시대극의 내면 갈등 주연',
+      '문학 원작 각색 작품',
+      '복잡한 심리극',
+      '대사 많은 단편',
+    ],
+    rival: 'TINB',
+    bff: 'MPAB',
+    accessory: 'NotebookPen',
+    face: 'intense',
+  },
+
+  TINB: {
+    code: 'TINB',
+    name: '리허설 안 가도 무대 위에선 천재인 척',
+    tagline: '계산을 숨기고 즉흥인 척하는 가장 위험한 배우.',
+    traits: [
+      '리허설 자주 빠짐',
+      '본인이 즉흥형이라 우긴다',
+      '실은 머릿속에 다 짜놨다',
+      '카메라 돌면 가장 정확하다',
+    ],
+    roles: [
+      '코미디의 주인공',
+      '버라이어티 결합 작품',
+      '뮤지컬 솔로',
+      '관객 인터랙티브 무대',
+    ],
+    rival: 'MIAS',
+    bff: 'TIAB',
+    accessory: 'Sparkles',
+    face: 'wink',
+  },
+
+  TIAS: {
+    code: 'TIAS',
+    name: '현장에서 NG 한 번도 안 내는 즉흥꾼',
+    tagline: '받아치면서 동시에 분석을 다시 한다. 카메라 위치까지 본다.',
+    traits: [
+      '디렉션 받으면서 머릿속으로 재구성',
+      '즉흥인데 매번 안정적',
+      '컷 사인 후엔 본인이 가장 빨리 분석',
+      '감정은 카메라 안에서만 살린다',
+    ],
+    roles: [
+      '드라마 시리즈의 안정형 주연',
+      '버디 무비의 중심',
+      '시즌제 작품의 장기 주연',
+      '대사극 베이스의 멜로',
+    ],
+    rival: 'MPNB',
+    bff: 'TIAB',
+    accessory: 'Camera',
+    face: 'cool',
+  },
+
+  TPNB: {
+    code: 'TPNB',
+    name: '대본에 안무 그려넣는 사람',
+    tagline: '캐릭터는 동선으로 완성된다고 믿는 배우.',
+    traits: [
+      '대본 받자마자 무대 평면도 그림',
+      '시각적 디테일에 집착',
+      '즉흥은 안 함, 그러나 미리 짠 게 매끄러움',
+      '몸이 곧 그림이다',
+    ],
+    roles: [
+      '뮤지컬 메인 댄서',
+      '액션 결합 작품',
+      '시각 연출 강한 무대',
+      '피지컬 코미디',
+    ],
+    rival: 'MIAS',
+    bff: 'TPNS',
+    accessory: 'Map',
+    face: 'dreamy',
+  },
+
+  TPAS: {
+    code: 'TPAS',
+    name: '대본에 형광펜 7색 쓰는 인간',
+    tagline: '준비된 모든 디테일이 무대 위에서 균형을 만든다.',
+    traits: [
+      '리허설 30분 전부터 자리 잡음',
+      '대본 여백이 가장 진한 사람',
+      'NG 한 번에 모든 디렉션 받아씀',
+      '본인은 즉흥 못 한다고 우김',
+    ],
+    roles: [
+      '앙상블 작품의 신뢰 캐릭터',
+      '복잡한 대사극의 주연',
+      '시리즈물의 중심 인물',
+      '뮤지컬 앙상블 리드',
+    ],
+    rival: 'MINB',
+    bff: 'TPAB',
+    accessory: 'Highlighter',
+    face: 'sharp',
+  },
+
+  MINS: {
+    code: 'MINS',
+    name: '눈빛만으로 끝내는 침묵의 캐릭터',
+    tagline: '말보다 한 박자 늦게 도착하는 진심이 있다.',
+    traits: [
+      '대사보다 침묵이 더 길다',
+      '캐릭터의 내면 일기를 쓴다',
+      '시선·호흡이 가장 강한 도구',
+      '카메라 앞에서 더 깊어진다',
+    ],
+    roles: [
+      '시대극 비극의 침묵형',
+      '독립영화 클로즈업 주인공',
+      '내면 극 모놀로그',
+      '심리 단편',
+    ],
+    rival: 'TPAB',
+    bff: 'MIAS',
+    accessory: 'Moon',
+    face: 'zen',
+  },
+
+  MIAB: {
+    code: 'MIAB',
+    name: '리허설마다 다른 인물을 데려오는 분석가',
+    tagline: '매번 다르게, 매번 정확하다.',
+    traits: [
+      '캐릭터를 들고 오는 게 즉흥처럼 보임',
+      '실은 매 리허설마다 다른 가설을 시험',
+      '사후 노트로 가설을 검증',
+      '몸이 먼저 반응하고 머리가 따라온다',
+    ],
+    roles: [
+      '연극 원톱의 변화형 캐릭터',
+      '롱테이크 영화 주연',
+      '실험극·다큐멘터리',
+      '여러 인격이 충돌하는 단편',
+    ],
+    rival: 'TPNS',
+    bff: 'MINB',
+    accessory: 'Shuffle',
+    face: 'wild',
+  },
+
+  MPNS: {
+    code: 'MPNS',
+    name: '캐릭터한테 편지 쓰면서 새벽을 보내는 인간',
+    tagline: '미리 다 준비했지만, 무대 위에선 그 준비를 잊은 척한다.',
+    traits: [
+      '대본 받자마자 일기로 캐릭터 만든다',
+      '리허설 전 한 줄에 한 시간',
+      '즉흥 거의 안 함, 그러나 잔잔히 진짜',
+      '카메라 안에서 가장 차분하다',
+    ],
+    roles: [
+      '시대극의 잔잔한 주연',
+      '문학 원작 클래식',
+      '느린 호흡 단편',
+      '연극 솔로',
+    ],
+    rival: 'TIAB',
+    bff: 'MINS',
+    accessory: 'Feather',
+    face: 'zen',
+  },
+
+  MPAB: {
+    code: 'MPAB',
+    name: '캐릭터 일기를 안무로 옮기는 사람',
+    tagline: '깊이 들어간 뒤에 발끝까지 설계해야 안심한다.',
+    traits: [
+      '캐릭터 백스토리를 신체 디테일로 변환',
+      '대본 옆에 안무 노트 따로 있음',
+      '리허설 30분 전에 몸 풀이 정해진 루틴',
+      '즉흥은 잘 안 하지만 시각적으로 강하다',
+    ],
+    roles: [
+      '시대극 무용 결합 작품',
+      '비주얼 중심 영화 주연',
+      '댄스 극장',
+      '시각시 (visual poem)',
+    ],
+    rival: 'TINS',
+    bff: 'MPAS',
+    accessory: 'Compass',
+    face: 'intense',
+  },
+
+  TINS: {
+    code: 'TINS',
+    name: '직감 하나로 카메라 앞 5초만에 들어가는 타입',
+    tagline: '분석은 안 하는데 정확하고, 대사는 안 외웠는데 통한다.',
+    traits: [
+      '리허설보다 본 컷이 더 정확',
+      '준비 노트 거의 없음, 머릿속에 다 있음',
+      '내면을 즉시 꺼내 쓴다',
+      '본인도 어떻게 했는지 설명 못 함',
+    ],
+    roles: [
+      '신인 감독의 첫 작품 주연',
+      '독립영화 단편',
+      '음악·시 결합 작품',
+      '단기 워크숍 공연',
+    ],
+    rival: 'MPAB',
+    bff: 'TIAS',
+    accessory: 'Wand',
+    face: 'wink',
+  },
+
+  TIAB: {
+    code: 'TIAB',
+    name: '현장에서 안무를 즉흥으로 짜는 분석가',
+    tagline: '카메라 위치와 동선을 1초 만에 계산하는 사람.',
+    traits: [
+      '디렉션 받는 즉시 동선 재구성',
+      '몸이 먼저 움직이고 머리가 정리',
+      '컷 끝나면 모니터로 달려가서 분석',
+      '준비는 적은데 정확하다',
+    ],
+    roles: [
+      '액션·스턴트 결합 작품',
+      '버라이어티 출연 가능',
+      '뮤지컬 앙상블의 즉흥파',
+      '실험적 무대 협업',
+    ],
+    rival: 'MPNS',
+    bff: 'TINB',
+    accessory: 'Zap',
+    face: 'wild',
+  },
+
+  TPNS: {
+    code: 'TPNS',
+    name: '대본 받자마자 한 줄에 한 시간씩 쓰는 사람',
+    tagline: '직감으로 잡고 설계로 굳히고 내면으로 끝낸다.',
+    traits: [
+      '준비 시간이 가장 길다',
+      '대본 마진보다 빈 노트가 많다',
+      '리허설은 정확하고 본 무대는 잔잔하다',
+      '분석보다 감이 우세하지만, 설계로 다듬는다',
+    ],
+    roles: [
+      '시대극 내면극 주연',
+      '연극 솔로 모놀로그',
+      '단편영화 클로즈업',
+      '시·연극 결합 작품',
+    ],
+    rival: 'MIAB',
+    bff: 'TPNB',
+    accessory: 'BookOpen',
+    face: 'dreamy',
+  },
+
+  TPAB: {
+    code: 'TPAB',
+    name: '대사보다 동선을 먼저 외우는 사람',
+    tagline: '몸이 먼저 움직이고, 머리는 그 뒤를 정리한다.',
+    traits: [
+      '신체 디테일이 살벌함',
+      '대본 받자마자 무대를 그린다',
+      '감정 묻는 질문에 약하다',
+      '무대 위에서는 정확한 사람',
+    ],
+    roles: [
+      '액션 / 무용 결합 작품',
+      '피지컬 코미디',
+      '시각적 연출 강한 무대',
+      '대사 적은 단편',
+    ],
+    rival: 'MINS',
+    bff: 'TPAS',
+    accessory: 'Ruler',
+    face: 'sharp',
+  },
+};
+
+export function getType(code: TypeCode): TypeContent {
+  const index = TYPE_CODES.indexOf(code) as TypeIndex;
+  return { ...POLISHED[code], index };
+}
+
+export function getAllTypes(): TypeContent[] {
+  return TYPE_CODES.map((code) => getType(code));
+}

@@ -1,0 +1,55 @@
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 시그니처 컬러 배경 ring (옵션) */
+.avatar--ring {
+  background: var(--bg-capture, var(--gray-100));
+  border-radius: 50%;
+  padding: 6%;
+}
+
+.avatar--lg.avatar--ring,
+.avatar--xl.avatar--ring {
+  padding: 8%;
+}
+
+/* hover */
+@media (hover: hover) {
+  .avatar--hoverable:hover {
+    transform: translateY(-3px);
+  }
+}
+
+/* idle bobble */
+.avatar--idle {
+  animation: avatar-bob 3.5s var(--ease-out) infinite;
+}
+
+@keyframes avatar-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar--idle { animation: none; }
+}
+
+/* sizes — img는 width/height 100% 라 컨테이너 사이즈로 조정 */
+.avatar--xl .avatar__img,
+.avatar--lg .avatar__img {
+  filter: drop-shadow(0 8px 20px rgba(25, 31, 40, 0.12));
+}

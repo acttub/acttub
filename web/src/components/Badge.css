@@ -1,0 +1,27 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--white);
+  color: var(--text-default);
+  border: 1px solid var(--border-default);
+  padding: 6px var(--space-3);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.badge--sm { font-size: var(--text-xs); padding: 5px 10px; }
+.badge--md { font-size: var(--text-sm); }
+.badge--lg { font-size: var(--text-lg); padding: var(--space-2) var(--space-4); }
+
+.badge--muted {
+  background: var(--gray-100);
+  color: var(--text-muted);
+}
+
+.badge--unknown {
+  background: var(--gray-100);
+  color: var(--text-helper);
+}

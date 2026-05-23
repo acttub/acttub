@@ -1,11 +1,6 @@
 packages:
-  - "acttub-landing"
-  - "ACTI"
+  - "web"
   - "coach"
-  - "thea"
-  - "comm"
-  - "arch"
-  - "excer"
 
 allowBuilds:
   '@google/genai': true
