@@ -224,6 +224,78 @@
         padding: 0.75rem;
         box-shadow: var(--shadow-1);
       }
+      .coach-hero-link {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        min-height: 112px;
+        margin-bottom: 0.65rem;
+        padding: 1.1rem;
+        border-radius: 18px;
+        overflow: hidden;
+        color: #ffffff;
+        background:
+          linear-gradient(135deg, rgba(110, 76, 184, 0.96), rgba(255, 122, 92, 0.88)),
+          var(--coach);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        box-shadow: 0 12px 28px rgba(110, 76, 184, 0.18);
+        transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          box-shadow 160ms ease;
+      }
+      .coach-hero-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px rgba(110, 76, 184, 0.24);
+      }
+      .coach-hero-copy {
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .coach-hero-kicker {
+        width: fit-content;
+        padding: 0.22rem 0.52rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.2);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+      .coach-hero-title {
+        font-size: clamp(1.28rem, 5vw, 1.9rem);
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+      }
+      .coach-hero-desc {
+        max-width: 25rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        line-height: 1.35;
+        color: rgba(255, 255, 255, 0.84);
+      }
+      .coach-hero-icon {
+        position: relative;
+        z-index: 1;
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+      }
+      .coach-hero-icon svg {
+        width: 34px;
+        height: 34px;
+      }
       .shortcuts-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -294,6 +366,18 @@
         white-space: nowrap;
       }
       @media (min-width: 720px) {
+        .coach-hero-link {
+          min-height: 132px;
+          padding: 1.3rem 1.4rem;
+        }
+        .coach-hero-icon {
+          width: 76px;
+          height: 76px;
+        }
+        .coach-hero-icon svg {
+          width: 40px;
+          height: 40px;
+        }
         .shortcuts-grid {
           grid-template-columns: repeat(4, 1fr);
         }
@@ -596,6 +680,20 @@
       <div class="container">
         <!-- Service shortcuts -->
         <section class="shortcuts" aria-label="acttub 서비스 바로가기">
+          <a class="coach-hero-link" href="/coach" aria-label="coach — 연기 연습 피드백">
+            <span class="coach-hero-copy">
+              <span class="coach-hero-kicker">GEMINI COACH</span>
+              <span class="coach-hero-title">연기 연습 피드백</span>
+              <span class="coach-hero-desc">영상 구간과 의도를 기준으로 다음 연습 포인트를 정리합니다.</span>
+            </span>
+            <span class="coach-hero-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+                <path d="M20 3v4" />
+                <path d="M22 5h-4" />
+              </svg>
+            </span>
+          </a>
           <div class="shortcuts-grid">
             <a class="shortcut" href="/ACTI" aria-label="ACTI — 연기 스타일 진단">
               <span class="shortcut-icon" aria-hidden="true">
