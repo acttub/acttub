@@ -269,7 +269,7 @@ export default function CoachPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h1 className="text-2xl font-black tracking-tight text-ink sm:text-3xl">연기 연습 피드백</h1>
-              <p className="mt-1 text-sm font-medium text-muted">영상 구간과 의도를 기준으로 Gemini가 연습 피드백을 만듭니다.</p>
+              <p className="mt-1 text-sm font-medium text-muted">영상 구간과 의도를 기준으로 AI가 연습 피드백을 만듭니다.</p>
             </div>
             <div className="flex rounded-xl border border-line bg-surface-muted p-1">
               <button
@@ -503,7 +503,7 @@ export default function CoachPage() {
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-primary-deep disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isAnalyzing ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
-            {isAnalyzing ? '분석 중' : 'Gemini로 분석'}
+            {isAnalyzing ? '분석 중' : 'AI로 분석'}
           </button>
         </section>
       </section>

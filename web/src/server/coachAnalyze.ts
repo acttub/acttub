@@ -97,18 +97,18 @@ async function defaultAnalyze(input: CoachAnalyzeInput): Promise<CoachFeedback> 
 
     for (let attempt = 0; attempt < 12; attempt += 1) {
       if (fileStateName(uploadedFile.state) === 'ACTIVE') break;
-      if (!uploadedFile.name) throw new Error('Gemini 파일 이름을 확인하지 못했습니다.');
+      if (!uploadedFile.name) throw new Error('업로드 파일 이름을 확인하지 못했습니다.');
 
       await sleep(5000);
       uploadedFile = await ai.files.get({ name: uploadedFile.name }) as GeminiFileState;
     }
 
     if (fileStateName(uploadedFile.state) !== 'ACTIVE') {
-      throw new Error('Gemini가 영상 처리를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      throw new Error('AI 분석 서비스가 영상 처리를 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.');
     }
 
     if (!uploadedFile.uri || !uploadedFile.mimeType) {
-      throw new Error('Gemini 업로드 파일 URI 또는 MIME 타입을 확인하지 못했습니다.');
+      throw new Error('업로드 파일 URI 또는 MIME 타입을 확인하지 못했습니다.');
     }
 
     const prompt = buildEvaluationPrompt({
@@ -142,7 +142,7 @@ export async function handleCoachAnalyze(request: Request, options: CoachAnalyze
 
   const apiKey = options.apiKey ?? process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return jsonError(500, 'GEMINI_API_KEY가 설정되어 있지 않습니다. Vercel 또는 로컬 환경변수를 확인해 주세요.');
+    return jsonError(500, 'AI 분석 환경변수가 설정되어 있지 않습니다. Vercel 또는 로컬 환경변수를 확인해 주세요.');
   }
 
   try {

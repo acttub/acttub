@@ -18,7 +18,7 @@ function videoFormData(overrides: Partial<Record<string, string | Blob>> = {}) {
 }
 
 describe('coach analysis API', () => {
-  it('returns JSON when the request is missing a Gemini API key', async () => {
+  it('returns JSON when the request is missing the AI analysis API key', async () => {
     const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
       method: 'POST',
       body: videoFormData(),
@@ -26,7 +26,7 @@ describe('coach analysis API', () => {
 
     expect(result.status).toBe(500);
     expect(result.body).toEqual({
-      error: 'GEMINI_API_KEY가 설정되어 있지 않습니다. Vercel 또는 로컬 환경변수를 확인해 주세요.',
+      error: 'AI 분석 환경변수가 설정되어 있지 않습니다. Vercel 또는 로컬 환경변수를 확인해 주세요.',
     });
   });
 
@@ -58,7 +58,7 @@ describe('coach analysis API', () => {
     });
   });
 
-  it('does not reject large uploads before Gemini receives them', async () => {
+  it('does not reject large uploads before the analyzer receives them', async () => {
     const analyze = vi.fn().mockResolvedValue({
       summary: '요약',
       evaluationMetrics: [],
