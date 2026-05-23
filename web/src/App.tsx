@@ -6,6 +6,7 @@ import TheaPage from './pages/TheaPage';
 import ExcerPage from './pages/ExcerPage';
 import CommunityPage from './pages/CommunityPage';
 import ArchivePage from './pages/ArchivePage';
+import CoachPage from './pages/CoachPage';
 import LandingPage from './pages/LandingPage';
 import QuizPage from './pages/QuizPage';
 import SurveyPage from './pages/SurveyPage';
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/excer/*" element={<ExcerPage />} />
           <Route path="/community/*" element={<CommunityPage />} />
           <Route path="/archive/*" element={<ArchivePage />} />
+          <Route path="/coach/*" element={<CoachPage />} />
           <Route path="/ACTI" element={<LandingPage />} />
           <Route path="/ACTI/quiz" element={<QuizPage />} />
           <Route path="/ACTI/survey" element={<SurveyPage />} />

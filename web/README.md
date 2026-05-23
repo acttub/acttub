@@ -8,8 +8,7 @@ Unified Vite React app for:
 - `/excer`: practice-room finder
 - `/community`: community
 - `/archive`: video archive
-
-`coach` is intentionally separate for now.
+- `/coach`: Gemini acting coach
 
 ## Stack
 
@@ -50,6 +49,7 @@ Start from `.env.example`. For deployed persistence and upload support:
 ```txt
 DATABASE_URL=...
 BLOB_READ_WRITE_TOKEN=...
+GEMINI_API_KEY=...
 ```
 
 Optional ACTI result email env:

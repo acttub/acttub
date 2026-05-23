@@ -1,7 +1,5 @@
-"use client";
-
-import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Camera,
   CircleStop,
@@ -14,10 +12,11 @@ import {
   Scissors,
   Sparkles,
   Upload,
-} from "lucide-react";
-import { ACTING_CATEGORIES, type CoachFeedback, type EvaluationMetric, formatTime } from "@/lib/evaluation";
+} from 'lucide-react';
+import { ACTING_CATEGORIES, formatTime, type CoachFeedback, type EvaluationMetric } from '../coach/evaluation';
+import './CoachPage.css';
 
-type InputMode = "upload" | "record";
+type InputMode = 'upload' | 'record';
 
 function FeedbackList({ title, items }: { title: string; items: string[] }) {
   return (
@@ -66,22 +65,22 @@ function MetricGauge({ metric }: { metric: EvaluationMetric }) {
 }
 
 function fieldClass() {
-  return "w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15";
+  return 'w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15';
 }
 
 export default function CoachPage() {
-  const [mode, setMode] = useState<InputMode>("upload");
+  const [mode, setMode] = useState<InputMode>('upload');
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoUrl, setVideoUrl] = useState("");
+  const [videoUrl, setVideoUrl] = useState('');
   const [duration, setDuration] = useState(0);
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState('');
   const [category, setCategory] = useState<string>(ACTING_CATEGORIES[0]);
-  const [intent, setIntent] = useState("");
-  const [memo, setMemo] = useState("");
+  const [intent, setIntent] = useState('');
+  const [memo, setMemo] = useState('');
   const [feedback, setFeedback] = useState<CoachFeedback | null>(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isStartingRecording, setIsStartingRecording] = useState(false);
@@ -95,7 +94,7 @@ export default function CoachPage() {
   const segmentLength = useMemo(() => Math.max(0, endTime - startTime), [endTime, startTime]);
   const selectedVideoLabel = videoFile
     ? `${videoFile.name} · ${(videoFile.size / 1024 / 1024).toFixed(1)}MB`
-    : "mp4, mov, webm";
+    : 'mp4, mov, webm';
 
   useEffect(() => {
     return () => {
@@ -120,13 +119,13 @@ export default function CoachPage() {
     const objectUrl = URL.createObjectURL(file);
     setVideoFile(file);
     setVideoUrl(objectUrl);
-    setFileName(file.name.replace(/\.[^.]+$/, ""));
+    setFileName(file.name.replace(/\.[^.]+$/, ''));
     setDuration(0);
     setStartTime(0);
     setEndTime(0);
     setFeedback(null);
-    setMemo("");
-    setError("");
+    setMemo('');
+    setError('');
   }
 
   function onVideoMetadata() {
@@ -155,20 +154,20 @@ export default function CoachPage() {
   }
 
   async function startRecording() {
-    setError("");
+    setError('');
     setFeedback(null);
     setIsStartingRecording(true);
 
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
-        setError("이 브라우저에서는 직접 녹화를 지원하지 않습니다. 영상 업로드를 사용해 주세요.");
+        setError('이 브라우저에서는 직접 녹화를 지원하지 않습니다. 영상 업로드를 사용해 주세요.');
         return;
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")
-        ? "video/webm;codecs=vp8,opus"
-        : "video/webm";
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')
+        ? 'video/webm;codecs=vp8,opus'
+        : 'video/webm';
       const recorder = new MediaRecorder(stream, { mimeType });
       chunksRef.current = [];
       streamRef.current = stream;
@@ -179,19 +178,19 @@ export default function CoachPage() {
       };
 
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "video/webm" });
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'video/webm' });
         const file = new File([blob], `coach-recording-${Date.now()}.webm`, { type: blob.type });
         setSelectedVideo(file);
         stream.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
       };
 
-      setMode("record");
+      setMode('record');
       setRecordingSeconds(0);
       recorder.start();
       setIsRecording(true);
     } catch {
-      setError("카메라와 마이크 권한을 허용해야 직접 녹화할 수 있습니다.");
+      setError('카메라와 마이크 권한을 허용해야 직접 녹화할 수 있습니다.');
     } finally {
       setIsStartingRecording(false);
     }
@@ -203,15 +202,15 @@ export default function CoachPage() {
   }
 
   function validateForm() {
-    if (!videoFile) return "분석할 영상을 업로드하거나 녹화해 주세요.";
-    if (!fileName.trim()) return "파일 이름을 입력해 주세요.";
-    if (!intent.trim()) return "이번 연습의 의도나 목표를 입력해 주세요.";
-    if (duration <= 0) return "영상 정보를 읽은 뒤 다시 시도해 주세요.";
+    if (!videoFile) return '분석할 영상을 업로드하거나 녹화해 주세요.';
+    if (!fileName.trim()) return '파일 이름을 입력해 주세요.';
+    if (!intent.trim()) return '이번 연습의 의도나 목표를 입력해 주세요.';
+    if (duration <= 0) return '영상 정보를 읽은 뒤 다시 시도해 주세요.';
     if (startTime < 0 || endTime <= startTime || endTime > duration + 0.5) {
-      return "분석 구간의 시작과 끝 시간을 확인해 주세요.";
+      return '분석 구간의 시작과 끝 시간을 확인해 주세요.';
     }
 
-    return "";
+    return '';
   }
 
   async function analyzeVideo() {
@@ -224,41 +223,41 @@ export default function CoachPage() {
     if (!videoFile) return;
 
     setIsAnalyzing(true);
-    setError("");
+    setError('');
     setFeedback(null);
 
     const formData = new FormData();
-    formData.set("video", videoFile);
-    formData.set("fileName", fileName.trim());
-    formData.set("category", category);
-    formData.set("intent", intent.trim());
-    formData.set("startTime", String(startTime));
-    formData.set("endTime", String(endTime));
+    formData.set('video', videoFile);
+    formData.set('fileName', fileName.trim());
+    formData.set('category', category);
+    formData.set('intent', intent.trim());
+    formData.set('startTime', String(startTime));
+    formData.set('endTime', String(endTime));
 
     try {
-      const response = await fetch("/coach/api/analyze", {
-        method: "POST",
+      const response = await fetch('/api/coach/analyze', {
+        method: 'POST',
         body: formData,
       });
       const payload = (await response.json()) as { feedback?: CoachFeedback; error?: string };
 
       if (!response.ok || !payload.feedback) {
-        throw new Error(payload.error ?? "분석 요청에 실패했습니다.");
+        throw new Error(payload.error ?? '분석 요청에 실패했습니다.');
       }
 
       setFeedback(payload.feedback);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "분석 요청에 실패했습니다.");
+      setError(caught instanceof Error ? caught.message : '분석 요청에 실패했습니다.');
     } finally {
       setIsAnalyzing(false);
     }
   }
 
   return (
-    <div className="mx-auto grid min-h-screen w-full max-w-7xl gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[1.06fr_0.94fr] lg:px-8 lg:py-8">
+    <div className="coach-page mx-auto grid min-h-screen w-full max-w-7xl gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[1.06fr_0.94fr] lg:px-8 lg:py-8">
       <section className="flex flex-col gap-5">
         <header className="flex items-center justify-between border-b border-line/80 pb-4">
-          <Link href="/" className="text-xl font-black tracking-tight text-ink" aria-label="acttub 홈">
+          <Link to="/" className="text-xl font-black tracking-tight text-ink" aria-label="acttub 홈">
             act<span className="text-primary">tub</span>
           </Link>
           <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-deep">
@@ -275,9 +274,9 @@ export default function CoachPage() {
             <div className="flex rounded-xl border border-line bg-surface-muted p-1">
               <button
                 type="button"
-                onClick={() => setMode("upload")}
+                onClick={() => setMode('upload')}
                 className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition ${
-                  mode === "upload" ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink"
+                  mode === 'upload' ? 'bg-white text-ink shadow-sm' : 'text-muted hover:text-ink'
                 }`}
               >
                 <Upload size={16} />
@@ -285,9 +284,9 @@ export default function CoachPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setMode("record")}
+                onClick={() => setMode('record')}
                 className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition ${
-                  mode === "record" ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink"
+                  mode === 'record' ? 'bg-white text-ink shadow-sm' : 'text-muted hover:text-ink'
                 }`}
               >
                 <Camera size={16} />
@@ -297,15 +296,15 @@ export default function CoachPage() {
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {mode === "upload" ? (
+            {mode === 'upload' ? (
               <label className="flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-primary/50 bg-primary-soft/55 p-5 text-center transition hover:bg-primary-soft">
                 <FileVideo className="text-primary-deep" size={28} />
                 <span className="mt-3 text-sm font-bold text-ink">
-                  {videoFile ? "업로드 완료" : "영상 파일 선택"}
+                  {videoFile ? '업로드 완료' : '영상 파일 선택'}
                 </span>
                 <span className="mt-1 max-w-full truncate text-xs text-muted">{selectedVideoLabel}</span>
                 <span className="mt-3 rounded-full bg-white px-3 py-1 text-xs font-bold text-primary-deep">
-                  {videoFile ? "다른 영상 선택" : "파일 고르기"}
+                  {videoFile ? '다른 영상 선택' : '파일 고르기'}
                 </span>
                 <input
                   className="sr-only"
@@ -322,10 +321,10 @@ export default function CoachPage() {
                 <div className="flex items-center gap-2 text-sm font-bold text-ink">
                   <Mic size={18} />
                   {isStartingRecording
-                    ? "권한 요청 중"
+                    ? '권한 요청 중'
                     : isRecording
                       ? `녹화 중 ${formatTime(recordingSeconds)}`
-                      : "브라우저 녹화"}
+                      : '브라우저 녹화'}
                 </div>
                 <p className="mt-2 text-xs leading-5 text-muted">
                   시작을 누르면 브라우저의 카메라/마이크 권한 창이 열립니다.
@@ -338,7 +337,7 @@ export default function CoachPage() {
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-ink px-3 py-2.5 text-sm font-bold text-white transition hover:bg-foreground disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isStartingRecording ? <Loader2 className="animate-spin" size={16} /> : <Camera size={16} />}
-                    {isStartingRecording ? "권한 확인" : "시작"}
+                    {isStartingRecording ? '권한 확인' : '시작'}
                   </button>
                   <button
                     type="button"
@@ -504,7 +503,7 @@ export default function CoachPage() {
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-primary-deep disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isAnalyzing ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
-            {isAnalyzing ? "분석 중" : "Gemini로 분석"}
+            {isAnalyzing ? '분석 중' : 'Gemini로 분석'}
           </button>
         </section>
       </section>
@@ -516,7 +515,7 @@ export default function CoachPage() {
             피드백
           </div>
           <p className="mt-4 text-2xl font-black leading-tight">
-            {feedback ? feedback.summary : "분석 결과가 여기에 표시됩니다."}
+            {feedback ? feedback.summary : '분석 결과가 여기에 표시됩니다.'}
           </p>
         </section>
 

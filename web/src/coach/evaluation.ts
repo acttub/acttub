@@ -1,10 +1,10 @@
 export const ACTING_CATEGORIES = [
-  "독백",
-  "대사",
-  "오디션",
-  "감정연기",
-  "발성/발음",
-  "즉흥",
+  '독백',
+  '대사',
+  '오디션',
+  '감정연기',
+  '발성/발음',
+  '즉흥',
 ] as const;
 
 export type ActingCategory = (typeof ACTING_CATEGORIES)[number];
@@ -32,28 +32,28 @@ export type CoachFeedback = {
 };
 
 const DEFAULT_EVALUATION_METRICS: EvaluationMetric[] = [
-  { label: "감정 전달", score: 50, note: "응답 형식이 깨져 감정 전달 점수를 확인하지 못했습니다." },
-  { label: "대사 전달", score: 50, note: "응답 형식이 깨져 대사 전달 점수를 확인하지 못했습니다." },
-  { label: "신체 표현", score: 50, note: "응답 형식이 깨져 신체 표현 점수를 확인하지 못했습니다." },
-  { label: "의도 부합", score: 50, note: "응답 형식이 깨져 의도 부합 점수를 확인하지 못했습니다." },
+  { label: '감정 전달', score: 50, note: '응답 형식이 깨져 감정 전달 점수를 확인하지 못했습니다.' },
+  { label: '대사 전달', score: 50, note: '응답 형식이 깨져 대사 전달 점수를 확인하지 못했습니다.' },
+  { label: '신체 표현', score: 50, note: '응답 형식이 깨져 신체 표현 점수를 확인하지 못했습니다.' },
+  { label: '의도 부합', score: 50, note: '응답 형식이 깨져 의도 부합 점수를 확인하지 못했습니다.' },
 ];
 
 const FALLBACK_FEEDBACK: CoachFeedback = {
-  summary: "분석 결과를 구조화하지 못했습니다. 영상과 의도는 전달됐지만 응답 형식이 맞지 않았습니다.",
+  summary: '분석 결과를 구조화하지 못했습니다. 영상과 의도는 전달됐지만 응답 형식이 맞지 않았습니다.',
   evaluationMetrics: DEFAULT_EVALUATION_METRICS,
-  weaknesses: ["응답 형식이 깨져 구체적인 부족한 부분을 분리하지 못했습니다."],
-  alignedMoments: ["응답 형식이 깨져 의도에 부합한 부분을 분리하지 못했습니다."],
-  practiceRecommendations: ["같은 영상으로 다시 분석을 요청하거나, 의도 설명을 더 구체적으로 입력해 주세요."],
+  weaknesses: ['응답 형식이 깨져 구체적인 부족한 부분을 분리하지 못했습니다.'],
+  alignedMoments: ['응답 형식이 깨져 의도에 부합한 부분을 분리하지 못했습니다.'],
+  practiceRecommendations: ['같은 영상으로 다시 분석을 요청하거나, 의도 설명을 더 구체적으로 입력해 주세요.'],
 };
 
 export function formatTime(seconds: number) {
-  if (!Number.isFinite(seconds)) return "0:00";
+  if (!Number.isFinite(seconds)) return '0:00';
 
   const safeSeconds = Math.max(0, Math.floor(seconds));
   const minutes = Math.floor(safeSeconds / 60);
   const rest = safeSeconds % 60;
 
-  return `${minutes}:${rest.toString().padStart(2, "0")}`;
+  return `${minutes}:${rest.toString().padStart(2, '0')}`;
 }
 
 export function buildEvaluationPrompt(input: EvaluationInput) {
@@ -98,8 +98,8 @@ function extractJson(rawText: string) {
   const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fenced?.[1]) return fenced[1].trim();
 
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
+  const start = trimmed.indexOf('{');
+  const end = trimmed.lastIndexOf('}');
   if (start >= 0 && end > start) return trimmed.slice(start, end + 1);
 
   return trimmed;
@@ -108,12 +108,12 @@ function extractJson(rawText: string) {
 function stringArray(value: unknown, fallback: string[]) {
   if (!Array.isArray(value)) return fallback;
 
-  const items = value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  const items = value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
   return items.length > 0 ? items : fallback;
 }
 
 function scoreFromValue(value: unknown) {
-  const numericValue = typeof value === "number" ? value : Number(value);
+  const numericValue = typeof value === 'number' ? value : Number(value);
   if (!Number.isFinite(numericValue)) return 50;
 
   return Math.max(0, Math.min(100, Math.round(numericValue)));
@@ -124,12 +124,12 @@ function metricArray(value: unknown) {
 
   const metrics = value
     .map((item, index): EvaluationMetric | null => {
-      if (!item || typeof item !== "object") return null;
+      if (!item || typeof item !== 'object') return null;
 
       const record = item as Record<string, unknown>;
       const fallback = DEFAULT_EVALUATION_METRICS[index] ?? DEFAULT_EVALUATION_METRICS[0];
-      const label = typeof record.label === "string" && record.label.trim().length > 0 ? record.label.trim() : fallback.label;
-      const note = typeof record.note === "string" && record.note.trim().length > 0 ? record.note.trim() : fallback.note;
+      const label = typeof record.label === 'string' && record.label.trim().length > 0 ? record.label.trim() : fallback.label;
+      const note = typeof record.note === 'string' && record.note.trim().length > 0 ? record.note.trim() : fallback.note;
 
       return {
         label,
@@ -150,7 +150,7 @@ export function parseGeminiFeedback(rawText: string): CoachFeedback {
 
     return {
       summary:
-        typeof parsed.summary === "string" && parsed.summary.trim().length > 0
+        typeof parsed.summary === 'string' && parsed.summary.trim().length > 0
           ? parsed.summary.trim()
           : FALLBACK_FEEDBACK.summary,
       evaluationMetrics: metricArray(parsed.evaluationMetrics),

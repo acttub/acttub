@@ -6,8 +6,7 @@ Acttub web monorepo.
 
 | Directory | Role |
 |---|---|
-| `web/` | Unified Vite React app for landing, ACTI, thea, excer, community, and archive |
-| `coach/` | Separate Next.js Gemini coach app, kept separate until it is safe to merge |
+| `web/` | Unified Vite React app for landing, ACTI, thea, excer, community, archive, and coach |
 
 Legacy source folders such as `ACTI/`, `thea/`, `comm/`, `arch/`, `excer/`, and `acttub-landing/` may still exist for history/reference, but they are no longer part of the pnpm workspace or normal build path.
 
@@ -27,6 +26,7 @@ http://localhost:4000/thea
 http://localhost:4000/excer
 http://localhost:4000/community
 http://localhost:4000/archive
+http://localhost:4000/coach
 ```
 
 For LAN/mobile testing:
@@ -35,22 +35,15 @@ For LAN/mobile testing:
 corepack pnpm local:lan
 ```
 
-Coach remains separate:
-
-```bash
-corepack pnpm local:coach
-```
-
 ## Common Commands
 
 | Command | Description |
 |---|---|
 | `corepack pnpm local` | Run the unified `web` app on `127.0.0.1:4000` |
 | `corepack pnpm local:lan` | Run the unified `web` app on `0.0.0.0:4000` |
-| `corepack pnpm local:coach` | Run the separate coach app |
-| `corepack pnpm lint` | Lint `web` and `coach` |
+| `corepack pnpm lint` | Lint `web` |
 | `corepack pnpm test` | Run `web` tests |
-| `corepack pnpm prod` | Build `web` and `coach` |
+| `corepack pnpm prod` | Build `web` |
 | `corepack pnpm verify` | Frozen install, lint, test, and production builds |
 
 ## Deployment
@@ -60,7 +53,6 @@ Vercel projects:
 | Vercel Project | Root Directory |
 |---|---|
 | `web` | `web` |
-| `acttub-coach` | `coach` |
 
 The `web` project uses:
 
@@ -68,6 +60,7 @@ The `web` project uses:
 - Vercel Functions under `web/api`
 - Neon Postgres via `DATABASE_URL`
 - Vercel Blob via `BLOB_READ_WRITE_TOKEN`
+- Gemini coach analysis via `GEMINI_API_KEY`
 - Drizzle migrations under `web/drizzle`
 
 Apply DB migrations from `web/` after pulling env vars:

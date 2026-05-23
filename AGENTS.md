@@ -2,12 +2,11 @@
 
 ## Project Structure
 
-This repository now has two active workspace apps:
+This repository now has one active workspace app:
 
-- `web/`: unified Vite React app for landing, ACTI, thea, excer, community, and archive.
-- `coach/`: separate Next.js Gemini coach app.
+- `web/`: unified Vite React app for landing, ACTI, thea, excer, community, archive, and coach.
 
-The former app folders may remain as reference material, but normal development, linting, testing, and deployment go through `web/` and `coach/`.
+The former app folders may remain as reference material, but normal development, linting, testing, and deployment go through `web/`.
 
 ## Commands
 
@@ -21,10 +20,9 @@ Common commands:
 
 - `corepack pnpm local`: run `web` locally on `127.0.0.1:4000`.
 - `corepack pnpm local:lan`: run `web` on `0.0.0.0:4000` for LAN/mobile testing.
-- `corepack pnpm local:coach`: run `coach`.
-- `corepack pnpm lint`: lint `web` and `coach`.
+- `corepack pnpm lint`: lint `web`.
 - `corepack pnpm test`: run `web` tests.
-- `corepack pnpm prod`: build `web` and `coach`.
+- `corepack pnpm prod`: build `web`.
 - `corepack pnpm verify`: frozen install, lint, test, and production builds.
 - `corepack pnpm --dir web db:migrate`: apply Drizzle migrations to the configured Neon database.
 
@@ -54,7 +52,7 @@ Never commit local env or Vercel metadata:
 - `web/node_modules/`
 - `web/dist/`
 
-Production env is managed in Vercel. Required web env includes `DATABASE_URL` and `BLOB_READ_WRITE_TOKEN`.
+Production env is managed in Vercel. Required web env includes `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN`, and `GEMINI_API_KEY`.
 
 ## Pull Requests
 

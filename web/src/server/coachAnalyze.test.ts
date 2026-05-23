@@ -1,0 +1,82 @@
+// @vitest-environment node
+import { describe, expect, it, vi } from 'vitest';
+import { handleCoachAnalyze } from './coachAnalyze';
+
+function videoFormData(overrides: Partial<Record<string, string | Blob>> = {}) {
+  const data = new FormData();
+  data.set('video', new File(['video-bytes'], 'scene.webm', { type: 'video/webm' }));
+  data.set('fileName', '햄릿 독백');
+  data.set('category', '독백');
+  data.set('intent', '겉으로는 침착하지만 속으로는 무너지는 인물');
+  data.set('startTime', '0');
+  data.set('endTime', '12');
+
+  Object.entries(overrides).forEach(([key, value]) => {
+    if (value !== undefined) data.set(key, value);
+  });
+  return data;
+}
+
+describe('coach analysis API', () => {
+  it('returns JSON when the request is missing a Gemini API key', async () => {
+    const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
+      method: 'POST',
+      body: videoFormData(),
+    }));
+
+    expect(result.status).toBe(500);
+    expect(result.body).toEqual({
+      error: 'GEMINI_API_KEY가 설정되어 있지 않습니다. Vercel 또는 로컬 환경변수를 확인해 주세요.',
+    });
+  });
+
+  it('returns JSON validation errors for invalid form data', async () => {
+    const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
+      method: 'POST',
+      body: videoFormData({ intent: '' }),
+    }), {
+      apiKey: 'test-key',
+    });
+
+    expect(result).toEqual({
+      status: 400,
+      body: { error: '이번 연습의 의도나 목표를 입력해 주세요.' },
+    });
+  });
+
+  it('returns a JSON 400 for non-form requests', async () => {
+    const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
+      method: 'POST',
+      body: '',
+    }), {
+      apiKey: 'test-key',
+    });
+
+    expect(result).toEqual({
+      status: 400,
+      body: { error: '분석할 영상 파일이 필요합니다.' },
+    });
+  });
+
+  it('does not reject large uploads before Gemini receives them', async () => {
+    const analyze = vi.fn().mockResolvedValue({
+      summary: '요약',
+      evaluationMetrics: [],
+      weaknesses: ['약점'],
+      alignedMoments: ['좋은 지점'],
+      practiceRecommendations: ['연습'],
+    });
+    const largeVideo = new Blob([new Uint8Array(81 * 1024 * 1024)], { type: 'video/webm' });
+
+    const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
+      method: 'POST',
+      body: videoFormData({ video: largeVideo }),
+    }), {
+      apiKey: 'test-key',
+      analyze,
+    });
+
+    expect(result.status).toBe(200);
+    expect(analyze).toHaveBeenCalledOnce();
+  });
+});

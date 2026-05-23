@@ -5,7 +5,7 @@
 - `src/pages`: routed React pages.
 - `src/components`: reusable ACTI components.
 - `src/content`: ACTI questions and result copy.
-- `src/community`, `src/archive`, `src/excer`, `src/thea`: domain data and helpers.
+- `src/community`, `src/archive`, `src/coach`, `src/excer`, `src/thea`: domain data and helpers.
 - `src/server`: API core, storage adapters, Drizzle schema, and backend tests.
 - `api`: Vercel Functions.
 - `drizzle`: generated SQL migrations.
@@ -22,11 +22,13 @@ corepack pnpm build
 
 ## Backend
 
-API handlers should keep request parsing/validation in `src/server/apiCore.ts` and persistence behind storage adapters in `src/server/storage*.ts`.
+API handlers should keep request parsing/validation in `src/server/apiCore.ts` or focused server helpers such as `src/server/coachAnalyze.ts`, and persistence behind storage adapters in `src/server/storage*.ts`.
 
 Use Neon Postgres through Drizzle when `DATABASE_URL` is configured. Keep the memory fallback working for local development without env.
 
 Archive files go to Vercel Blob. Store only metadata in Postgres.
+
+Coach analysis uses `GEMINI_API_KEY` through the unified Vercel Function at `api/coach/analyze.ts`.
 
 ## Testing
 
