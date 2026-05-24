@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { upload } from '@vercel/blob/client';
-import { Helmet } from 'react-helmet-async';
 import { Link, useLocation, useNavigate, useSearchParams } from '../lib/router';
 import {
   Clapperboard,
@@ -52,10 +51,6 @@ export default function ArchivePage() {
 
   return (
     <div className="archive-page">
-      <Helmet>
-        <title>acttub archive</title>
-        <meta name="description" content="연기 영상을 기록하고 공유하는 acttub archive" />
-      </Helmet>
       <ArchiveHeader />
       <main>{content}</main>
     </div>

@@ -6,7 +6,6 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from '../lib/router';
-import { Helmet } from 'react-helmet-async';
 import { ChevronLeft, RotateCcw, ArrowRight, Camera, MessageCircle, Link as LinkIcon } from 'lucide-react';
 
 import CaptureCard from '../components/CaptureCard';
@@ -81,7 +80,7 @@ export default function ResultPage() {
     );
 
     const filename = `acti-${type.code}.png`;
-    const shareText = `${type.code} ${type.name} — ${siteUrl}/result/${type.code}`;
+    const shareText = `${type.code} ${type.name} — ${siteUrl}/ACTI/result/${type.code}`;
     const result = await shareCaptureToInstagram(storyRef.current, filename, shareText);
     if (result === 'shared') {
       trackResultAction('instagram_story', type.code);
@@ -106,17 +105,6 @@ export default function ResultPage() {
 
   return (
     <main className="page page-enter page-result">
-      <Helmet>
-        <title>{code} {type.name} — ACTI</title>
-        <meta name="description" content={type.tagline} />
-        <meta property="og:title" content={`${code} ${type.name}`} />
-        <meta property="og:description" content={type.tagline} />
-        <meta property="og:image" content={`${siteUrl}/og/${code}.png`} />
-        <meta property="og:url" content={`${siteUrl}/result/${code}`} />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-      </Helmet>
-
       <header className="page-result__topbar">
         <Link to="/ACTI" aria-label="처음으로" className="page-result__back">
           <ChevronLeft size={24} aria-hidden="true" />
@@ -229,7 +217,7 @@ export default function ResultPage() {
 
       {shareModalOpen && (
         <ShareSuccessModal
-          url={`${siteUrl}/result/${type.code}`}
+          url={`${siteUrl}/ACTI/result/${type.code}`}
           onClose={() => setShareModalOpen(false)}
         />
       )}

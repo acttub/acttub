@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, type MouseEvent } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useNavigate } from '../lib/router';
 
 function extractLandingMarkup(html: string) {
@@ -50,23 +49,6 @@ export default function LegacyLandingPage() {
 
   return (
     <>
-      <Helmet>
-        <title>acttub — 연기하는 사람들의 공간</title>
-        <meta
-          name="description"
-          content="연기하는 사람들의 커뮤니티와 도구들. 자유게시판, 연기 스타일 진단(ACTI), 영상 아카이브(archive), 연극 추천(thea), 연습실(excer)."
-        />
-        <meta property="og:title" content="acttub" />
-        <meta
-          property="og:description"
-          content="연기하는 사람들이 자기 연기를 기록하고, 진단하고, 이야기 나누는 공간"
-        />
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-        />
-      </Helmet>
       <style>{markup.styles}</style>
       <div onClickCapture={handleClick} dangerouslySetInnerHTML={{ __html: markup.body }} />
     </>

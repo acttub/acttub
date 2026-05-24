@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Link, useLocation, useNavigate, useSearchParams } from '../lib/router';
 import {
   ArrowLeft,
@@ -52,10 +51,6 @@ export default function CommunityPage() {
 
   return (
     <div className="community-page">
-      <Helmet>
-        <title>acttub 게시판</title>
-        <meta name="description" content="배우들이 이야기 나누는 곳" />
-      </Helmet>
       <CommunityHeader />
       <main className="community-main">{content}</main>
       <footer className="community-footer">acttub · 배우들의 게시판</footer>

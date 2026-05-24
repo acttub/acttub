@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState, type ElementType } from 'react';
-import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -92,19 +91,6 @@ function scorePlay(play: EnrichedPlay, mood: Mood, companion: Companion, pace: P
 export default function TheaPage() {
   return (
     <div className="thea-page">
-      <Helmet>
-        <title>thea - 취향 기반 연극 추천</title>
-        <meta
-          name="description"
-          content="관람 취향을 입력하면 지금 보기 좋은 연극을 추천하는 acttub의 연극 큐레이션 서비스입니다."
-        />
-        <meta property="og:title" content="thea - 취향 기반 연극 추천" />
-        <meta
-          property="og:description"
-          content="관람 취향을 입력하면 지금 보기 좋은 연극을 추천하는 acttub의 연극 큐레이션 서비스입니다."
-        />
-      </Helmet>
-
       <SiteHeader />
       <main className="thea-main">
         <section className="thea-hero">

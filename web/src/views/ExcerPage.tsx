@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from '../lib/router';
 import {
   ChevronRight,
@@ -76,14 +75,6 @@ export default function ExcerPage() {
 
   return (
     <div className="excer-page">
-      <Helmet>
-        <title>excer - 연습실 찾기</title>
-        <meta
-          name="description"
-          content="연기 연습실을 지도와 조건 필터로 빠르게 찾는 acttub의 연습실 탐색 서비스입니다."
-        />
-      </Helmet>
-
       <header className="excer-header">
         <a href="/" className="excer-logo" aria-label="excer 홈으로">
           excer<span>.</span>

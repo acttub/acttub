@@ -28,7 +28,7 @@ const escapeHtml = (s: string): string =>
 
 export function renderResultEmail(type: EmailType, siteUrl: string): RenderedEmail {
   const details = getTypeDetails(type.code);
-  const resultUrl = `${siteUrl.replace(/\/$/, '')}/result/${type.code}`;
+  const resultUrl = `${siteUrl.replace(/\/$/, '')}/ACTI/result/${type.code}`;
   const subject = `[ACTI] ${type.code} ${type.name} — 상세 결과 리포트`;
 
   const html = `<!doctype html>
