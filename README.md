@@ -63,6 +63,8 @@ If `corepack pnpm verify:prod-runtime` reports that port 4000 is already serving
 PROD_VERIFY_PORT=4010 corepack pnpm verify:prod-runtime
 ```
 
+For preview branch review and deployment checks, see `docs/nextjs-preview-readiness.md`.
+
 ## Deployment
 
 Vercel projects:

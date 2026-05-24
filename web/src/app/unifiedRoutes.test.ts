@@ -317,13 +317,19 @@ describe('unified Next app deployment', () => {
   it('keeps deployment docs aligned with the single web Vercel project', () => {
     const rootReadme = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
     const webReadme = readFileSync(path.join(root, 'README.md'), 'utf8');
+    const readiness = readFileSync(path.join(repoRoot, 'docs/nextjs-preview-readiness.md'), 'utf8');
 
     expect(rootReadme).toContain('| `web` | `web` |');
+    expect(rootReadme).toContain('docs/nextjs-preview-readiness.md');
     expect(webReadme).toContain('Vercel project root directory: `web`');
     expect(webReadme).toContain('pnpm build');
     expect(webReadme).toContain('Leave unset. Vercel detects the Next.js output automatically.');
     expect(webReadme).not.toContain('```txt\n.next\n```');
     expect(webReadme).toContain('corepack pnpm verify:preview');
+    expect(readiness).toContain('Branch: `experiment/nextjs-preview`');
+    expect(readiness).toContain('corepack pnpm verify:preview');
+    expect(readiness).toContain('Vercel root directory: `web`');
+    expect(readiness).toContain('Output directory: leave unset');
   });
 
   it('keeps local Vercel metadata and env files ignored', () => {
