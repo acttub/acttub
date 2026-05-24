@@ -233,6 +233,7 @@ describe('unified Next app workspace', () => {
     expect(pkg.scripts['verify:preview']).toBe(
       'corepack pnpm verify && PROD_VERIFY_PORT=4010 corepack pnpm verify:prod-runtime'
     );
+    expect(pkg.scripts['pr:preview']).toBe('node scripts/create-preview-pr.mjs');
   });
 
   it('does not reintroduce legacy per-app local commands or ports', () => {
@@ -261,6 +262,7 @@ describe('unified Next app workspace', () => {
     const readme = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
     const agents = readFileSync(path.join(repoRoot, 'AGENTS.md'), 'utf8');
     const prodRuntimeScript = readFileSync(path.join(repoRoot, 'scripts/verify-prod-runtime.mjs'), 'utf8');
+    const previewPrScript = readFileSync(path.join(repoRoot, 'scripts/create-preview-pr.mjs'), 'utf8');
 
     expect(readme).toContain('corepack pnpm verify:runtime');
     expect(readme).toContain('Run the smoke checks against the currently running app');
@@ -273,6 +275,9 @@ describe('unified Next app workspace', () => {
     expect(existsSync(path.join(repoRoot, 'scripts/verify-prod-runtime.mjs'))).toBe(true);
     expect(prodRuntimeScript).toContain('assertNoExistingServer');
     expect(prodRuntimeScript).toContain('already serving the app');
+    expect(previewPrScript).toContain('gh auth login -h github.com');
+    expect(previewPrScript).toContain('gh');
+    expect(previewPrScript).toContain('experiment/nextjs-preview');
   });
 
   it('keeps browser-like tests on the unified local origin', () => {
@@ -333,6 +338,7 @@ describe('unified Next app deployment', () => {
     expect(readiness).toContain('Output directory: leave unset');
     expect(readiness).toContain('docs/nextjs-preview-pr.md');
     expect(prDraft).toContain('gh pr create --base main --head experiment/nextjs-preview');
+    expect(prDraft).toContain('corepack pnpm pr:preview');
     expect(prDraft).toContain('https://github.com/acttub/acttub/compare/main...experiment/nextjs-preview?quick_pull=1');
     expect(prDraft).toContain('corepack pnpm verify:preview');
     expect(prDraft).toContain('Vercel root directory: `web`');

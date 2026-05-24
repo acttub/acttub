@@ -88,5 +88,11 @@ After GitHub CLI auth is fixed:
 
 ```bash
 gh auth login -h github.com
+corepack pnpm pr:preview
+```
+
+Equivalent direct command:
+
+```bash
 gh pr create --base main --head experiment/nextjs-preview --title "Unify Acttub into one Next.js web app" --body-file docs/nextjs-preview-pr.md
 ```

@@ -20,6 +20,7 @@ corepack pnpm local
 corepack pnpm start:lan
 corepack pnpm verify:preview
 corepack pnpm verify:runtime
+corepack pnpm pr:preview
 ```
 
 Use `corepack pnpm verify:preview` before opening, updating, or merging the preview PR. It runs frozen install, lint, all tests, production build, and production runtime smoke on port `4010`.
