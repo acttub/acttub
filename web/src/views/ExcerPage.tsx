@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   ChevronRight,
   ImageOff,
@@ -27,6 +27,9 @@ const SOUNDPROOF_SHORT: Record<ExcerRoom['soundproof'], string> = {
   medium: '방음 중',
   weak: '방음 약',
 };
+type ExcerPageProps = {
+  searchParams?: Record<string, string | string[] | undefined>;
+};
 
 function formatPrice(won: number) {
   return `₩${won.toLocaleString('ko-KR')}`;
@@ -41,15 +44,14 @@ function countFilters(filters: ExcerSearchParams) {
   return count;
 }
 
-export default function ExcerPage() {
+export default function ExcerPage({ searchParams = {} }: ExcerPageProps) {
   const pathname = usePathname() ?? '/excer';
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
 
   const filters = useMemo(
-    () => parseExcerSearchParams(Object.fromEntries(searchParams.entries())),
+    () => parseExcerSearchParams(searchParams),
     [searchParams],
   );
   const filterCount = countFilters(filters);
