@@ -50,6 +50,22 @@ async function waitForServer() {
   throw new Error(`Timed out waiting for ${baseUrl}: ${lastError}`);
 }
 
+async function assertNoExistingServer() {
+  try {
+    const response = await fetch(`${baseUrl}/api/health`, {
+      signal: AbortSignal.timeout(500),
+    });
+
+    if (response.ok) {
+      throw new Error(`${baseUrl} is already serving the app. Stop the running app before verify:prod-runtime.`);
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('already serving the app')) {
+      throw error;
+    }
+  }
+}
+
 function assertPortAvailable() {
   return new Promise((resolve, reject) => {
     const probe = createServer();
@@ -120,6 +136,7 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
 }
 
 try {
+  await assertNoExistingServer();
   await assertPortAvailable();
   await run('corepack', ['pnpm', '--dir', 'web', 'build']);
   startServer();

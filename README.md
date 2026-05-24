@@ -56,6 +56,12 @@ corepack pnpm local:lan
 | `corepack pnpm db:migrate` | Apply Drizzle migrations for `web` |
 | `corepack pnpm verify` | Frozen install, lint, test, and production builds |
 
+If `corepack pnpm verify:prod-runtime` reports that port 4000 is already serving the app, stop the running app first or run the check on another port:
+
+```bash
+PROD_VERIFY_PORT=4010 corepack pnpm verify:prod-runtime
+```
+
 ## Deployment
 
 Vercel projects:

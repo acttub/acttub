@@ -213,12 +213,16 @@ describe('unified Next app workspace', () => {
 
   it('documents the runtime verification command for the running unified app', () => {
     const readme = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
+    const prodRuntimeScript = readFileSync(path.join(repoRoot, 'scripts/verify-prod-runtime.mjs'), 'utf8');
 
     expect(readme).toContain('corepack pnpm verify:runtime');
     expect(readme).toContain('Run the smoke checks against the currently running app');
     expect(readme).toContain('corepack pnpm verify:prod-runtime');
     expect(readme).toContain('Build `web`, start it on port 4000, run smoke checks, and stop it');
+    expect(readme).toContain('PROD_VERIFY_PORT=4010 corepack pnpm verify:prod-runtime');
     expect(existsSync(path.join(repoRoot, 'scripts/verify-prod-runtime.mjs'))).toBe(true);
+    expect(prodRuntimeScript).toContain('assertNoExistingServer');
+    expect(prodRuntimeScript).toContain('already serving the app');
   });
 
   it('keeps browser-like tests on the unified local origin', () => {
