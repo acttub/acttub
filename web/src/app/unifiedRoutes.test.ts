@@ -205,6 +205,18 @@ describe('unified Next app deployment', () => {
     expect(vercel.routes).toBeUndefined();
   });
 
+  it('keeps local Vercel metadata and env files ignored', () => {
+    const rootIgnore = readFileSync(path.join(repoRoot, '.gitignore'), 'utf8');
+    const webIgnore = readFileSync(path.join(root, '.gitignore'), 'utf8');
+
+    expect(rootIgnore).toMatch(/(^|\n)\.vercel\/?(\n|$)/);
+    expect(rootIgnore).toMatch(/(^|\n)\.env\.local(\n|$)/);
+    expect(rootIgnore).toMatch(/(^|\n)\.env\.\*\.local(\n|$)/);
+    expect(webIgnore).toMatch(/(^|\n)\.vercel\/?(\n|$)/);
+    expect(webIgnore).toMatch(/(^|\n)\.env\*/);
+    expect(webIgnore).toMatch(/(^|\n)!\.env\.example(\n|$)/);
+  });
+
   it('keeps public coach docs from naming the analysis provider or model', () => {
     const publicDocs = [
       path.join(repoRoot, 'README.md'),

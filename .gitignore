@@ -6,6 +6,7 @@ Thumbs.db
 node_modules/
 .pnpm-store/
 .next/
+.vercel/
 .playwright-cli/
 .env
 .env.local
