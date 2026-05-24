@@ -5,7 +5,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from '../lib/router';
+import { useRouter } from 'next/navigation';
 import ProgressBar from '../components/ProgressBar';
 import ChoiceCard from '../components/ChoiceCard';
 import { QUESTIONS } from '../content/questions';
@@ -14,7 +14,7 @@ import { setMyTypeCode } from '../lib/storage';
 import type { Choice } from '../content/schema';
 
 export default function QuizPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<(Choice | null)[]>(
     () => QUESTIONS.map(() => null)
@@ -35,7 +35,7 @@ export default function QuizPage() {
         const filled = next.filter((c): c is Choice => c !== null);
         const code = computeType(filled);
         setMyTypeCode(code);
-        navigate('/ACTI/survey', { replace: true });
+        router.replace('/ACTI/survey');
       }, 320);
     }
   };

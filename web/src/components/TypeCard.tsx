@@ -4,7 +4,7 @@
  * TypeCard — 천적/베프 카드 (v2: 캐릭터 아바타 통합).
  */
 
-import { Link } from '../lib/router';
+import Link from 'next/link';
 import { ChevronRight, Swords, Heart, Sparkles } from 'lucide-react';
 import Badge from './Badge';
 import CharacterAvatar from './CharacterAvatar';
@@ -76,7 +76,7 @@ export default function TypeCard({
   }
 
   return (
-    <Link to={`/ACTI/result/${code}`} className="type-card" aria-label={ariaLabel}>
+    <Link href={`/ACTI/result/${code}`} className="type-card" aria-label={ariaLabel}>
       {content}
     </Link>
   );

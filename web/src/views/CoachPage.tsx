@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from '../lib/router';
+import Link from 'next/link';
 import {
   Camera,
   CircleStop,
@@ -258,7 +258,7 @@ export default function CoachPage() {
     <div className="coach-page mx-auto grid min-h-screen w-full max-w-7xl gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[1.06fr_0.94fr] lg:px-8 lg:py-8">
       <section className="flex flex-col gap-5">
         <header className="flex items-center justify-between border-b border-line/80 pb-4">
-          <Link to="/" className="text-xl font-black tracking-tight text-ink" aria-label="acttub 홈">
+          <Link href="/" className="text-xl font-black tracking-tight text-ink" aria-label="acttub 홈">
             act<span className="text-primary">tub</span>
           </Link>
           <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-deep">

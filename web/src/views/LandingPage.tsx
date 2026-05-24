@@ -4,7 +4,7 @@
  * S1 — 랜딩 (v3: 토스 미니멀 톤 + BottomCTA + 모바일 풀폭).
  */
 
-import { useNavigate } from '../lib/router';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, Clock4 } from 'lucide-react';
 import PrimaryButton from '../components/PrimaryButton';
 import BottomCTA from '../components/BottomCTA';
@@ -12,7 +12,7 @@ import CharacterAvatar from '../components/CharacterAvatar';
 import { getAllTypes } from '../content/types';
 
 export default function LandingPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const all = getAllTypes();
   const hero = all[0]; // MINB
 
@@ -69,7 +69,7 @@ export default function LandingPage() {
       <div className="page-landing__bottom-pad" aria-hidden="true" />
 
       <BottomCTA>
-        <PrimaryButton size="xl" fullWidth onClick={() => navigate('/ACTI/quiz')}>
+        <PrimaryButton size="xl" fullWidth onClick={() => router.push('/ACTI/quiz')}>
           시작하기
           <ArrowRight size={20} aria-hidden="true" />
         </PrimaryButton>

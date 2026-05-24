@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { useNavigate } from '../lib/router';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, Check } from 'lucide-react';
 
 import PrimaryButton from '../components/PrimaryButton';
@@ -40,15 +40,15 @@ function answerReady(item: RenderableItem, answers: SurveyAnswers): boolean {
 }
 
 export default function SurveyPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<SurveyAnswers>({});
   const [submitting, setSubmitting] = useState(false);
   const resultCode = useMemo(() => getMyTypeCode(), []);
 
   useEffect(() => {
-    if (!resultCode) navigate('/ACTI/quiz', { replace: true });
-  }, [navigate, resultCode]);
+    if (!resultCode) router.replace('/ACTI/quiz');
+  }, [router, resultCode]);
 
   const findNext = (from: number) => {
     for (let i = from + 1; i < ITEMS.length; i++) {
@@ -67,7 +67,7 @@ export default function SurveyPage() {
       } catch {
         // 응답 전송 실패는 사용자 흐름을 막지 않음
       }
-      navigate(`/ACTI/result/${resultCode}`, { replace: true });
+      router.replace(`/ACTI/result/${resultCode}`);
       return;
     }
     setIndex(next);

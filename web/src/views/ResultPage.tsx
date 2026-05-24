@@ -5,7 +5,8 @@
  */
 
 import { useMemo, useRef, useState } from 'react';
-import { useParams, useNavigate, Link } from '../lib/router';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { ChevronLeft, RotateCcw, ArrowRight, Camera, MessageCircle, Link as LinkIcon } from 'lucide-react';
 
 import CaptureCard from '../components/CaptureCard';
@@ -30,8 +31,9 @@ import { trackResultAction } from '../lib/analytics';
 import NotFoundPage from './NotFoundPage';
 
 export default function ResultPage() {
-  const { code: rawCode } = useParams<{ code: string }>();
-  const navigate = useNavigate();
+  const params = useParams<{ code: string }>();
+  const rawCode = Array.isArray(params.code) ? params.code[0] : params.code;
+  const router = useRouter();
   const myCode = useMemo(() => getMyTypeCode(), []);
   const storyRef = useRef<HTMLElement>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -57,7 +59,7 @@ export default function ResultPage() {
 
   const handleRetry = () => {
     clearMyTypeCode();
-    navigate('/ACTI/quiz', { replace: true });
+    router.replace('/ACTI/quiz');
   };
 
   const handleInstagramShare = async () => {
@@ -106,7 +108,7 @@ export default function ResultPage() {
   return (
     <main className="page page-enter page-result">
       <header className="page-result__topbar">
-        <Link to="/ACTI" aria-label="처음으로" className="page-result__back">
+        <Link href="/ACTI" aria-label="처음으로" className="page-result__back">
           <ChevronLeft size={24} aria-hidden="true" />
         </Link>
         <span className="page-result__topbar-title">ACTI</span>
@@ -206,7 +208,7 @@ export default function ResultPage() {
 
       {isRecipient && (
         <BottomCTA>
-          <PrimaryButton size="xl" fullWidth onClick={() => navigate('/ACTI/quiz')}>
+          <PrimaryButton size="xl" fullWidth onClick={() => router.push('/ACTI/quiz')}>
             나도 풀어보기
             <ArrowRight size={20} aria-hidden="true" />
           </PrimaryButton>

@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { upload } from '@vercel/blob/client';
-import { Link, useLocation, useNavigate, useSearchParams } from '../lib/router';
 import {
   Clapperboard,
   Globe,
@@ -35,8 +36,8 @@ const VIS_OPTIONS: Array<{
 ];
 
 export default function ArchivePage() {
-  const location = useLocation();
-  const normalizedPath = location.pathname.replace(/^\/archive/, '') || '/';
+  const pathname = usePathname() ?? '/archive';
+  const normalizedPath = pathname.replace(/^\/archive/, '') || '/';
 
   let content;
   if (normalizedPath === '/search') content = <ArchiveSearch />;
@@ -58,19 +59,19 @@ export default function ArchivePage() {
 }
 
 function ArchiveHeader() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [query, setQuery] = useState('');
 
   function submit(event: FormEvent) {
     event.preventDefault();
     const trimmed = query.trim();
-    navigate(trimmed ? `/archive/search?q=${encodeURIComponent(trimmed)}` : '/archive/search');
+    router.push(trimmed ? `/archive/search?q=${encodeURIComponent(trimmed)}` : '/archive/search');
   }
 
   return (
     <header className="archive-header">
       <div className="archive-header__inner">
-        <Link to="/archive" className="archive-brand">
+        <Link href="/archive" className="archive-brand">
           <span>
             act<span>tub</span>
           </span>
@@ -88,11 +89,11 @@ function ArchiveHeader() {
         </form>
 
         <div className="archive-header-actions">
-          <Link to="/archive/me" className="archive-button archive-button--ghost archive-button--sm archive-hide-mobile">
+          <Link href="/archive/me" className="archive-button archive-button--ghost archive-button--sm archive-hide-mobile">
             <Library />
             내 보관함
           </Link>
-          <Link to="/archive/upload" className="archive-button archive-button--primary archive-button--sm">
+          <Link href="/archive/upload" className="archive-button archive-button--primary archive-button--sm">
             <Plus />
             <span>업로드</span>
           </Link>
@@ -112,11 +113,11 @@ function ArchiveHome() {
           <h1>공유된 연기</h1>
           <p>
             전체 공개로 올라온 영상들. 내 영상은{' '}
-            <Link to="/archive/me">내 보관함</Link>
+            <Link href="/archive/me">내 보관함</Link>
             에서 따로 볼 수 있어요.
           </p>
         </div>
-        <Link to="/archive/me" className="archive-button archive-button--outline archive-button--sm">
+        <Link href="/archive/me" className="archive-button archive-button--outline archive-button--sm">
           <Lock />내 보관함
         </Link>
       </div>
@@ -127,7 +128,7 @@ function ArchiveHome() {
 }
 
 function ArchiveSearch() {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const query = searchParams.get('q')?.trim() || null;
   const tag = searchParams.get('tag')?.trim() || null;
   const results = filterArchiveVideos(ARCHIVE_FIXTURE_VIDEOS, { query, tag });
@@ -138,7 +139,7 @@ function ArchiveSearch() {
         <h1>검색 결과</h1>
         {query ? <span>검색어: {query}</span> : null}
         {tag ? <span>#{tag}</span> : null}
-        <Link to="/archive">홈으로</Link>
+        <Link href="/archive">홈으로</Link>
       </div>
       {results.length === 0 ? (
         <div className="archive-dashed-empty">결과가 없어요.</div>
@@ -235,7 +236,7 @@ function ArchiveVideoDetail({ videoId }: { videoId: string | undefined }) {
         </p>
         <div>
           {video.tags.map((tag) => (
-            <Link key={tag} to={`/archive/search?tag=${encodeURIComponent(tag)}`}>
+            <Link key={tag} href={`/archive/search?tag=${encodeURIComponent(tag)}`}>
               #{tag}
             </Link>
           ))}
@@ -258,7 +259,7 @@ function VideoGrid({ videos, compact = false }: { videos: ArchiveVideo[]; compac
 
 function VideoCard({ video }: { video: ArchiveVideo }) {
   return (
-    <Link to={`/archive/videos/${video.id}`} className="archive-video-card">
+    <Link href={`/archive/videos/${video.id}`} className="archive-video-card">
       <div className="archive-video-thumb">
         {video.thumbnailUrl ? <img src={video.thumbnailUrl} alt={video.title} loading="lazy" /> : <div>미리보기 없음</div>}
         {video.durationSec ? <span>{formatArchiveDuration(video.durationSec)}</span> : null}
@@ -278,7 +279,7 @@ function VideoCard({ video }: { video: ArchiveVideo }) {
 }
 
 function UploadForm() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState('');
   const [title, setTitle] = useState('');
@@ -320,7 +321,7 @@ function UploadForm() {
       });
       if (!response.ok) return;
       const payload = (await response.json()) as { id: string };
-      navigate(`/archive/videos/${payload.id}`);
+      router.push(`/archive/videos/${payload.id}`);
     } finally {
       setPending(false);
     }
@@ -420,7 +421,7 @@ function ArchiveEmptyPublic() {
         <br />
         남들에게 보여주고 싶을 때만 전체 공개로 바꿔주세요.
       </p>
-      <Link to="/archive/upload" className="archive-button archive-button--primary archive-button--lg">
+      <Link href="/archive/upload" className="archive-button archive-button--primary archive-button--lg">
         새 영상 올리기
       </Link>
     </div>
@@ -434,7 +435,7 @@ function ArchiveSmallEmpty({ text, cta }: { text: string; cta?: { href: string; 
       {cta ? (
         <>
           {' '}
-          <Link to={cta.href}>{cta.label}</Link>
+          <Link href={cta.href}>{cta.label}</Link>
         </>
       ) : null}
     </div>

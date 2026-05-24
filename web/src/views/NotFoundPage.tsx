@@ -4,7 +4,7 @@
  * S4 — 404 (v3: 토스 톤 + BottomCTA).
  */
 
-import { useNavigate } from '../lib/router';
+import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import Badge from '../components/Badge';
 import PrimaryButton from '../components/PrimaryButton';
@@ -12,7 +12,7 @@ import SecondaryButton from '../components/SecondaryButton';
 import BottomCTA from '../components/BottomCTA';
 
 export default function NotFoundPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   return (
     <main className="page page-enter page-404">
       <div className="page-404__container">
@@ -22,12 +22,12 @@ export default function NotFoundPage() {
           아직 없는 캐릭터예요
         </h1>
         <p className="page-404__hint">(오타거나 만들지 못한 조합일지도)</p>
-        <SecondaryButton fullWidth onClick={() => navigate('/ACTI/quiz')}>
+        <SecondaryButton fullWidth onClick={() => router.push('/ACTI/quiz')}>
           바로 풀어보기
         </SecondaryButton>
       </div>
       <BottomCTA>
-        <PrimaryButton size="xl" fullWidth onClick={() => navigate('/ACTI')}>
+        <PrimaryButton size="xl" fullWidth onClick={() => router.push('/ACTI')}>
           처음으로
           <ArrowRight size={20} aria-hidden="true" />
         </PrimaryButton>

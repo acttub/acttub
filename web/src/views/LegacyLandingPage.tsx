@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type MouseEvent } from 'react';
-import { useNavigate } from '../lib/router';
+import { useRouter } from 'next/navigation';
 
 function extractLandingMarkup(html: string) {
   const styles = Array.from(html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi))
@@ -13,7 +13,7 @@ function extractLandingMarkup(html: string) {
 }
 
 export default function LegacyLandingPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [markup, setMarkup] = useState({ body: '', styles: '' });
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function LegacyLandingPage() {
     if (url.origin !== window.location.origin) return;
 
     event.preventDefault();
-    navigate(`${url.pathname}${url.search}${url.hash}`);
+    router.push(`${url.pathname}${url.search}${url.hash}`);
   }
 
   return (

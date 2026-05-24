@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Link, useLocation, useNavigate, useSearchParams } from '../lib/router';
+import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   Bookmark,
@@ -33,10 +34,15 @@ const TABS = [
   { key: 'bookmarks', label: '북마크', emptyMessage: '저장한 글이 없어요.' },
 ] as const;
 
+type SearchParamsLike = {
+  entries: () => IterableIterator<[string, string]>;
+  get: (name: string) => string | null;
+};
+
 export default function CommunityPage() {
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
-  const normalizedPath = location.pathname.replace(/^\/community/, '') || '/';
+  const pathname = usePathname() ?? '/community';
+  const searchParams = useSearchParams();
+  const normalizedPath = pathname.replace(/^\/community/, '') || '/';
 
   let content: ReactNode;
   if (normalizedPath === '/search') content = <CommunitySearch />;
@@ -62,12 +68,12 @@ function CommunityHeader() {
   return (
     <header className="community-header">
       <div className="community-header__inner">
-        <Link to="/community" className="community-brand" aria-label="게시판 홈">
+        <Link href="/community" className="community-brand" aria-label="게시판 홈">
           <span>a</span>
           <strong>게시판</strong>
         </Link>
         <div className="community-header__actions">
-          <Link to="/community/search" className="community-icon-link" aria-label="검색">
+          <Link href="/community/search" className="community-icon-link" aria-label="검색">
             <Search />
           </Link>
           <button type="button" className="community-login-button">
@@ -97,7 +103,7 @@ function CommunityShell({
   );
 }
 
-function CommunityHome({ searchParams }: { searchParams: URLSearchParams }) {
+function CommunityHome({ searchParams }: { searchParams: SearchParamsLike }) {
   const params = parseCommunityParams(Object.fromEntries(searchParams.entries()));
   const activeBoard = params.board ? getCommunityBoard(params.board) : null;
   const posts = listCommunityPosts(COMMUNITY_FIXTURE_POSTS, params);
@@ -145,7 +151,7 @@ function CommunityHome({ searchParams }: { searchParams: URLSearchParams }) {
       {!activeBoard && posts.length > 0 ? <BoardExplore /> : null}
 
       <Link
-        to={params.board && params.board !== HOT_BOARD.slug ? `/community/new?board=${params.board}` : '/community/new'}
+        href={params.board && params.board !== HOT_BOARD.slug ? `/community/new?board=${params.board}` : '/community/new'}
         className="community-write-fab"
         aria-label="글쓰기"
       >
@@ -156,7 +162,7 @@ function CommunityHome({ searchParams }: { searchParams: URLSearchParams }) {
 }
 
 function CommunitySearch() {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const query = (searchParams.get('q') ?? '').trim();
   const results = query ? searchCommunityPosts(COMMUNITY_FIXTURE_POSTS, query) : [];
 
@@ -186,14 +192,14 @@ function CommunitySearch() {
 }
 
 function CommunityNew() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const board = searchParams.get('board') ?? 'free';
 
   return (
     <div className="community-form-page">
       <div className="community-form-heading">
-        <button type="button" onClick={() => navigate(-1)} aria-label="뒤로">
+        <button type="button" onClick={() => router.back()} aria-label="뒤로">
           <ArrowLeft />
         </button>
         <h1>새 글</h1>
@@ -206,7 +212,7 @@ function CommunityNew() {
 }
 
 function CommunityMe() {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const tab = searchParams.get('tab') ?? 'posts';
   const activeTab = TABS.find((item) => item.key === tab) ?? TABS[0];
   const myPosts = COMMUNITY_FIXTURE_POSTS.filter((post) => post.author.id === 'seed_minseo');
@@ -221,7 +227,7 @@ function CommunityMe() {
       </div>
       <div className="community-sort-tabs">
         {TABS.map((item) => (
-          <Link key={item.key} to={`/community/me?tab=${item.key}`} className={activeTab.key === item.key ? 'is-active' : ''}>
+          <Link key={item.key} href={`/community/me?tab=${item.key}`} className={activeTab.key === item.key ? 'is-active' : ''}>
             {item.label}
           </Link>
         ))}
@@ -279,7 +285,7 @@ function CommunityPostDetail({ postId }: { postId: string | undefined }) {
     <div className="community-detail">
       <article className="community-detail__article">
         {board ? (
-          <Link to={`/community?board=${board.slug}`} className="community-board-pill">
+          <Link href={`/community?board=${board.slug}`} className="community-board-pill">
             <span>{board.emoji}</span>
             {board.name}
           </Link>
@@ -373,7 +379,7 @@ function SidebarLink({
   active: boolean;
 }) {
   return (
-    <Link to={to} className={active ? 'is-active' : ''}>
+    <Link href={to} className={active ? 'is-active' : ''}>
       <span>{icon}</span>
       <span>{label}</span>
     </Link>
@@ -405,7 +411,7 @@ function BoardTabs({ currentBoard }: { currentBoard: string | null }) {
 
 function Tab({ to, label, active }: { to: string; label: string; active: boolean }) {
   return (
-    <Link to={to} className={active ? 'is-active' : ''}>
+    <Link href={to} className={active ? 'is-active' : ''}>
       {label}
     </Link>
   );
@@ -414,10 +420,10 @@ function Tab({ to, label, active }: { to: string; label: string; active: boolean
 function SortTabs({ sort, newHref, topHref }: { sort: 'new' | 'top'; newHref: string; topHref: string }) {
   return (
     <div className="community-sort-tabs">
-      <Link to={newHref} className={sort === 'new' ? 'is-active' : ''}>
+      <Link href={newHref} className={sort === 'new' ? 'is-active' : ''}>
         최신
       </Link>
-      <Link to={topHref} className={sort === 'top' ? 'is-active' : ''}>
+      <Link href={topHref} className={sort === 'top' ? 'is-active' : ''}>
         인기
       </Link>
     </div>
@@ -431,7 +437,7 @@ function PostCard({ post, showBoard = false }: { post: CommunityPost; showBoard?
 
   return (
     <li>
-      <Link to={`/community/posts/${post.id}`} className="community-post-card">
+      <Link href={`/community/posts/${post.id}`} className="community-post-card">
         {showBoard && board ? (
           <div className="community-board-pill">
             <span>{board.emoji}</span>
@@ -462,13 +468,13 @@ function PostCard({ post, showBoard = false }: { post: CommunityPost; showBoard?
 }
 
 function SearchForm({ initialQuery = '' }: { initialQuery?: string }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
 
   function submit(event: FormEvent) {
     event.preventDefault();
     const trimmed = query.trim();
-    navigate(trimmed ? `/community/search?q=${encodeURIComponent(trimmed)}` : '/community/search');
+    router.push(trimmed ? `/community/search?q=${encodeURIComponent(trimmed)}` : '/community/search');
   }
 
   return (
@@ -486,7 +492,7 @@ function SearchForm({ initialQuery = '' }: { initialQuery?: string }) {
 }
 
 function PostForm({ initialBoard }: { initialBoard: string }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [boardId, setBoardId] = useState(initialBoard);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -512,7 +518,7 @@ function PostForm({ initialBoard }: { initialBoard: string }) {
       });
       if (!response.ok) return;
       const payload = (await response.json()) as { id: string };
-      navigate(`/community/posts/${payload.id}`);
+      router.push(`/community/posts/${payload.id}`);
     } finally {
       setPending(false);
     }
@@ -547,7 +553,7 @@ function PostForm({ initialBoard }: { initialBoard: string }) {
         </label>
       )}
       <div className="community-post-form__actions">
-        <Link to="/community">취소</Link>
+        <Link href="/community">취소</Link>
         <button type="submit" disabled={pending}>
           {pending ? '저장 중...' : '올리기'}
         </button>
@@ -573,7 +579,7 @@ function BoardExplore() {
       <p>둘러보기</p>
       <div>
         {COMMUNITY_BOARDS.map((board) => (
-          <Link key={board.slug} to={`/community?board=${board.slug}`}>
+          <Link key={board.slug} href={`/community?board=${board.slug}`}>
             {board.emoji} {board.name}
           </Link>
         ))}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useSearchParams } from '../lib/router';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   ChevronRight,
   ImageOff,
@@ -42,7 +42,9 @@ function countFilters(filters: ExcerSearchParams) {
 }
 
 export default function ExcerPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const pathname = usePathname() ?? '/excer';
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
 
@@ -57,7 +59,8 @@ export default function ExcerPage() {
   );
 
   function setFilters(next: ExcerSearchParams) {
-    setSearchParams(toExcerQueryString(next), { replace: true });
+    const query = toExcerQueryString(next);
+    router.replace(query ? `${pathname}?${query}` : pathname);
   }
 
   function updateFilters(patch: Partial<ExcerSearchParams>) {
