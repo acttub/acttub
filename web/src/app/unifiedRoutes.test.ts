@@ -79,6 +79,10 @@ function extractSmokePaths(): string[] {
   return Array.from(source.matchAll(/\['[^']+', '([^']+)'/g), (match) => match[1]);
 }
 
+function readSmokeSource() {
+  return readFileSync(path.join(repoRoot, 'scripts/smoke-routes.mjs'), 'utf8');
+}
+
 function extractReadmeOpenPaths(): string[] {
   const source = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
   return Array.from(source.matchAll(/http:\/\/localhost:4000([^\s`]*)/g), (match) => match[1] || '/');
@@ -309,5 +313,13 @@ describe('unified Next app runtime smoke', () => {
     expect(smokePaths).toContain('/api/community/posts?board=free');
     expect(smokePaths).toContain('/api/community/comments?postId=1024');
     expect(smokePaths).toContain('/api/coach/analyze');
+  });
+
+  it('requires API smoke checks to parse JSON responses', () => {
+    const smoke = readSmokeSource();
+
+    expect(smoke).toContain('expectJson: true');
+    expect(smoke).toContain('JSON.parse(body)');
+    expect(smoke).toContain("contentType.includes('application/json')");
   });
 });

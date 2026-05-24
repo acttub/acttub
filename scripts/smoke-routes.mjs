@@ -26,10 +26,10 @@ const checks = [
   ['thea', '/thea', 'thea-page'],
   ['thea play detail', '/thea/plays/finding-mr-destiny', '김종욱 찾기'],
   ['team', '/team', 'team-page'],
-  ['health API', '/api/health', '"ok":true'],
-  ['archive videos API', '/api/archive/videos?q=%ED%96%84%EB%A6%BF', '"items":'],
-  ['community posts API', '/api/community/posts?board=free', '"items":'],
-  ['community comments API', '/api/community/comments?postId=1024', '"items":'],
+  ['health API', '/api/health', '"ok":true', { expectJson: true }],
+  ['archive videos API', '/api/archive/videos?q=%ED%96%84%EB%A6%BF', '"items":', { expectJson: true }],
+  ['community posts API', '/api/community/posts?board=free', '"items":', { expectJson: true }],
+  ['community comments API', '/api/community/comments?postId=1024', '"items":', { expectJson: true }],
   ['coach analyze invalid API', '/api/coach/analyze', '"error":', {
     method: 'POST',
     formData: {
@@ -39,6 +39,7 @@ const checks = [
       endTime: '1',
     },
     expectedStatuses: [400, 500],
+    expectJson: true,
   }],
 ];
 
@@ -75,11 +76,27 @@ for (const [label, path, expectedContent, options = {}] of checks) {
     const expectedStatuses = options.expectedStatuses;
     const ok = expectedStatuses ? expectedStatuses.includes(response.status) : response.status >= 200 && response.status < 400;
     const hasExpectedContent = body.includes(expectedContent);
-    const marker = ok && hasExpectedContent ? 'ok' : 'fail';
+    const contentType = response.headers.get('content-type') ?? '';
+    const hasJsonContentType = !options.expectJson || contentType.includes('application/json');
+    let hasValidJson = true;
+    if (options.expectJson) {
+      try {
+        JSON.parse(body);
+      } catch {
+        hasValidJson = false;
+      }
+    }
+    const marker = ok && hasExpectedContent && hasJsonContentType && hasValidJson ? 'ok' : 'fail';
     console.log(`${marker} ${response.status} ${label} ${path}`);
     if (!ok) failures.push(`${label} ${path} returned ${response.status}`);
     if (ok && !hasExpectedContent) {
       failures.push(`${label} ${path} did not include expected content: ${expectedContent}`);
+    }
+    if (ok && !hasJsonContentType) {
+      failures.push(`${label} ${path} did not return application/json content-type`);
+    }
+    if (ok && !hasValidJson) {
+      failures.push(`${label} ${path} did not return valid JSON`);
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
