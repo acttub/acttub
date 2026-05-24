@@ -6,9 +6,13 @@ const checks = [
   ['ACTI result', '/ACTI/result/MINB', 'MINB'],
   ['coach', '/coach', 'coach-page'],
   ['archive', '/archive', 'archive-page'],
+  ['archive video detail', '/archive/videos/hamlet-monologue', '햄릿 3막 독백 연습'],
   ['community', '/community', 'community-page'],
+  ['community post detail', '/community/posts/1024', '여러분은 왜 연기를 시작하셨어요?'],
   ['excer', '/excer', 'excer-page'],
+  ['excer room detail', '/excer/rooms/hyehwa-coral-studio', '혜화 코랄 스튜디오'],
   ['thea', '/thea', 'thea-page'],
+  ['thea play detail', '/thea/plays/finding-mr-destiny', '김종욱 찾기'],
   ['team', '/team', 'team-page'],
   ['health API', '/api/health', '"ok":true'],
 ];

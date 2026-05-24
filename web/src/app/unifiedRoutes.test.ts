@@ -229,6 +229,10 @@ describe('unified Next app runtime smoke', () => {
       expect(smokePaths).toContain(readmePath);
     }
     expect(smokePaths).toContain('/ACTI/result/MINB');
+    expect(smokePaths).toContain('/archive/videos/hamlet-monologue');
+    expect(smokePaths).toContain('/community/posts/1024');
+    expect(smokePaths).toContain('/excer/rooms/hyehwa-coral-studio');
+    expect(smokePaths).toContain('/thea/plays/finding-mr-destiny');
     expect(smokePaths).toContain('/api/health');
   });
 });
