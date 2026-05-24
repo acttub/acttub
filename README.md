@@ -48,6 +48,7 @@ corepack pnpm local:lan
 | `corepack pnpm start` | Run the built `web` app on `127.0.0.1:4000` |
 | `corepack pnpm start:lan` | Run the built `web` app on `0.0.0.0:4000` |
 | `corepack pnpm smoke` | Check representative pages and APIs against `SMOKE_BASE_URL` or `http://127.0.0.1:4000` |
+| `corepack pnpm verify:runtime` | Run the smoke checks against the currently running app |
 | `corepack pnpm lint` | Lint `web` |
 | `corepack pnpm test` | Run `web` tests |
 | `corepack pnpm db:generate` | Generate Drizzle migrations for `web` |

@@ -207,6 +207,14 @@ describe('unified Next app workspace', () => {
     expect(pkg.scripts.verify).toBe(
       'corepack pnpm install --frozen-lockfile && corepack pnpm lint && corepack pnpm test && corepack pnpm prod'
     );
+    expect(pkg.scripts['verify:runtime']).toBe('corepack pnpm smoke');
+  });
+
+  it('documents the runtime verification command for the running unified app', () => {
+    const readme = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
+
+    expect(readme).toContain('corepack pnpm verify:runtime');
+    expect(readme).toContain('Run the smoke checks against the currently running app');
   });
 
   it('keeps browser-like tests on the unified local origin', () => {
