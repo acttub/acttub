@@ -136,6 +136,8 @@ describe('unified Next app workspace', () => {
     expect(pkg.scripts['local:lan']).toContain('--port 4000');
     expect(pkg.scripts.start).toContain('--port 4000');
     expect(pkg.scripts['start:lan']).toContain('--port 4000');
+    expect(pkg.scripts.smoke).toBe('node scripts/smoke-routes.mjs');
+    expect(existsSync(path.join(repoRoot, 'scripts/smoke-routes.mjs'))).toBe(true);
     expect(pkg.scripts.start).toContain('--hostname 127.0.0.1');
     expect(pkg.scripts['start:lan']).toContain('--hostname 0.0.0.0');
     expect(pkg.scripts.prod).toBe('corepack pnpm prod:web');

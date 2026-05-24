@@ -22,6 +22,7 @@ Common commands:
 - `corepack pnpm local:lan`: run `web` on `0.0.0.0:4000` for LAN/mobile testing.
 - `corepack pnpm prod && corepack pnpm start`: build and run the production `web` app on `127.0.0.1:4000`.
 - `corepack pnpm start:lan`: run the built production `web` app on `0.0.0.0:4000`.
+- `corepack pnpm smoke`: check key pages and `/api/health` against `SMOKE_BASE_URL` or `http://127.0.0.1:4000`.
 - `corepack pnpm lint`: lint `web`.
 - `corepack pnpm test`: run `web` tests.
 - `corepack pnpm prod`: build `web`.
