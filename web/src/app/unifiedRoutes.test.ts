@@ -143,3 +143,21 @@ describe('unified Next app workspace', () => {
     expect(pkg.dependencies['react-router-dom']).toBeUndefined();
   });
 });
+
+describe('unified Next app deployment', () => {
+  it('keeps the active Vercel project configured as one Next app', () => {
+    const vercel = readJson<{
+      framework?: string;
+      buildCommand?: string;
+      outputDirectory?: string;
+      rewrites?: unknown[];
+      routes?: unknown[];
+    }>(path.join(root, 'vercel.json'));
+
+    expect(vercel.framework).toBe('nextjs');
+    expect(vercel.buildCommand).toBe('pnpm build');
+    expect(vercel.outputDirectory).toBeUndefined();
+    expect(vercel.rewrites).toBeUndefined();
+    expect(vercel.routes).toBeUndefined();
+  });
+});
