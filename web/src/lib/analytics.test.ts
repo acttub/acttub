@@ -27,7 +27,7 @@ describe('analytics', () => {
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
-    trackPageView('/quiz');
+    trackPageView('/ACTI/quiz');
 
     expect(document.querySelectorAll('script[src*="googletagmanager.com/gtag/js"]')).toHaveLength(0);
     expect(window.gtag).toBeUndefined();
@@ -60,14 +60,14 @@ describe('analytics', () => {
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
-    trackPageView('/result/MINB');
+    trackPageView('/ACTI/result/MINB');
 
     expectDataLayerToContain([
       'event',
       'page_view',
       expect.objectContaining({
-        page_path: '/result/MINB',
-        page_location: 'http://localhost:3000/result/MINB',
+        page_path: '/ACTI/result/MINB',
+        page_location: 'http://localhost:3000/ACTI/result/MINB',
       }),
     ]);
   });
@@ -77,14 +77,14 @@ describe('analytics', () => {
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
-    trackPageView('/result/MINB?email=user@example.com#private');
+    trackPageView('/ACTI/result/MINB?email=user@example.com#private');
 
     expectDataLayerToContain([
       'event',
       'page_view',
       expect.objectContaining({
-        page_path: '/result/MINB',
-        page_location: 'http://localhost:3000/result/MINB',
+        page_path: '/ACTI/result/MINB',
+        page_location: 'http://localhost:3000/ACTI/result/MINB',
       }),
     ]);
   });
@@ -111,13 +111,13 @@ describe('analytics', () => {
     vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { trackPageView } = await loadAnalytics();
 
-    trackPageView('/quiz');
+    trackPageView('/ACTI/quiz');
 
     expect(document.querySelectorAll('script[src*="googletagmanager.com/gtag/js?id=G-TEST123"]')).toHaveLength(1);
     expectDataLayerToContain([
       'event',
       'page_view',
-      expect.objectContaining({ page_path: '/quiz' }),
+      expect.objectContaining({ page_path: '/ACTI/quiz' }),
     ]);
   });
 
@@ -140,14 +140,14 @@ describe('analytics', () => {
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
-    trackPageView('quiz');
+    trackPageView('ACTI/quiz');
 
     expectDataLayerToContain([
       'event',
       'page_view',
       expect.objectContaining({
-        page_path: '/quiz',
-        page_location: 'http://localhost:3000/quiz',
+        page_path: '/ACTI/quiz',
+        page_location: 'http://localhost:3000/ACTI/quiz',
       }),
     ]);
   });
@@ -180,14 +180,14 @@ describe('analytics', () => {
     const { initAnalytics, trackPageView } = await loadAnalytics();
 
     initAnalytics();
-    trackPageView('/quiz');
-    trackPageView('/quiz');
-    trackPageView('/result/MINB');
-    trackPageView('/result/MINB');
+    trackPageView('/ACTI/quiz');
+    trackPageView('/ACTI/quiz');
+    trackPageView('/ACTI/result/MINB');
+    trackPageView('/ACTI/result/MINB');
 
     const pageViews = dataLayerEntries().filter(([cmd, name]) => cmd === 'event' && name === 'page_view');
     expect(pageViews).toHaveLength(2);
-    expect(pageViews[0][2]).toMatchObject({ page_path: '/quiz' });
-    expect(pageViews[1][2]).toMatchObject({ page_path: '/result/MINB' });
+    expect(pageViews[0][2]).toMatchObject({ page_path: '/ACTI/quiz' });
+    expect(pageViews[1][2]).toMatchObject({ page_path: '/ACTI/result/MINB' });
   });
 });
