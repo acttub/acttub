@@ -67,7 +67,7 @@ describe('analytics', () => {
       'page_view',
       expect.objectContaining({
         page_path: '/ACTI/result/MINB',
-        page_location: 'http://localhost:3000/ACTI/result/MINB',
+        page_location: 'http://localhost:4000/ACTI/result/MINB',
       }),
     ]);
   });
@@ -84,7 +84,7 @@ describe('analytics', () => {
       'page_view',
       expect.objectContaining({
         page_path: '/ACTI/result/MINB',
-        page_location: 'http://localhost:3000/ACTI/result/MINB',
+        page_location: 'http://localhost:4000/ACTI/result/MINB',
       }),
     ]);
   });
@@ -147,7 +147,7 @@ describe('analytics', () => {
       'page_view',
       expect.objectContaining({
         page_path: '/ACTI/quiz',
-        page_location: 'http://localhost:3000/ACTI/quiz',
+        page_location: 'http://localhost:4000/ACTI/quiz',
       }),
     ]);
   });

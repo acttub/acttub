@@ -173,6 +173,13 @@ describe('unified Next app workspace', () => {
     );
   });
 
+  it('keeps browser-like tests on the unified local origin', () => {
+    const vitestConfig = readFileSync(path.join(root, 'vitest.config.ts'), 'utf8');
+
+    expect(vitestConfig).toContain("url: 'http://localhost:4000/'");
+    expect(vitestConfig).not.toContain('localhost:3000');
+  });
+
   it('keeps the active web app on Next scripts instead of Vite scripts', () => {
     const pkg = readJson<{ dependencies: Record<string, string>; devDependencies: Record<string, string>; scripts: Record<string, string> }>(
       path.join(root, 'package.json')
