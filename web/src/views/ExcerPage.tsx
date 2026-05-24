@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   ChevronRight,
@@ -22,11 +22,30 @@ import { EXCER_FIXTURE_ROOMS } from '../excer/rooms';
 
 const PRICE_MAX = 30000;
 const PRICE_STEP = 1000;
+const KAKAO_MAP_KEY = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY ?? process.env.NEXT_PUBLIC_KAKAO_APP_KEY;
 const SOUNDPROOF_SHORT: Record<ExcerRoom['soundproof'], string> = {
   strong: '방음 강',
   medium: '방음 중',
   weak: '방음 약',
 };
+
+type KakaoLatLng = new (lat: number, lng: number) => unknown;
+type KakaoMap = new (container: HTMLElement, options: { center: unknown; level: number }) => unknown;
+type KakaoMarker = new (options: { map: unknown; position: unknown; title?: string }) => unknown;
+type KakaoMaps = {
+  LatLng: KakaoLatLng;
+  Map: KakaoMap;
+  Marker: KakaoMarker;
+  load(callback: () => void): void;
+};
+
+declare global {
+  interface Window {
+    kakao?: {
+      maps?: KakaoMaps;
+    };
+  }
+}
 type ExcerPageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
@@ -128,7 +147,7 @@ export default function ExcerPage({ searchParams = {} }: ExcerPageProps) {
 
       <main className="excer-content">
         <section className="excer-map-area" aria-label="연습실 지도">
-          <MapPlaceholder />
+          <KakaoMapBackground rooms={filteredRooms} />
           {filteredRooms.map((room) => (
             <button
               key={room.slug}
@@ -143,7 +162,7 @@ export default function ExcerPage({ searchParams = {} }: ExcerPageProps) {
               aria-label={`${room.name} 위치`}
             />
           ))}
-          <div className="excer-map-note">NEXT_PUBLIC_KAKAO_MAP_KEY 가 설정되면 지도가 활성화돼요</div>
+          {!KAKAO_MAP_KEY ? <div className="excer-map-note">카카오맵 키가 설정되면 지도가 활성화돼요</div> : null}
         </section>
 
         <aside className="excer-list-panel" aria-label="연습실 목록">
@@ -319,14 +338,75 @@ function SegmentedGroup({
   );
 }
 
-function MapPlaceholder() {
+function KakaoMapBackground({ rooms }: { rooms: ExcerRoom[] }) {
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    if (!KAKAO_MAP_KEY || !mapRef.current) return;
+
+    let cancelled = false;
+    const scriptId = 'kakao-map-sdk';
+
+    function renderMap() {
+      const maps = window.kakao?.maps;
+      const container = mapRef.current;
+      if (!maps || !container || cancelled) return;
+
+      const centerRoom = rooms[0] ?? EXCER_FIXTURE_ROOMS[0];
+      const map = new maps.Map(container, {
+        center: new maps.LatLng(centerRoom.lat, centerRoom.lng),
+        level: 8,
+      });
+
+      rooms.forEach((room) => {
+        new maps.Marker({
+          map,
+          position: new maps.LatLng(room.lat, room.lng),
+          title: room.name,
+        });
+      });
+
+      setMapReady(true);
+    }
+
+    function loadMap() {
+      window.kakao?.maps?.load(renderMap);
+    }
+
+    if (window.kakao?.maps) {
+      loadMap();
+    } else {
+      const existing = document.getElementById(scriptId) as HTMLScriptElement | null;
+      if (existing) {
+        existing.addEventListener('load', loadMap, { once: true });
+      } else {
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(KAKAO_MAP_KEY)}&autoload=false`;
+        script.async = true;
+        script.addEventListener('load', loadMap, { once: true });
+        document.head.appendChild(script);
+      }
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [rooms]);
+
   return (
-    <div className="excer-map-placeholder" role="img" aria-label="지도 미리보기 (개발 중)">
-      <div className="excer-map-placeholder__grid" aria-hidden />
-      <div className="excer-map-placeholder__center">
-        <Map />
-        <span>지도 영역</span>
-      </div>
+    <div className="excer-map-placeholder" role="img" aria-label="연습실 지도">
+      {KAKAO_MAP_KEY ? <div ref={mapRef} className="excer-kakao-map" aria-hidden /> : null}
+      {!mapReady ? (
+        <>
+          <div className="excer-map-placeholder__grid" aria-hidden />
+          <div className="excer-map-placeholder__center">
+            <Map />
+            <span>지도 영역</span>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

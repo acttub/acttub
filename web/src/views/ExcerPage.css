@@ -356,6 +356,11 @@
   background: linear-gradient(135deg, #f2f4f6 0%, #fafbfc 100%);
 }
 
+.excer-kakao-map {
+  position: absolute;
+  inset: 0;
+}
+
 .excer-map-placeholder__grid {
   position: absolute;
   inset: 0;
