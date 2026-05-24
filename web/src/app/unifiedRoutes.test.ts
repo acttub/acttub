@@ -323,7 +323,7 @@ describe('unified Next app deployment', () => {
     expect(vercel.routes).toBeUndefined();
     expect(vercel.crons).toContainEqual({
       path: '/api/coach/cleanup',
-      schedule: '0 * * * *',
+      schedule: '0 3 * * *',
     });
   });
 

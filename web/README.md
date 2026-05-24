@@ -78,7 +78,7 @@ Without `DATABASE_URL`, API handlers fall back to in-memory fixture-backed stora
 
 Coach uploads use Vercel Blob client uploads so large videos do not hit Vercel route request limits.
 
-The analysis route deletes the uploaded Blob after analysis. A Vercel Cron job also calls `/api/coach/cleanup` every hour to delete leftover `coach/` blobs older than `COACH_BLOB_RETENTION_HOURS` hours. Set `CRON_SECRET` in Vercel so the cleanup endpoint rejects public requests.
+The analysis route deletes the uploaded Blob after analysis. A Vercel Cron job also calls `/api/coach/cleanup` once per day to delete leftover `coach/` blobs older than `COACH_BLOB_RETENTION_HOURS` hours. Set `CRON_SECRET` in Vercel so the cleanup endpoint rejects public requests.
 
 ## Commands
 
