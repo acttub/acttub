@@ -1,6 +1,8 @@
 # acttub
 
-Acttub web monorepo.
+Acttub web app.
+
+The active implementation is a single unified Next.js React project in `web/`. It serves the landing page, ACTI diagnosis, theater listings, practice-room listings, community, archive, coach, and team pages from one build and one local port.
 
 ## Current Structure
 
@@ -11,6 +13,21 @@ Acttub web monorepo.
 Legacy source folders such as `ACTI/`, `thea/`, `comm/`, `arch/`, `excer/`, and `acttub-landing/` may still exist for history/reference, but they are no longer part of the pnpm workspace or normal build path.
 
 Historical planning artifacts under `web/docs/` and `web/outputs/` may mention earlier Vite/SPA plans. The active implementation is the Next.js app under `web/src/app`.
+
+## App Areas
+
+| Path | Area |
+|---|---|
+| `/` | Acttub home |
+| `/ACTI` | ACTI diagnosis, quiz, survey, and result pages |
+| `/coach` | AI coach video analysis |
+| `/archive` | Acting video archive, search, upload, user, playlist, and detail pages |
+| `/community` | Community posts, comments, search, write, and profile pages |
+| `/excer` | Practice-room listings and detail pages |
+| `/thea` | Theater listings and play detail pages |
+| `/team` | Team page |
+
+API routes live under `web/src/app/api`. The backend uses Next route handlers, Drizzle, Neon Postgres, Vercel Blob, and Gemini for coach analysis. Coach video files are uploaded to Blob before analysis and cleaned up through a protected cron route.
 
 ## Local Development
 
@@ -72,6 +89,13 @@ Vercel projects:
 | Vercel Project | Root Directory |
 |---|---|
 | `web` | `web` |
+
+Deployment is intended to run through GitHub Actions, not Vercel's direct Git auto-deploy flow:
+
+- Pull requests run `corepack pnpm verify`, then deploy a Vercel Preview if verification passes.
+- Pushes to `main` run `corepack pnpm verify`, then deploy Vercel Production if verification passes.
+- Repository secrets required by the workflow: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`.
+- Keep Vercel Git auto-deploy disabled for `web`, and disconnect or disable the legacy Vercel projects so only one deployment pipeline runs.
 
 The `web` project uses:
 
