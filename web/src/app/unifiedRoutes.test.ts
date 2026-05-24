@@ -65,6 +65,9 @@ const rootScriptsExpectedToTargetWeb = [
   'start:lan',
   'lint',
   'test',
+  'db:generate',
+  'db:migrate',
+  'db:push',
 ];
 
 function readJson<T>(file: string): T {
@@ -168,6 +171,9 @@ describe('unified Next app workspace', () => {
     expect(pkg.scripts['start:lan']).toContain('--hostname 0.0.0.0');
     expect(pkg.scripts.prod).toBe('corepack pnpm prod:web');
     expect(pkg.scripts.build).toBe('corepack pnpm prod');
+    expect(pkg.scripts['db:generate']).toBe('corepack pnpm --dir web db:generate');
+    expect(pkg.scripts['db:migrate']).toBe('corepack pnpm --dir web db:migrate');
+    expect(pkg.scripts['db:push']).toBe('corepack pnpm --dir web db:push');
     expect(pkg.scripts.verify).toBe(
       'corepack pnpm install --frozen-lockfile && corepack pnpm lint && corepack pnpm test && corepack pnpm prod'
     );

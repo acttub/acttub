@@ -50,6 +50,8 @@ corepack pnpm local:lan
 | `corepack pnpm smoke` | Check key pages and `/api/health` against `SMOKE_BASE_URL` or `http://127.0.0.1:4000` |
 | `corepack pnpm lint` | Lint `web` |
 | `corepack pnpm test` | Run `web` tests |
+| `corepack pnpm db:generate` | Generate Drizzle migrations for `web` |
+| `corepack pnpm db:migrate` | Apply Drizzle migrations for `web` |
 | `corepack pnpm verify` | Frozen install, lint, test, and production builds |
 
 ## Deployment

@@ -14,6 +14,9 @@
     "lint": "corepack pnpm --dir web lint",
     "build": "corepack pnpm prod",
     "test": "corepack pnpm --dir web test",
+    "db:generate": "corepack pnpm --dir web db:generate",
+    "db:migrate": "corepack pnpm --dir web db:migrate",
+    "db:push": "corepack pnpm --dir web db:push",
     "verify": "corepack pnpm install --frozen-lockfile && corepack pnpm lint && corepack pnpm test && corepack pnpm prod"
   },
   "pnpm": {
