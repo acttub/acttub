@@ -57,6 +57,7 @@ Required production environment variables:
 - `DATABASE_URL`
 - `BLOB_READ_WRITE_TOKEN`
 - `GEMINI_API_KEY`
+- `CRON_SECRET`
 
 Optional variables are documented in `web/.env.example`.
 

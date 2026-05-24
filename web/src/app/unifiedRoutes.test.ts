@@ -40,6 +40,7 @@ const requiredApiRoutes = [
   'api/health/route.ts',
   'api/send-result/route.ts',
   'api/coach/analyze/route.ts',
+  'api/coach/cleanup/route.ts',
   'api/coach/upload/route.ts',
   'api/archive/videos/route.ts',
   'api/archive/upload/route.ts',
@@ -312,6 +313,7 @@ describe('unified Next app deployment', () => {
       outputDirectory?: string;
       rewrites?: unknown[];
       routes?: unknown[];
+      crons?: Array<{ path: string; schedule: string }>;
     }>(path.join(root, 'vercel.json'));
 
     expect(vercel.framework).toBe('nextjs');
@@ -319,6 +321,10 @@ describe('unified Next app deployment', () => {
     expect(vercel.outputDirectory).toBeUndefined();
     expect(vercel.rewrites).toBeUndefined();
     expect(vercel.routes).toBeUndefined();
+    expect(vercel.crons).toContainEqual({
+      path: '/api/coach/cleanup',
+      schedule: '0 * * * *',
+    });
   });
 
   it('keeps deployment docs aligned with the single web Vercel project', () => {
@@ -348,6 +354,8 @@ describe('unified Next app deployment', () => {
     expect(prBody).toContain('### Summary');
     expect(prBody).toContain('corepack pnpm verify:preview');
     expect(prBody).toContain('Vercel root directory: `web`');
+    expect(webReadme).toContain('/api/coach/cleanup');
+    expect(webReadme).toContain('CRON_SECRET');
   });
 
   it('keeps local Vercel metadata and env files ignored', () => {

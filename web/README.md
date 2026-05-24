@@ -50,6 +50,8 @@ Start from `.env.example`. For deployed persistence and upload support:
 DATABASE_URL=...
 BLOB_READ_WRITE_TOKEN=...
 GEMINI_API_KEY=...
+CRON_SECRET=...
+COACH_BLOB_RETENTION_HOURS=24
 ```
 
 Optional ACTI result email env:
@@ -71,6 +73,12 @@ corepack pnpm db:migrate
 ```
 
 Without `DATABASE_URL`, API handlers fall back to in-memory fixture-backed storage for local development.
+
+## Coach Blob Cleanup
+
+Coach uploads use Vercel Blob client uploads so large videos do not hit Vercel route request limits.
+
+The analysis route deletes the uploaded Blob after analysis. A Vercel Cron job also calls `/api/coach/cleanup` every hour to delete leftover `coach/` blobs older than `COACH_BLOB_RETENTION_HOURS` hours. Set `CRON_SECRET` in Vercel so the cleanup endpoint rejects public requests.
 
 ## Commands
 
