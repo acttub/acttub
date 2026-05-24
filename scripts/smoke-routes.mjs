@@ -30,19 +30,50 @@ const checks = [
   ['archive videos API', '/api/archive/videos?q=%ED%96%84%EB%A6%BF', '"items":'],
   ['community posts API', '/api/community/posts?board=free', '"items":'],
   ['community comments API', '/api/community/comments?postId=1024', '"items":'],
+  ['coach analyze invalid API', '/api/coach/analyze', '"error":', {
+    method: 'POST',
+    formData: {
+      category: '독백',
+      intent: '연습 의도',
+      startTime: '0',
+      endTime: '1',
+    },
+    expectedStatuses: [400, 500],
+  }],
 ];
 
 const failures = [];
 
-for (const [label, path, expectedContent] of checks) {
+function requestInit(options = {}) {
+  const headers = { accept: 'text/html,application/json;q=0.9,*/*;q=0.8' };
+  if (!options.formData) {
+    return {
+      method: options.method ?? 'GET',
+      headers,
+      signal: AbortSignal.timeout(5000),
+    };
+  }
+
+  const body = new FormData();
+  for (const [key, value] of Object.entries(options.formData)) {
+    body.set(key, value);
+  }
+
+  return {
+    method: options.method ?? 'POST',
+    headers,
+    body,
+    signal: AbortSignal.timeout(5000),
+  };
+}
+
+for (const [label, path, expectedContent, options = {}] of checks) {
   const url = `${baseUrl}${path}`;
   try {
-    const response = await fetch(url, {
-      headers: { accept: 'text/html,application/json;q=0.9,*/*;q=0.8' },
-      signal: AbortSignal.timeout(5000),
-    });
+    const response = await fetch(url, requestInit(options));
     const body = await response.text();
-    const ok = response.status >= 200 && response.status < 400;
+    const expectedStatuses = options.expectedStatuses;
+    const ok = expectedStatuses ? expectedStatuses.includes(response.status) : response.status >= 200 && response.status < 400;
     const hasExpectedContent = body.includes(expectedContent);
     const marker = ok && hasExpectedContent ? 'ok' : 'fail';
     console.log(`${marker} ${response.status} ${label} ${path}`);

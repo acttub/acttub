@@ -268,5 +268,6 @@ describe('unified Next app runtime smoke', () => {
     expect(smokePaths).toContain('/api/archive/videos?q=%ED%96%84%EB%A6%BF');
     expect(smokePaths).toContain('/api/community/posts?board=free');
     expect(smokePaths).toContain('/api/community/comments?postId=1024');
+    expect(smokePaths).toContain('/api/coach/analyze');
   });
 });
