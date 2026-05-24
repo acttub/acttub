@@ -228,9 +228,21 @@ describe('unified Next app runtime smoke', () => {
     for (const readmePath of readmePaths) {
       expect(smokePaths).toContain(readmePath);
     }
+    expect(smokePaths).toContain('/ACTI/quiz');
+    expect(smokePaths).toContain('/ACTI/survey');
     expect(smokePaths).toContain('/ACTI/result/MINB');
+    expect(smokePaths).toContain('/archive/search?q=%ED%96%84%EB%A6%BF');
+    expect(smokePaths).toContain('/archive/upload');
+    expect(smokePaths).toContain('/archive/me');
+    expect(smokePaths).toContain('/archive/playlists/new');
+    expect(smokePaths).toContain('/archive/u/minseo01');
     expect(smokePaths).toContain('/archive/videos/hamlet-monologue');
+    expect(smokePaths).toContain('/community/search?q=%EC%97%B0%EA%B8%B0');
+    expect(smokePaths).toContain('/community/new');
+    expect(smokePaths).toContain('/community/write');
+    expect(smokePaths).toContain('/community/me?tab=posts');
     expect(smokePaths).toContain('/community/posts/1024');
+    expect(smokePaths).toContain('/community/p/1024');
     expect(smokePaths).toContain('/excer/rooms/hyehwa-coral-studio');
     expect(smokePaths).toContain('/thea/plays/finding-mr-destiny');
     expect(smokePaths).toContain('/api/health');
