@@ -1,31 +1,36 @@
 const baseUrl = (process.env.SMOKE_BASE_URL ?? 'http://127.0.0.1:4000').replace(/\/$/, '');
 
 const checks = [
-  ['landing', '/'],
-  ['ACTI home', '/ACTI'],
-  ['ACTI result', '/ACTI/result/MINB'],
-  ['coach', '/coach'],
-  ['archive', '/archive'],
-  ['community', '/community'],
-  ['excer', '/excer'],
-  ['thea', '/thea'],
-  ['team', '/team'],
-  ['health API', '/api/health'],
+  ['landing', '/', 'root-landing'],
+  ['ACTI home', '/ACTI', 'page-landing'],
+  ['ACTI result', '/ACTI/result/MINB', 'MINB'],
+  ['coach', '/coach', 'coach-page'],
+  ['archive', '/archive', 'archive-page'],
+  ['community', '/community', 'community-page'],
+  ['excer', '/excer', 'excer-page'],
+  ['thea', '/thea', 'thea-page'],
+  ['team', '/team', 'team-page'],
+  ['health API', '/api/health', '"ok":true'],
 ];
 
 const failures = [];
 
-for (const [label, path] of checks) {
+for (const [label, path, expectedContent] of checks) {
   const url = `${baseUrl}${path}`;
   try {
     const response = await fetch(url, {
       headers: { accept: 'text/html,application/json;q=0.9,*/*;q=0.8' },
       signal: AbortSignal.timeout(5000),
     });
+    const body = await response.text();
     const ok = response.status >= 200 && response.status < 400;
-    const marker = ok ? 'ok' : 'fail';
+    const hasExpectedContent = body.includes(expectedContent);
+    const marker = ok && hasExpectedContent ? 'ok' : 'fail';
     console.log(`${marker} ${response.status} ${label} ${path}`);
     if (!ok) failures.push(`${label} ${path} returned ${response.status}`);
+    if (ok && !hasExpectedContent) {
+      failures.push(`${label} ${path} did not include expected content: ${expectedContent}`);
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.log(`fail ERR ${label} ${path}`);

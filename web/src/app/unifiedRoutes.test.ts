@@ -72,7 +72,7 @@ function readJson<T>(file: string): T {
 
 function extractSmokePaths(): string[] {
   const source = readFileSync(path.join(repoRoot, 'scripts/smoke-routes.mjs'), 'utf8');
-  return Array.from(source.matchAll(/\['[^']+', '([^']+)'\]/g), (match) => match[1]);
+  return Array.from(source.matchAll(/\['[^']+', '([^']+)'/g), (match) => match[1]);
 }
 
 function extractReadmeOpenPaths(): string[] {
