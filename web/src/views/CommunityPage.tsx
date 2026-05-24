@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   Bookmark,
@@ -35,25 +35,23 @@ const TABS = [
 ] as const;
 
 type SearchParamsLike = {
-  entries: () => IterableIterator<[string, string]>;
-  get: (name: string) => string | null;
+  [key: string]: string | string[] | undefined;
 };
 
-export default function CommunityPage() {
-  const pathname = usePathname() ?? '/community';
-  const searchParams = useSearchParams();
-  const normalizedPath = pathname.replace(/^\/community/, '') || '/';
+type CommunityView = 'home' | 'search' | 'new' | 'me' | 'post';
+type CommunityPageProps = {
+  view?: CommunityView;
+  postId?: string;
+  searchParams?: SearchParamsLike;
+};
 
+export default function CommunityPage({ view = 'home', postId, searchParams = {} }: CommunityPageProps) {
   let content: ReactNode;
-  if (normalizedPath === '/search') content = <CommunitySearch />;
-  else if (normalizedPath === '/new' || normalizedPath === '/write') content = <CommunityNew />;
-  else if (normalizedPath === '/me') content = <CommunityMe />;
-  else if (normalizedPath.startsWith('/posts/') || normalizedPath.startsWith('/p/')) {
-    const id = normalizedPath.split('/').filter(Boolean).at(-1);
-    content = <CommunityPostDetail postId={id} />;
-  } else {
-    content = <CommunityHome searchParams={searchParams} />;
-  }
+  if (view === 'search') content = <CommunitySearch searchParams={searchParams} />;
+  else if (view === 'new') content = <CommunityNew searchParams={searchParams} />;
+  else if (view === 'me') content = <CommunityMe searchParams={searchParams} />;
+  else if (view === 'post') content = <CommunityPostDetail postId={postId} />;
+  else content = <CommunityHome searchParams={searchParams} />;
 
   return (
     <div className="community-page">
@@ -104,7 +102,7 @@ function CommunityShell({
 }
 
 function CommunityHome({ searchParams }: { searchParams: SearchParamsLike }) {
-  const params = parseCommunityParams(Object.fromEntries(searchParams.entries()));
+  const params = parseCommunityParams(searchParams);
   const activeBoard = params.board ? getCommunityBoard(params.board) : null;
   const posts = listCommunityPosts(COMMUNITY_FIXTURE_POSTS, params);
   const baseUrl = params.board ? `/community?board=${params.board}` : '/community';
@@ -161,9 +159,12 @@ function CommunityHome({ searchParams }: { searchParams: SearchParamsLike }) {
   );
 }
 
-function CommunitySearch() {
-  const searchParams = useSearchParams();
-  const query = (searchParams.get('q') ?? '').trim();
+function firstValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function CommunitySearch({ searchParams }: { searchParams: SearchParamsLike }) {
+  const query = (firstValue(searchParams.q) ?? '').trim();
   const results = query ? searchCommunityPosts(COMMUNITY_FIXTURE_POSTS, query) : [];
 
   return (
@@ -191,10 +192,9 @@ function CommunitySearch() {
   );
 }
 
-function CommunityNew() {
+function CommunityNew({ searchParams }: { searchParams: SearchParamsLike }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const board = searchParams.get('board') ?? 'free';
+  const board = firstValue(searchParams.board) ?? 'free';
 
   return (
     <div className="community-form-page">
@@ -211,9 +211,8 @@ function CommunityNew() {
   );
 }
 
-function CommunityMe() {
-  const searchParams = useSearchParams();
-  const tab = searchParams.get('tab') ?? 'posts';
+function CommunityMe({ searchParams }: { searchParams: SearchParamsLike }) {
+  const tab = firstValue(searchParams.tab) ?? 'posts';
   const activeTab = TABS.find((item) => item.key === tab) ?? TABS[0];
   const myPosts = COMMUNITY_FIXTURE_POSTS.filter((post) => post.author.id === 'seed_minseo');
   const likedPosts = COMMUNITY_FIXTURE_POSTS.filter((post) => post.score >= 10);
