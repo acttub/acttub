@@ -5,7 +5,7 @@
 import { toBlob, toPng } from 'html-to-image';
 import type { TypeCode } from '../content/schema';
 
-/** 호스트가 SPA를 `/ACTI/*`에만 마운트하므로 모든 외부 공유/공유 링크는 이 prefix를 가져야 한다. */
+/** ACTI 결과는 통합 Next 앱의 `/ACTI/*` 경로에서 제공한다. */
 export const BASE_PATH = '/ACTI';
 
 const PNG_OPTIONS = {

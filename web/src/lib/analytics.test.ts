@@ -55,7 +55,7 @@ describe('analytics', () => {
     expect(Array.from(window.dataLayer?.[0] ?? [])).toEqual(['js', expect.any(Date)]);
   });
 
-  it('tracks explicit SPA page views', async () => {
+  it('tracks explicit client page views', async () => {
     vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { initAnalytics, trackPageView } = await loadAnalytics();
 

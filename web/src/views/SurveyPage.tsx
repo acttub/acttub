@@ -6,7 +6,7 @@
  * 와이저드 패턴: 한 화면 = 한 항목. 라디오는 선택 시 자동 진행(240ms).
  * 체크박스/텍스트는 "다음" 버튼으로 수동 진행. 상단 진행률·섹션 헤더는
  * 노출하지 않음. 마지막 항목 완료 시 Google Form 으로 응답 전송 후
- * /ACTI/result/:code 로 이동.
+ * /ACTI/result/[code] 로 이동.
  */
 
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';

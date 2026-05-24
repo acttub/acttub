@@ -73,7 +73,7 @@ function normalizePath(path: string): string | null {
 }
 
 /**
- * SPA 페이지뷰 추적. `path`는 `/`로 시작하는 pathname을 기대하지만,
+ * 클라이언트 페이지뷰 추적. `path`는 `/`로 시작하는 pathname을 기대하지만,
  * 그렇지 않은 입력도 안전하게 처리. 동일 path 연속 호출은 dedupe.
  */
 export function trackPageView(path: string): void {

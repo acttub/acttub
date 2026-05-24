@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
   const { email, code } = parsed.data;
   const from = process.env.RESEND_FROM ?? 'ACTI <onboarding@resend.dev>';
-  const siteUrl = process.env.SITE_URL ?? 'https://acti.app';
+  const siteUrl = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'https://acttub.com';
   const resend = new Resend(apiKey);
   const type = getType(code);
   const { subject, html, text } = renderResultEmail(type, siteUrl);
