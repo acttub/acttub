@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -55,16 +56,6 @@ const removedSpaEntrypoints = [
   'public/legacy/landing.html',
 ];
 
-const removedLegacyAppManifests = [
-  'ACTI/package.json',
-  'ACTI/vercel.json',
-  'acttub-landing/vercel.json',
-  'arch/package.json',
-  'comm/package.json',
-  'excer/package.json',
-  'thea/package.json',
-];
-
 const rootScriptsExpectedToTargetWeb = [
   'local',
   'local:web',
@@ -88,6 +79,13 @@ function extractSmokePaths(): string[] {
 function extractReadmeOpenPaths(): string[] {
   const source = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
   return Array.from(source.matchAll(/http:\/\/localhost:4000([^\s`]*)/g), (match) => match[1] || '/');
+}
+
+function trackedManifests(): string[] {
+  return execFileSync('git', ['ls-files', '*package.json', '*vercel.json'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  }).trim().split('\n').filter(Boolean).sort();
 }
 
 function findDirsByName(start: string, name: string): string[] {
@@ -125,10 +123,12 @@ describe('unified Next app routes', () => {
     expect(existing).toEqual([]);
   });
 
-  it('does not keep legacy app manifests that can be run or deployed separately', () => {
-    const existing = removedLegacyAppManifests.filter((file) => existsSync(path.join(repoRoot, file)));
-
-    expect(existing).toEqual([]);
+  it('keeps tracked app and deploy manifests limited to the unified web project', () => {
+    expect(trackedManifests()).toEqual([
+      'package.json',
+      'web/package.json',
+      'web/vercel.json',
+    ]);
   });
 
   it('does not rely on legacy catch-all compatibility route folders', () => {
