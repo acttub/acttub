@@ -55,6 +55,16 @@ const removedSpaEntrypoints = [
   'public/legacy/landing.html',
 ];
 
+const removedLegacyAppManifests = [
+  'ACTI/package.json',
+  'ACTI/vercel.json',
+  'acttub-landing/vercel.json',
+  'arch/package.json',
+  'comm/package.json',
+  'excer/package.json',
+  'thea/package.json',
+];
+
 const rootScriptsExpectedToTargetWeb = [
   'local',
   'local:web',
@@ -111,6 +121,12 @@ describe('unified Next app routes', () => {
 
   it('does not keep legacy SPA entrypoints in the active web app', () => {
     const existing = removedSpaEntrypoints.filter((file) => existsSync(path.join(root, file)));
+
+    expect(existing).toEqual([]);
+  });
+
+  it('does not keep legacy app manifests that can be run or deployed separately', () => {
+    const existing = removedLegacyAppManifests.filter((file) => existsSync(path.join(repoRoot, file)));
 
     expect(existing).toEqual([]);
   });
