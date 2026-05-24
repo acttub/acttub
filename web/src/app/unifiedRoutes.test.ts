@@ -127,6 +127,9 @@ describe('unified Next app workspace', () => {
     expect(pkg.scripts['local:lan']).toContain('--port 4000');
     expect(pkg.scripts.prod).toBe('corepack pnpm prod:web');
     expect(pkg.scripts.build).toBe('corepack pnpm prod');
+    expect(pkg.scripts.verify).toBe(
+      'corepack pnpm install --frozen-lockfile && corepack pnpm lint && corepack pnpm test && corepack pnpm prod'
+    );
   });
 
   it('keeps the active web app on Next scripts instead of Vite scripts', () => {
