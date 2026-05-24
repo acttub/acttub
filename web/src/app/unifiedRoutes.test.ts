@@ -265,5 +265,8 @@ describe('unified Next app runtime smoke', () => {
     expect(smokePaths).toContain('/excer/rooms/hyehwa-coral-studio');
     expect(smokePaths).toContain('/thea/plays/finding-mr-destiny');
     expect(smokePaths).toContain('/api/health');
+    expect(smokePaths).toContain('/api/archive/videos?q=%ED%96%84%EB%A6%BF');
+    expect(smokePaths).toContain('/api/community/posts?board=free');
+    expect(smokePaths).toContain('/api/community/comments?postId=1024');
   });
 });

@@ -27,6 +27,9 @@ const checks = [
   ['thea play detail', '/thea/plays/finding-mr-destiny', '김종욱 찾기'],
   ['team', '/team', 'team-page'],
   ['health API', '/api/health', '"ok":true'],
+  ['archive videos API', '/api/archive/videos?q=%ED%96%84%EB%A6%BF', '"items":'],
+  ['community posts API', '/api/community/posts?board=free', '"items":'],
+  ['community comments API', '/api/community/comments?postId=1024', '"items":'],
 ];
 
 const failures = [];
