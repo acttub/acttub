@@ -23,6 +23,7 @@ import {
   type ArchiveVisibility,
 } from '../archive/archiveData';
 import { ARCHIVE_FIXTURE_VIDEOS } from '../archive/fixtures';
+import { shouldUseArchiveMultipartUpload } from '../archive/uploadPolicy';
 
 const VIS_OPTIONS: Array<{
   value: ArchiveVisibility;
@@ -301,7 +302,7 @@ function UploadForm() {
             access: 'public',
             handleUploadUrl: '/api/archive/upload',
             contentType: selectedFile.type || undefined,
-            multipart: selectedFile.size > 100 * 1024 * 1024,
+            multipart: shouldUseArchiveMultipartUpload(selectedFile.size),
           })
         : null;
       const response = await fetch('/api/archive/videos', {
