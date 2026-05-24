@@ -79,4 +79,27 @@ describe('coach analysis API', () => {
     expect(result.status).toBe(200);
     expect(analyze).toHaveBeenCalledOnce();
   });
+
+  it('does not expose provider or model details from analyzer failures', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const analyze = vi.fn().mockRejectedValue(new Error('Gemini model gemini-3.5-flash failed: Request Entity Too Large'));
+
+    try {
+      const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
+        method: 'POST',
+        body: videoFormData(),
+      }), {
+        apiKey: 'test-key',
+        analyze,
+      });
+
+      expect(result.status).toBe(500);
+      expect(result.body).toEqual({
+        error: '분석 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+      });
+      expect(JSON.stringify(result.body)).not.toMatch(/Gemini|gemini|model|Request Entity Too Large/i);
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 });

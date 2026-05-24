@@ -30,6 +30,8 @@ type CoachAnalyzeOptions = {
 
 type FormValue = string | File;
 
+const ANALYZE_FAILURE_MESSAGE = '분석 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+
 function numberFromForm(value: FormValue | null) {
   if (typeof value !== 'string') return Number.NaN;
   return Number(value);
@@ -192,7 +194,7 @@ export async function handleCoachAnalyze(request: Request, options: CoachAnalyze
 
     return { status: 200, body: { feedback } };
   } catch (error) {
-    const message = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
-    return jsonError(500, `분석 요청에 실패했습니다. ${message}`);
+    console.error('Coach analyze failed', error);
+    return jsonError(500, ANALYZE_FAILURE_MESSAGE);
   }
 }
