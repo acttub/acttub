@@ -1,9 +1,10 @@
 // @vitest-environment node
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const root = process.cwd();
+const repoRoot = path.resolve(root, '..');
 const appDir = path.join(root, 'src/app');
 
 const requiredPages = [
@@ -54,6 +55,12 @@ const removedSpaEntrypoints = [
   'public/legacy/landing.html',
 ];
 
+const rootScriptsExpectedToTargetWeb = ['local', 'local:web', 'local:lan', 'prod:web', 'lint', 'test'];
+
+function readJson<T>(file: string): T {
+  return JSON.parse(readFileSync(file, 'utf8')) as T;
+}
+
 function findDirsByName(start: string, name: string): string[] {
   const matches: string[] = [];
   const entries = readdirSync(start, { withFileTypes: true });
@@ -91,5 +98,48 @@ describe('unified Next app routes', () => {
 
   it('does not rely on legacy catch-all compatibility route folders', () => {
     expect(findDirsByName(appDir, '[[...slug]]')).toEqual([]);
+  });
+});
+
+describe('unified Next app workspace', () => {
+  it('keeps the pnpm workspace scoped to the single active web app', () => {
+    const workspace = readFileSync(path.join(repoRoot, 'pnpm-workspace.yaml'), 'utf8');
+
+    expect(workspace).toContain('- "web"');
+    expect(workspace).not.toContain('- "ACTI"');
+    expect(workspace).not.toContain('- "thea"');
+    expect(workspace).not.toContain('- "comm"');
+    expect(workspace).not.toContain('- "arch"');
+    expect(workspace).not.toContain('- "excer"');
+    expect(workspace).not.toContain('- "coach"');
+    expect(workspace).not.toContain('- "acttub-landing"');
+  });
+
+  it('keeps root commands pointed at the unified web app on port 4000', () => {
+    const pkg = readJson<{ scripts: Record<string, string> }>(path.join(repoRoot, 'package.json'));
+
+    for (const script of rootScriptsExpectedToTargetWeb) {
+      expect(pkg.scripts[script]).toContain('--dir web');
+    }
+
+    expect(pkg.scripts.local).toContain('--port 4000');
+    expect(pkg.scripts['local:web']).toContain('--port 4000');
+    expect(pkg.scripts['local:lan']).toContain('--port 4000');
+    expect(pkg.scripts.prod).toBe('corepack pnpm prod:web');
+    expect(pkg.scripts.build).toBe('corepack pnpm prod');
+  });
+
+  it('keeps the active web app on Next scripts instead of Vite scripts', () => {
+    const pkg = readJson<{ dependencies: Record<string, string>; devDependencies: Record<string, string>; scripts: Record<string, string> }>(
+      path.join(root, 'package.json')
+    );
+
+    expect(pkg.scripts.dev).toBe('next dev');
+    expect(pkg.scripts.build).toBe('next build');
+    expect(pkg.scripts.start).toBe('next start');
+    expect(pkg.dependencies.next).toBeDefined();
+    expect(pkg.devDependencies.vite).toBeUndefined();
+    expect(pkg.devDependencies['@vitejs/plugin-react']).toBeUndefined();
+    expect(pkg.dependencies['react-router-dom']).toBeUndefined();
   });
 });
