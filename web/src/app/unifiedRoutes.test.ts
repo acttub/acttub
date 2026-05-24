@@ -40,6 +40,7 @@ const requiredApiRoutes = [
   'api/health/route.ts',
   'api/send-result/route.ts',
   'api/coach/analyze/route.ts',
+  'api/coach/upload/route.ts',
   'api/archive/videos/route.ts',
   'api/archive/upload/route.ts',
   'api/community/posts/route.ts',

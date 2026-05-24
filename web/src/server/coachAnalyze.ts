@@ -3,6 +3,7 @@ import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createPartFromUri, createUserContent, GoogleGenAI } from '@google/genai';
+import { del } from '@vercel/blob';
 import { buildEvaluationPrompt, parseGeminiFeedback, type CoachFeedback } from '../coach/evaluation';
 import type { ApiResult } from './apiCore';
 
@@ -26,6 +27,7 @@ type CoachAnalyzeInput = {
 type CoachAnalyzeOptions = {
   apiKey?: string;
   analyze?: (input: CoachAnalyzeInput) => Promise<CoachFeedback>;
+  fetch?: typeof fetch;
 };
 
 type FormValue = string | File;
@@ -69,6 +71,16 @@ function methodNotAllowed(): ApiResult {
 
 function jsonError(status: number, error: string): ApiResult {
   return { status, body: { error } };
+}
+
+function jsonString(value: unknown) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function jsonNumber(value: unknown) {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') return Number(value);
+  return Number.NaN;
 }
 
 async function sleep(ms: number) {
@@ -139,6 +151,54 @@ async function defaultAnalyze(input: CoachAnalyzeInput): Promise<CoachFeedback> 
   }
 }
 
+async function fileFromBlobUrl(input: {
+  fetcher: typeof fetch;
+  videoUrl: string;
+  fileName: string;
+  mimeType: string;
+}) {
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(input.videoUrl);
+  } catch {
+    throw new Error('invalid video url');
+  }
+
+  if (parsedUrl.protocol !== 'https:') {
+    throw new Error('invalid video url');
+  }
+
+  const response = await input.fetcher(parsedUrl);
+  if (!response.ok) {
+    throw new Error('video download failed');
+  }
+
+  const blob = await response.blob();
+  const mimeType = input.mimeType || response.headers.get('content-type') || blob.type || 'video/mp4';
+  return new File([blob], input.fileName, { type: mimeType });
+}
+
+function validateAnalyzeFields(fields: {
+  category: string;
+  intent: string;
+  startTime: number;
+  endTime: number;
+}) {
+  if (!fields.category) {
+    return '연기 영상 분류를 선택해 주세요.';
+  }
+
+  if (!fields.intent) {
+    return '이번 연습의 의도나 목표를 입력해 주세요.';
+  }
+
+  if (!Number.isFinite(fields.startTime) || !Number.isFinite(fields.endTime) || fields.startTime < 0 || fields.endTime <= fields.startTime) {
+    return '분석 시작/끝 시간이 올바르지 않습니다.';
+  }
+
+  return '';
+}
+
 export async function handleCoachAnalyze(request: Request, options: CoachAnalyzeOptions = {}): Promise<ApiResult> {
   if (request.method.toUpperCase() !== 'POST') return methodNotAllowed();
 
@@ -149,6 +209,54 @@ export async function handleCoachAnalyze(request: Request, options: CoachAnalyze
 
   try {
     const contentType = request.headers.get('content-type') ?? '';
+    if (contentType.includes('application/json')) {
+      const payload = await request.json().catch(() => undefined) as Record<string, unknown> | undefined;
+      const videoUrl = jsonString(payload?.videoUrl);
+      const fileName = jsonString(payload?.fileName) || '연기 연습 영상';
+      const mimeType = jsonString(payload?.mimeType);
+      const category = jsonString(payload?.category);
+      const intent = jsonString(payload?.intent);
+      const startTime = jsonNumber(payload?.startTime);
+      const endTime = jsonNumber(payload?.endTime);
+
+      if (!videoUrl) {
+        return jsonError(400, '분석할 영상 파일이 필요합니다.');
+      }
+
+      const validationError = validateAnalyzeFields({ category, intent, startTime, endTime });
+      if (validationError) {
+        return jsonError(400, validationError);
+      }
+
+      let video: File | null = null;
+      try {
+        video = await fileFromBlobUrl({
+          fetcher: options.fetch ?? fetch,
+          videoUrl,
+          fileName,
+          mimeType,
+        });
+
+        if (video.size <= 0) {
+          return jsonError(400, '비어 있는 영상 파일은 분석할 수 없습니다.');
+        }
+
+        const feedback = await (options.analyze ?? defaultAnalyze)({
+          video,
+          fileName,
+          category,
+          intent,
+          startTime,
+          endTime,
+          apiKey,
+        });
+
+        return { status: 200, body: { feedback } };
+      } finally {
+        await del(videoUrl).catch(() => undefined);
+      }
+    }
+
     if (!contentType.includes('multipart/form-data') && !contentType.includes('application/x-www-form-urlencoded')) {
       return jsonError(400, '분석할 영상 파일이 필요합니다.');
     }
@@ -170,16 +278,9 @@ export async function handleCoachAnalyze(request: Request, options: CoachAnalyze
     const startTime = numberFromForm(formData.get('startTime'));
     const endTime = numberFromForm(formData.get('endTime'));
 
-    if (!category) {
-      return jsonError(400, '연기 영상 분류를 선택해 주세요.');
-    }
-
-    if (!intent) {
-      return jsonError(400, '이번 연습의 의도나 목표를 입력해 주세요.');
-    }
-
-    if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || startTime < 0 || endTime <= startTime) {
-      return jsonError(400, '분석 시작/끝 시간이 올바르지 않습니다.');
+    const validationError = validateAnalyzeFields({ category, intent, startTime, endTime });
+    if (validationError) {
+      return jsonError(400, validationError);
     }
 
     const feedback = await (options.analyze ?? defaultAnalyze)({

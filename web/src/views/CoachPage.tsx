@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { upload as uploadBlob } from '@vercel/blob/client';
 import Link from 'next/link';
 import {
   Camera,
@@ -227,18 +228,28 @@ export default function CoachPage() {
     setError('');
     setFeedback(null);
 
-    const formData = new FormData();
-    formData.set('video', videoFile);
-    formData.set('fileName', fileName.trim());
-    formData.set('category', category);
-    formData.set('intent', intent.trim());
-    formData.set('startTime', String(startTime));
-    formData.set('endTime', String(endTime));
-
     try {
+      const blob = await uploadBlob(`coach/${Date.now()}-${videoFile.name}`, videoFile, {
+        access: 'public',
+        handleUploadUrl: '/api/coach/upload',
+        contentType: videoFile.type || undefined,
+        multipart: videoFile.size > 100 * 1024 * 1024,
+      });
+
       const response = await fetch('/api/coach/analyze', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          videoUrl: blob.url,
+          fileName: fileName.trim(),
+          mimeType: videoFile.type || 'video/mp4',
+          category,
+          intent: intent.trim(),
+          startTime,
+          endTime,
+        }),
       });
       const payload = (await response.json()) as { feedback?: CoachFeedback; error?: string };
 

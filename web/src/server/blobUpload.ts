@@ -32,3 +32,11 @@ export async function createArchiveUploadTokenOptions(
     tokenPayload: JSON.stringify({ pathname }),
   };
 }
+
+export async function createCoachUploadTokenOptions(pathname: string) {
+  return {
+    allowedContentTypes: [...ARCHIVE_VIDEO_CONTENT_TYPES],
+    addRandomSuffix: true,
+    tokenPayload: JSON.stringify({ pathname }),
+  };
+}
