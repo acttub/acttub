@@ -6,7 +6,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft, RotateCcw, ArrowRight, Camera, MessageCircle, Link as LinkIcon } from 'lucide-react';
 
 import CaptureCard from '../components/CaptureCard';
@@ -21,35 +21,27 @@ import StoryCaptureCanvas from '../components/StoryCaptureCanvas';
 import BottomCTA from '../components/BottomCTA';
 import Toast from '../components/Toast';
 
-import { isTypeCode } from '../content/schema';
-import { getType } from '../content/types';
+import type { TypeContent } from '../content/schema';
 import { getMyTypeCode, clearMyTypeCode } from '../lib/storage';
 import { getSiteUrl, shareCaptureToInstagram, copyResultUrl, canShareImageFile } from '../lib/share';
 import { ensureKakaoReady, shareToKakao } from '../lib/kakao';
 import { trackResultAction } from '../lib/analytics';
 
-import NotFoundPage from './NotFoundPage';
+type ResultPageProps = {
+  type: TypeContent;
+  rival: TypeContent;
+  bff: TypeContent;
+};
 
-export default function ResultPage() {
-  const params = useParams<{ code: string }>();
-  const rawCode = Array.isArray(params.code) ? params.code[0] : params.code;
+export default function ResultPage({ type, rival, bff }: ResultPageProps) {
   const router = useRouter();
   const myCode = useMemo(() => getMyTypeCode(), []);
   const storyRef = useRef<HTMLElement>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
-  if (!rawCode || !isTypeCode(rawCode)) {
-    return <NotFoundPage />;
-  }
-  const code = rawCode;
-
-  const isRecipient = !myCode || myCode !== code;
-  const isCelebrate = !isRecipient && myCode === code;
-
-  const type = getType(code);
-  const rival = getType(type.rival);
-  const bff = getType(type.bff);
+  const isRecipient = !myCode || myCode !== type.code;
+  const isCelebrate = !isRecipient && myCode === type.code;
   const siteUrl = getSiteUrl();
 
   const showToast = (msg: string) => {

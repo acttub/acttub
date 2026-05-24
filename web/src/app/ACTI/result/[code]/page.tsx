@@ -1,8 +1,15 @@
 import ResultPage from '../../../../views/ResultPage';
-import { isTypeCode } from '../../../../content/schema';
+import { TYPE_CODES, isTypeCode } from '../../../../content/schema';
 import { getType } from '../../../../content/types';
+import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+type PageProps = {
+  params: Promise<{ code: string }>;
+};
+
+export function generateStaticParams() {
+  return TYPE_CODES.map((code) => ({ code }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }) {
   const { code: rawCode } = await params;
@@ -31,6 +38,16 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
   };
 }
 
-export default function Page() {
-  return <ResultPage />;
+export default async function Page({ params }: PageProps) {
+  const { code: rawCode } = await params;
+
+  if (!isTypeCode(rawCode)) {
+    notFound();
+  }
+
+  const type = getType(rawCode);
+  const rival = getType(type.rival);
+  const bff = getType(type.bff);
+
+  return <ResultPage type={type} rival={rival} bff={bff} />;
 }
