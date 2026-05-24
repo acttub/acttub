@@ -1,6 +1,4 @@
-import LegacyLandingPage from '../views/LegacyLandingPage';
-
-export const dynamic = 'force-dynamic';
+import RootLandingPage from '../views/RootLandingPage';
 export const metadata = {
   title: 'acttub — 연기하는 사람들의 공간',
   description:
@@ -12,5 +10,5 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <LegacyLandingPage />;
+  return <RootLandingPage />;
 }
