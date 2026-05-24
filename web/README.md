@@ -9,6 +9,7 @@ Unified Next.js React app for:
 - `/community`: community
 - `/archive`: video archive
 - `/coach`: Gemini acting coach
+- `/team`: team introduction
 
 ## Stack
 
@@ -96,3 +97,7 @@ Output directory:
 ```
 
 Routes are defined with explicit App Router pages under `src/app`.
+
+## Historical Artifacts
+
+`docs/` and `outputs/` contain earlier planning and implementation notes. Some of those files refer to the previous Vite/SPA approach. Treat them as historical reference only; active routes, APIs, commands, and deployment settings are defined by this Next.js app.

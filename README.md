@@ -6,9 +6,11 @@ Acttub web monorepo.
 
 | Directory | Role |
 |---|---|
-| `web/` | Unified Next.js React app for landing, ACTI, thea, excer, community, archive, and coach |
+| `web/` | Unified Next.js React app for landing, ACTI, thea, excer, community, archive, coach, and team pages |
 
 Legacy source folders such as `ACTI/`, `thea/`, `comm/`, `arch/`, `excer/`, and `acttub-landing/` may still exist for history/reference, but they are no longer part of the pnpm workspace or normal build path.
+
+Historical planning artifacts under `web/docs/` and `web/outputs/` may mention earlier Vite/SPA plans. The active implementation is the Next.js app under `web/src/app`.
 
 ## Local Development
 
@@ -27,6 +29,7 @@ http://localhost:4000/excer
 http://localhost:4000/community
 http://localhost:4000/archive
 http://localhost:4000/coach
+http://localhost:4000/team
 ```
 
 For LAN/mobile testing:
