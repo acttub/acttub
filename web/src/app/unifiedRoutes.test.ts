@@ -188,6 +188,19 @@ describe('unified Next app deployment', () => {
     expect(vercel.rewrites).toBeUndefined();
     expect(vercel.routes).toBeUndefined();
   });
+
+  it('keeps public coach docs from naming the analysis provider or model', () => {
+    const publicDocs = [
+      path.join(repoRoot, 'README.md'),
+      path.join(root, 'README.md'),
+      path.join(root, '.env.example'),
+    ];
+
+    for (const file of publicDocs) {
+      const source = readFileSync(file, 'utf8');
+      expect(source).not.toMatch(/Gemini (acting|coach|analysis)|GEMINI_MODEL|gemini-3\.5/i);
+    }
+  });
 });
 
 describe('unified Next app runtime smoke', () => {

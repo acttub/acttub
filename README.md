@@ -66,7 +66,7 @@ The `web` project uses:
 - Route handlers under `web/src/app/api`
 - Neon Postgres via `DATABASE_URL`
 - Vercel Blob via `BLOB_READ_WRITE_TOKEN`
-- Gemini coach analysis via `GEMINI_API_KEY`
+- AI coach analysis via `GEMINI_API_KEY`
 - Drizzle migrations under `web/drizzle`
 
 Apply DB migrations from `web/` after pulling env vars:

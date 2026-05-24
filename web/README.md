@@ -8,7 +8,7 @@ Unified Next.js React app for:
 - `/excer`: practice-room finder
 - `/community`: community
 - `/archive`: video archive
-- `/coach`: Gemini acting coach
+- `/coach`: AI acting coach
 - `/team`: team introduction
 
 ## Stack
