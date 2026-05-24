@@ -1,8 +1,10 @@
+'use client';
+
 /**
  * S4 — 404 (v3: 토스 톤 + BottomCTA).
  */
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../lib/router';
 import { ArrowRight } from 'lucide-react';
 import Badge from '../components/Badge';
 import PrimaryButton from '../components/PrimaryButton';

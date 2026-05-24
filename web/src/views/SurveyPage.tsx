@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * SurveyPage — 결과 보기 전 게이트 설문.
  *
@@ -8,7 +10,7 @@
  */
 
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../lib/router';
 import { ArrowRight, Check } from 'lucide-react';
 
 import PrimaryButton from '../components/PrimaryButton';

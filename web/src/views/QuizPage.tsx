@@ -1,9 +1,11 @@
+'use client';
+
 /**
  * S2 — 문항 페이지 (v3: 토스 톤 + 더 큰 본문 + 진행률 진한 막대).
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../lib/router';
 import ProgressBar from '../components/ProgressBar';
 import ChoiceCard from '../components/ChoiceCard';
 import { QUESTIONS } from '../content/questions';

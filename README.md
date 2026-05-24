@@ -56,7 +56,7 @@ Vercel projects:
 
 The `web` project uses:
 
-- Next.js App Router for UI shell and API routes
+- Next.js App Router for UI routes and API routes
 - Route handlers under `web/src/app/api`
 - Neon Postgres via `DATABASE_URL`
 - Vercel Blob via `BLOB_READ_WRITE_TOKEN`

@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo, useState, type ElementType } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {

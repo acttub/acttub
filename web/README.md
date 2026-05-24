@@ -15,7 +15,6 @@ Unified Next.js React app for:
 - Next.js App Router
 - React 19
 - TypeScript 6
-- React Router 7
 - Next route handlers
 - Drizzle ORM
 - Neon Postgres

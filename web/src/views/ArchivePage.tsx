@@ -1,7 +1,9 @@
+'use client';
+
 import { useEffect, useState, type FormEvent } from 'react';
 import { upload } from '@vercel/blob/client';
 import { Helmet } from 'react-helmet-async';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from '../lib/router';
 import {
   Clapperboard,
   Globe,

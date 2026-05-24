@@ -1,6 +1,8 @@
+'use client';
+
 import { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from '../lib/router';
 import {
   ChevronRight,
   ImageOff,

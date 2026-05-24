@@ -2,7 +2,7 @@
 
 ## Structure
 
-- `src/views`: routed React views rendered by the Next App Router shell.
+- `src/views`: client view components rendered by Next App Router pages.
 - `src/components`: reusable ACTI components.
 - `src/content`: ACTI questions and result copy.
 - `src/community`, `src/archive`, `src/coach`, `src/excer`, `src/thea`: domain data and helpers.

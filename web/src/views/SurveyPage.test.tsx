@@ -1,25 +1,36 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import SurveyPage from './SurveyPage';
 import { SURVEY_ITEMS } from '../content/survey';
 import { setMyTypeCode } from '../lib/storage';
 
-function renderSurvey(initialEntries = ['/ACTI/survey']) {
-  return render(
-    <MemoryRouter initialEntries={initialEntries}>
-      <Routes>
-        <Route path="/ACTI/survey" element={<SurveyPage />} />
-        <Route path="/ACTI/quiz" element={<div>quiz page</div>} />
-        <Route path="/ACTI/result/:code" element={<div>result page</div>} />
-      </Routes>
-    </MemoryRouter>
-  );
+const routerMocks = vi.hoisted(() => ({
+  push: vi.fn(),
+  replace: vi.fn(),
+  back: vi.fn(),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: routerMocks.push,
+    replace: routerMocks.replace,
+    back: routerMocks.back,
+  }),
+  usePathname: () => '/ACTI/survey',
+  useSearchParams: () => new URLSearchParams(),
+  useParams: () => ({}),
+}));
+
+function renderSurvey() {
+  return render(<SurveyPage />);
 }
 
 describe('SurveyPage', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    routerMocks.push.mockClear();
+    routerMocks.replace.mockClear();
+    routerMocks.back.mockClear();
     vi.useFakeTimers();
   });
 
@@ -32,7 +43,7 @@ describe('SurveyPage', () => {
     await act(async () => {
       await vi.runAllTimersAsync();
     });
-    expect(screen.getByText('quiz page')).toBeInTheDocument();
+    expect(routerMocks.replace).toHaveBeenCalledWith('/ACTI/quiz');
   });
 
   it('renders the first radio question and advances after picking an option', async () => {

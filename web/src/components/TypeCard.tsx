@@ -1,8 +1,10 @@
+'use client';
+
 /**
  * TypeCard — 천적/베프 카드 (v2: 캐릭터 아바타 통합).
  */
 
-import { Link } from 'react-router-dom';
+import { Link } from '../lib/router';
 import { ChevronRight, Swords, Heart, Sparkles } from 'lucide-react';
 import Badge from './Badge';
 import CharacterAvatar from './CharacterAvatar';
@@ -74,7 +76,7 @@ export default function TypeCard({
   }
 
   return (
-    <Link to={`/result/${code}`} className="type-card" aria-label={ariaLabel}>
+    <Link to={`/ACTI/result/${code}`} className="type-card" aria-label={ariaLabel}>
       {content}
     </Link>
   );

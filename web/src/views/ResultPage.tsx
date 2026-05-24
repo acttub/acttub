@@ -1,9 +1,11 @@
+'use client';
+
 /**
  * S3 / S3' — 결과 페이지 (v3: 토스 카드 위계 + BottomCTA).
  */
 
 import { useMemo, useRef, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from '../lib/router';
 import { Helmet } from 'react-helmet-async';
 import { ChevronLeft, RotateCcw, ArrowRight, Camera, MessageCircle, Link as LinkIcon } from 'lucide-react';
 

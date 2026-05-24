@@ -1,6 +1,8 @@
+'use client';
+
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from '../lib/router';
 import {
   ArrowLeft,
   Bookmark,

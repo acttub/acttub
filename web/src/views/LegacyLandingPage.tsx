@@ -1,6 +1,8 @@
+'use client';
+
 import { useEffect, useState, type MouseEvent } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../lib/router';
 
 function extractLandingMarkup(html: string) {
   const styles = Array.from(html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi))
