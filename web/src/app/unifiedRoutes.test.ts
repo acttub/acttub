@@ -70,6 +70,27 @@ const rootScriptsExpectedToTargetWeb = [
   'db:push',
 ];
 
+const legacyRootScripts = [
+  'local:acti',
+  'local:thea',
+  'local:comm',
+  'local:arch',
+  'local:excer',
+  'local:coach',
+];
+
+const legacyLocalOrigins = [
+  'localhost:3000',
+  'localhost:3001',
+  'localhost:3002',
+  'localhost:3003',
+  'localhost:3004',
+  'localhost:4001',
+  'localhost:4002',
+  'localhost:5173',
+  'localhost:5174',
+];
+
 function readJson<T>(file: string): T {
   return JSON.parse(readFileSync(file, 'utf8')) as T;
 }
@@ -214,8 +235,31 @@ describe('unified Next app workspace', () => {
     );
   });
 
+  it('does not reintroduce legacy per-app local commands or ports', () => {
+    const pkg = readJson<{ scripts: Record<string, string> }>(path.join(repoRoot, 'package.json'));
+    const rootDocs = [
+      readFileSync(path.join(repoRoot, 'README.md'), 'utf8'),
+      readFileSync(path.join(repoRoot, 'AGENTS.md'), 'utf8'),
+    ].join('\n');
+
+    for (const script of legacyRootScripts) {
+      expect(pkg.scripts[script]).toBeUndefined();
+      expect(rootDocs).not.toContain(`corepack pnpm ${script}`);
+    }
+
+    const rootScriptBody = Object.values(pkg.scripts).join('\n');
+    expect(rootScriptBody).not.toMatch(/--filter\s+(ACTI|thea|comm|arch|excer|coach|acttub-landing)\b/);
+    expect(rootScriptBody).not.toMatch(/--dir\s+(ACTI|thea|comm|arch|excer|coach|acttub-landing)\b/);
+
+    for (const origin of legacyLocalOrigins) {
+      expect(rootScriptBody).not.toContain(origin);
+      expect(rootDocs).not.toContain(origin);
+    }
+  });
+
   it('documents the runtime verification command for the running unified app', () => {
     const readme = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
+    const agents = readFileSync(path.join(repoRoot, 'AGENTS.md'), 'utf8');
     const prodRuntimeScript = readFileSync(path.join(repoRoot, 'scripts/verify-prod-runtime.mjs'), 'utf8');
 
     expect(readme).toContain('corepack pnpm verify:runtime');
@@ -224,6 +268,7 @@ describe('unified Next app workspace', () => {
     expect(readme).toContain('Build `web`, start it on port 4000, run smoke checks, and stop it');
     expect(readme).toContain('corepack pnpm verify:preview');
     expect(readme).toContain('Full preview branch check');
+    expect(agents).toContain('corepack pnpm verify:preview');
     expect(readme).toContain('PROD_VERIFY_PORT=4010 corepack pnpm verify:prod-runtime');
     expect(existsSync(path.join(repoRoot, 'scripts/verify-prod-runtime.mjs'))).toBe(true);
     expect(prodRuntimeScript).toContain('assertNoExistingServer');

@@ -27,6 +27,7 @@ Common commands:
 - `corepack pnpm test`: run `web` tests.
 - `corepack pnpm prod`: build `web`.
 - `corepack pnpm verify`: frozen install, lint, test, and production builds.
+- `corepack pnpm verify:preview`: run the full preview branch check, including production runtime smoke on port 4010.
 - `corepack pnpm --dir web db:migrate`: apply Drizzle migrations to the configured Neon database.
 
 ## Coding Style
