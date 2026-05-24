@@ -19,7 +19,8 @@
     "db:push": "corepack pnpm --dir web db:push",
     "verify": "corepack pnpm install --frozen-lockfile && corepack pnpm lint && corepack pnpm test && corepack pnpm prod",
     "verify:runtime": "corepack pnpm smoke",
-    "verify:prod-runtime": "node scripts/verify-prod-runtime.mjs"
+    "verify:prod-runtime": "node scripts/verify-prod-runtime.mjs",
+    "verify:preview": "corepack pnpm verify && PROD_VERIFY_PORT=4010 corepack pnpm verify:prod-runtime"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

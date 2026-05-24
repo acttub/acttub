@@ -55,6 +55,7 @@ corepack pnpm local:lan
 | `corepack pnpm db:generate` | Generate Drizzle migrations for `web` |
 | `corepack pnpm db:migrate` | Apply Drizzle migrations for `web` |
 | `corepack pnpm verify` | Frozen install, lint, test, and production builds |
+| `corepack pnpm verify:preview` | Full preview branch check: install, lint, test, build, then production runtime smoke on port 4010 |
 
 If `corepack pnpm verify:prod-runtime` reports that port 4000 is already serving the app, stop the running app first or run the check on another port:
 

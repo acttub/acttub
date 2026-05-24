@@ -209,6 +209,9 @@ describe('unified Next app workspace', () => {
     );
     expect(pkg.scripts['verify:runtime']).toBe('corepack pnpm smoke');
     expect(pkg.scripts['verify:prod-runtime']).toBe('node scripts/verify-prod-runtime.mjs');
+    expect(pkg.scripts['verify:preview']).toBe(
+      'corepack pnpm verify && PROD_VERIFY_PORT=4010 corepack pnpm verify:prod-runtime'
+    );
   });
 
   it('documents the runtime verification command for the running unified app', () => {
@@ -219,6 +222,8 @@ describe('unified Next app workspace', () => {
     expect(readme).toContain('Run the smoke checks against the currently running app');
     expect(readme).toContain('corepack pnpm verify:prod-runtime');
     expect(readme).toContain('Build `web`, start it on port 4000, run smoke checks, and stop it');
+    expect(readme).toContain('corepack pnpm verify:preview');
+    expect(readme).toContain('Full preview branch check');
     expect(readme).toContain('PROD_VERIFY_PORT=4010 corepack pnpm verify:prod-runtime');
     expect(existsSync(path.join(repoRoot, 'scripts/verify-prod-runtime.mjs'))).toBe(true);
     expect(prodRuntimeScript).toContain('assertNoExistingServer');
