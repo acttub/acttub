@@ -1,68 +1,42 @@
 ### Summary
 
-This PR consolidates Acttub into a single active Next.js React app under `web/`.
+Consolidates Acttub into a single active Next.js React app under `web/`.
 
-The unified app now serves landing, ACTI, thea, excer, community, archive, coach, and team pages from one App Router tree, with API routes handled by Next route handlers in the same project.
+The unified app serves landing, ACTI, thea, excer, community, archive, coach, and team pages from one App Router tree, with API routes handled by Next route handlers in the same project.
 
 ### What Changed
 
-- Scoped the pnpm workspace to the single active `web` app
-- Replaced per-app local commands with one `4000` port workflow
-- Added App Router pages for all product surfaces
-- Added Next route handlers for health, ACTI email, archive, community, and coach APIs
-- Added Vercel-compatible server support for Neon Postgres, Vercel Blob, Resend, and coach analysis
-- Preserved path-based navigation for major flows and added route-link tests
-- Added runtime smoke checks for representative pages and APIs
-- Added guard tests against legacy per-app commands, legacy ports, provider/model leaks, and deployment drift
-- Documented preview readiness and Vercel deployment expectations
+- Unified user-facing routes and APIs under `web/src/app`
+- Added Next route handlers for archive, community, coach, health, and result email flows
+- Added Vercel-compatible storage/backend support with Neon Postgres, Vercel Blob, Drizzle, Resend, and Gemini coach analysis
+- Routed coach video uploads through Vercel Blob and added protected stale Blob cleanup
+- Switched CI/CD to GitHub Actions: verify first, then Vercel deploy through CLI
+- Disabled Vercel direct Git auto-deploy for `web` and legacy project roots
+- Added `CLAUDE.md` and made `AGENTS.md` a symlink to it
+- Updated README/deployment docs for the current structure
 
 ### Validation
 
-Latest local validation:
-
-```bash
-corepack pnpm verify:preview
-```
-
-Result:
-
-- frozen install passed
-- lint passed
-- 24 Vitest files passed
-- 118 tests passed
-- production build passed
-- production runtime smoke passed for 30 routes/APIs on port `4010`
-
-Current running local server:
-
-```txt
-http://172.16.103.130:4000/
-```
-
-Health check:
-
-```json
-{"ok":true}
-```
+- `corepack pnpm verify`
+- `corepack pnpm lint`
+- `corepack pnpm prod`
+- `corepack pnpm verify:preview`
 
 ### Deployment Notes
 
-- Vercel root directory: `web`
-- Framework: Next.js
-- Build command: `pnpm build`
-- Output directory: leave unset
+Vercel root directory: `web`
 
-Required production environment variables:
+Required GitHub Actions secrets are configured:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+Required Vercel env vars for `web`:
 
 - `DATABASE_URL`
 - `BLOB_READ_WRITE_TOKEN`
 - `GEMINI_API_KEY`
 - `CRON_SECRET`
 
-Optional variables are documented in `web/.env.example`.
-
-### Review Notes
-
-- Historical folders and planning artifacts may still exist for reference, but normal development, validation, and deployment go through `web`.
-- `corepack pnpm verify:prod-runtime` intentionally fails if the target port is already serving the app, to avoid false-positive smoke checks against an old server.
-- If testing with the existing 4000 server still running, use `corepack pnpm verify:preview`; it runs production runtime smoke on port `4010`.
+Vercel Hobby deployment creation limits may delay the first Actions-driven deployment if the daily quota has not reset yet.

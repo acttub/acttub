@@ -93,6 +93,16 @@ const legacyLocalOrigins = [
   'localhost:5174',
 ];
 
+const legacyVercelManifests = [
+  'ACTI/vercel.json',
+  'acttub-landing/vercel.json',
+  'arch/vercel.json',
+  'coach/vercel.json',
+  'comm/vercel.json',
+  'excer/vercel.json',
+  'thea/vercel.json',
+];
+
 function readJson<T>(file: string): T {
   return JSON.parse(readFileSync(file, 'utf8')) as T;
 }
@@ -179,12 +189,22 @@ describe('unified Next app routes', () => {
     expect(existing).toEqual([]);
   });
 
-  it('keeps tracked app and deploy manifests limited to the unified web project', () => {
-    expect(trackedManifests()).toEqual([
+  it('keeps deploy manifests limited to the unified web project plus legacy auto-deploy blockers', () => {
+    expect(trackedManifests()).toEqual(([
+      ...legacyVercelManifests,
       'package.json',
       'web/package.json',
       'web/vercel.json',
-    ]);
+    ]).sort());
+
+    for (const manifest of legacyVercelManifests) {
+      expect(readJson<Record<string, unknown>>(path.join(repoRoot, manifest))).toEqual({
+        $schema: 'https://openapi.vercel.sh/vercel.json',
+        git: {
+          deploymentEnabled: false,
+        },
+      });
+    }
   });
 
   it('does not rely on legacy catch-all compatibility route folders', () => {
