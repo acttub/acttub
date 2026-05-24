@@ -91,6 +91,32 @@ function trackedManifests(): string[] {
   }).trim().split('\n').filter(Boolean).sort();
 }
 
+function sourceEnvNames(): string[] {
+  const sourceFiles = execFileSync('git', ['ls-files', 'web/src', 'web/drizzle.config.ts'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  }).trim().split('\n').filter(Boolean);
+  const names = new Set<string>();
+
+  for (const file of sourceFiles) {
+    const source = readFileSync(path.join(repoRoot, file), 'utf8');
+    for (const match of source.matchAll(/process\.env\.([A-Z0-9_]+)/g)) {
+      names.add(match[1]);
+    }
+  }
+
+  return [...names].sort();
+}
+
+function envExampleNames(): string[] {
+  const source = readFileSync(path.join(root, '.env.example'), 'utf8');
+  return source
+    .split('\n')
+    .map((line) => line.match(/^([A-Z0-9_]+)=/)?.[1])
+    .filter((name): name is string => Boolean(name))
+    .sort();
+}
+
 function findDirsByName(start: string, name: string): string[] {
   const matches: string[] = [];
   const entries = readdirSync(start, { withFileTypes: true });
@@ -241,6 +267,14 @@ describe('unified Next app deployment', () => {
       const source = readFileSync(file, 'utf8');
       expect(source).not.toMatch(/Gemini (acting|coach|analysis)|GEMINI_MODEL|gemini-3\.5/i);
     }
+  });
+
+  it('documents every public or required environment variable except hidden provider internals', () => {
+    const documented = envExampleNames();
+    const hiddenInternals = new Set(['GEMINI_MODEL']);
+    const missing = sourceEnvNames().filter((name) => !hiddenInternals.has(name) && !documented.includes(name));
+
+    expect(missing).toEqual([]);
   });
 });
 
