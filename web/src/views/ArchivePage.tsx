@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { upload } from '@vercel/blob/client';
 import {
   Clapperboard,
@@ -35,20 +35,20 @@ const VIS_OPTIONS: Array<{
   { value: 'public', Icon: Globe, label: '전체 공개', desc: '누구나 검색·피드에서 볼 수 있어요.' },
 ];
 
-export default function ArchivePage() {
-  const pathname = usePathname() ?? '/archive';
-  const normalizedPath = pathname.replace(/^\/archive/, '') || '/';
+type ArchiveView = 'home' | 'search' | 'upload' | 'me' | 'video';
+type ArchivePageProps = {
+  view?: ArchiveView;
+  videoId?: string;
+  searchParams?: Record<string, string | string[] | undefined>;
+};
 
+export default function ArchivePage({ view = 'home', videoId, searchParams = {} }: ArchivePageProps) {
   let content;
-  if (normalizedPath === '/search') content = <ArchiveSearch />;
-  else if (normalizedPath === '/upload') content = <ArchiveUpload />;
-  else if (normalizedPath === '/me') content = <ArchiveMe />;
-  else if (normalizedPath.startsWith('/videos/')) {
-    const id = normalizedPath.split('/').filter(Boolean).at(-1);
-    content = <ArchiveVideoDetail videoId={id} />;
-  } else {
-    content = <ArchiveHome />;
-  }
+  if (view === 'search') content = <ArchiveSearch searchParams={searchParams} />;
+  else if (view === 'upload') content = <ArchiveUpload />;
+  else if (view === 'me') content = <ArchiveMe />;
+  else if (view === 'video') content = <ArchiveVideoDetail videoId={videoId} />;
+  else content = <ArchiveHome />;
 
   return (
     <div className="archive-page">
@@ -127,10 +127,13 @@ function ArchiveHome() {
   );
 }
 
-function ArchiveSearch() {
-  const searchParams = useSearchParams();
-  const query = searchParams.get('q')?.trim() || null;
-  const tag = searchParams.get('tag')?.trim() || null;
+function firstValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function ArchiveSearch({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+  const query = firstValue(searchParams.q)?.trim() || null;
+  const tag = firstValue(searchParams.tag)?.trim() || null;
   const results = filterArchiveVideos(ARCHIVE_FIXTURE_VIDEOS, { query, tag });
 
   return (
