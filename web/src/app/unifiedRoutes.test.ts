@@ -70,6 +70,16 @@ function readJson<T>(file: string): T {
   return JSON.parse(readFileSync(file, 'utf8')) as T;
 }
 
+function extractSmokePaths(): string[] {
+  const source = readFileSync(path.join(repoRoot, 'scripts/smoke-routes.mjs'), 'utf8');
+  return Array.from(source.matchAll(/\['[^']+', '([^']+)'\]/g), (match) => match[1]);
+}
+
+function extractReadmeOpenPaths(): string[] {
+  const source = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
+  return Array.from(source.matchAll(/http:\/\/localhost:4000([^\s`]*)/g), (match) => match[1] || '/');
+}
+
 function findDirsByName(start: string, name: string): string[] {
   const matches: string[] = [];
   const entries = readdirSync(start, { withFileTypes: true });
@@ -177,5 +187,19 @@ describe('unified Next app deployment', () => {
     expect(vercel.outputDirectory).toBeUndefined();
     expect(vercel.rewrites).toBeUndefined();
     expect(vercel.routes).toBeUndefined();
+  });
+});
+
+describe('unified Next app runtime smoke', () => {
+  it('keeps smoke checks aligned with documented local entry points', () => {
+    const smokePaths = extractSmokePaths();
+    const readmePaths = extractReadmeOpenPaths();
+
+    expect(readmePaths.length).toBeGreaterThan(0);
+    for (const readmePath of readmePaths) {
+      expect(smokePaths).toContain(readmePath);
+    }
+    expect(smokePaths).toContain('/ACTI/result/MINB');
+    expect(smokePaths).toContain('/api/health');
   });
 });
