@@ -8,6 +8,8 @@
     "local:lan": "corepack pnpm --dir web dev --hostname 0.0.0.0 --port 4000",
     "prod": "corepack pnpm prod:web",
     "prod:web": "corepack pnpm --dir web build",
+    "start": "corepack pnpm --dir web start --hostname 127.0.0.1 --port 4000",
+    "start:lan": "corepack pnpm --dir web start --hostname 0.0.0.0 --port 4000",
     "lint": "corepack pnpm --dir web lint",
     "build": "corepack pnpm prod",
     "test": "corepack pnpm --dir web test",

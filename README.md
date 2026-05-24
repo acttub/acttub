@@ -44,9 +44,11 @@ corepack pnpm local:lan
 |---|---|
 | `corepack pnpm local` | Run the unified `web` app on `127.0.0.1:4000` |
 | `corepack pnpm local:lan` | Run the unified `web` app on `0.0.0.0:4000` |
+| `corepack pnpm prod` | Build `web` for production |
+| `corepack pnpm start` | Run the built `web` app on `127.0.0.1:4000` |
+| `corepack pnpm start:lan` | Run the built `web` app on `0.0.0.0:4000` |
 | `corepack pnpm lint` | Lint `web` |
 | `corepack pnpm test` | Run `web` tests |
-| `corepack pnpm prod` | Build `web` |
 | `corepack pnpm verify` | Frozen install, lint, test, and production builds |
 
 ## Deployment

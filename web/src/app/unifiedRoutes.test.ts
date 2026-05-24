@@ -55,7 +55,16 @@ const removedSpaEntrypoints = [
   'public/legacy/landing.html',
 ];
 
-const rootScriptsExpectedToTargetWeb = ['local', 'local:web', 'local:lan', 'prod:web', 'lint', 'test'];
+const rootScriptsExpectedToTargetWeb = [
+  'local',
+  'local:web',
+  'local:lan',
+  'prod:web',
+  'start',
+  'start:lan',
+  'lint',
+  'test',
+];
 
 function readJson<T>(file: string): T {
   return JSON.parse(readFileSync(file, 'utf8')) as T;
@@ -125,6 +134,10 @@ describe('unified Next app workspace', () => {
     expect(pkg.scripts.local).toContain('--port 4000');
     expect(pkg.scripts['local:web']).toContain('--port 4000');
     expect(pkg.scripts['local:lan']).toContain('--port 4000');
+    expect(pkg.scripts.start).toContain('--port 4000');
+    expect(pkg.scripts['start:lan']).toContain('--port 4000');
+    expect(pkg.scripts.start).toContain('--hostname 127.0.0.1');
+    expect(pkg.scripts['start:lan']).toContain('--hostname 0.0.0.0');
     expect(pkg.scripts.prod).toBe('corepack pnpm prod:web');
     expect(pkg.scripts.build).toBe('corepack pnpm prod');
     expect(pkg.scripts.verify).toBe(
