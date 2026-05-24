@@ -278,6 +278,7 @@ describe('unified Next app workspace', () => {
     expect(previewPrScript).toContain('gh auth login -h github.com');
     expect(previewPrScript).toContain('gh');
     expect(previewPrScript).toContain('experiment/nextjs-preview');
+    expect(previewPrScript).toContain('docs/nextjs-preview-pr-body.md');
   });
 
   it('keeps browser-like tests on the unified local origin', () => {
@@ -324,6 +325,7 @@ describe('unified Next app deployment', () => {
     const webReadme = readFileSync(path.join(root, 'README.md'), 'utf8');
     const readiness = readFileSync(path.join(repoRoot, 'docs/nextjs-preview-readiness.md'), 'utf8');
     const prDraft = readFileSync(path.join(repoRoot, 'docs/nextjs-preview-pr.md'), 'utf8');
+    const prBody = readFileSync(path.join(repoRoot, 'docs/nextjs-preview-pr-body.md'), 'utf8');
 
     expect(rootReadme).toContain('| `web` | `web` |');
     expect(rootReadme).toContain('docs/nextjs-preview-readiness.md');
@@ -337,11 +339,14 @@ describe('unified Next app deployment', () => {
     expect(readiness).toContain('Vercel root directory: `web`');
     expect(readiness).toContain('Output directory: leave unset');
     expect(readiness).toContain('docs/nextjs-preview-pr.md');
+    expect(readiness).toContain('docs/nextjs-preview-pr-body.md');
     expect(prDraft).toContain('gh pr create --base main --head experiment/nextjs-preview');
+    expect(prDraft).toContain('--body-file docs/nextjs-preview-pr-body.md');
     expect(prDraft).toContain('corepack pnpm pr:preview');
     expect(prDraft).toContain('https://github.com/acttub/acttub/compare/main...experiment/nextjs-preview?quick_pull=1');
-    expect(prDraft).toContain('corepack pnpm verify:preview');
-    expect(prDraft).toContain('Vercel root directory: `web`');
+    expect(prBody).toContain('### Summary');
+    expect(prBody).toContain('corepack pnpm verify:preview');
+    expect(prBody).toContain('Vercel root directory: `web`');
   });
 
   it('keeps local Vercel metadata and env files ignored', () => {

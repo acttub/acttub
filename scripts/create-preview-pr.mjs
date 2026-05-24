@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 
 const title = 'Unify Acttub into one Next.js web app';
-const bodyFile = 'docs/nextjs-preview-pr.md';
+const bodyFile = 'docs/nextjs-preview-pr-body.md';
 const browserUrl = 'https://github.com/acttub/acttub/compare/main...experiment/nextjs-preview?quick_pull=1';
 const args = [
   'pr',
