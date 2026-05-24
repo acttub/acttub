@@ -314,6 +314,18 @@ describe('unified Next app deployment', () => {
     expect(vercel.routes).toBeUndefined();
   });
 
+  it('keeps deployment docs aligned with the single web Vercel project', () => {
+    const rootReadme = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
+    const webReadme = readFileSync(path.join(root, 'README.md'), 'utf8');
+
+    expect(rootReadme).toContain('| `web` | `web` |');
+    expect(webReadme).toContain('Vercel project root directory: `web`');
+    expect(webReadme).toContain('pnpm build');
+    expect(webReadme).toContain('Leave unset. Vercel detects the Next.js output automatically.');
+    expect(webReadme).not.toContain('```txt\n.next\n```');
+    expect(webReadme).toContain('corepack pnpm verify:preview');
+  });
+
   it('keeps local Vercel metadata and env files ignored', () => {
     const rootIgnore = readFileSync(path.join(repoRoot, '.gitignore'), 'utf8');
     const webIgnore = readFileSync(path.join(root, '.gitignore'), 'utf8');

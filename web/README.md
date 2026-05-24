@@ -80,6 +80,12 @@ corepack pnpm test
 corepack pnpm build
 ```
 
+From the repository root, run the full preview check before opening or updating a deployment PR:
+
+```bash
+corepack pnpm verify:preview
+```
+
 ## Deployment
 
 Vercel project root directory: `web`
@@ -93,7 +99,7 @@ pnpm build
 Output directory:
 
 ```txt
-.next
+Leave unset. Vercel detects the Next.js output automatically.
 ```
 
 Routes are defined with explicit App Router pages under `src/app`.
