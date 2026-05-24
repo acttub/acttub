@@ -26,6 +26,8 @@ Use `corepack pnpm verify:preview` before opening, updating, or merging the prev
 
 Use `corepack pnpm verify:runtime` when a server is already running on `4000` and you want to check the current local runtime.
 
+PR title/body draft: `docs/nextjs-preview-pr.md`
+
 ## Deployment
 
 - Vercel root directory: `web`

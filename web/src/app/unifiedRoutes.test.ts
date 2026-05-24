@@ -318,6 +318,7 @@ describe('unified Next app deployment', () => {
     const rootReadme = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
     const webReadme = readFileSync(path.join(root, 'README.md'), 'utf8');
     const readiness = readFileSync(path.join(repoRoot, 'docs/nextjs-preview-readiness.md'), 'utf8');
+    const prDraft = readFileSync(path.join(repoRoot, 'docs/nextjs-preview-pr.md'), 'utf8');
 
     expect(rootReadme).toContain('| `web` | `web` |');
     expect(rootReadme).toContain('docs/nextjs-preview-readiness.md');
@@ -330,6 +331,10 @@ describe('unified Next app deployment', () => {
     expect(readiness).toContain('corepack pnpm verify:preview');
     expect(readiness).toContain('Vercel root directory: `web`');
     expect(readiness).toContain('Output directory: leave unset');
+    expect(readiness).toContain('docs/nextjs-preview-pr.md');
+    expect(prDraft).toContain('gh pr create --base main --head experiment/nextjs-preview');
+    expect(prDraft).toContain('corepack pnpm verify:preview');
+    expect(prDraft).toContain('Vercel root directory: `web`');
   });
 
   it('keeps local Vercel metadata and env files ignored', () => {
