@@ -166,12 +166,6 @@ html, body {
 
 body { min-height: 100dvh; }
 
-#root {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-}
-
 button { font-family: inherit; }
 a { color: inherit; }
 
