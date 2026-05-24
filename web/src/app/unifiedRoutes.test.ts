@@ -338,4 +338,14 @@ describe('unified Next app runtime smoke', () => {
     expect(smoke).toContain('JSON.parse(body)');
     expect(smoke).toContain("contentType.includes('application/json')");
   });
+
+  it('requires coach smoke checks to reject provider and model leaks', () => {
+    const smoke = readSmokeSource();
+
+    expect(smoke).toContain('forbiddenContent');
+    expect(smoke).toContain('leakedContent');
+    expect(smoke).toContain('Request Entity Too Large');
+    expect(smoke).toContain("['Gemini', 'gemini', 'GEMINI_MODEL'");
+    expect(smoke).toContain("['Gemini', 'gemini', 'GEMINI_MODEL', 'model'");
+  });
 });

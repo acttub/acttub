@@ -6,7 +6,9 @@ const checks = [
   ['ACTI quiz', '/ACTI/quiz', 'page-quiz'],
   ['ACTI survey', '/ACTI/survey', 'data-route="acti-survey"'],
   ['ACTI result', '/ACTI/result/MINB', 'MINB'],
-  ['coach', '/coach', 'coach-page'],
+  ['coach', '/coach', 'coach-page', {
+    forbiddenContent: ['Gemini', 'gemini', 'GEMINI_MODEL', 'Request Entity Too Large'],
+  }],
   ['archive', '/archive', 'archive-page'],
   ['archive search', '/archive/search?q=%ED%96%84%EB%A6%BF', 'archive-search-page'],
   ['archive upload', '/archive/upload', 'archive-upload-form'],
@@ -40,6 +42,7 @@ const checks = [
     },
     expectedStatuses: [400, 500],
     expectJson: true,
+    forbiddenContent: ['Gemini', 'gemini', 'GEMINI_MODEL', 'model', 'Request Entity Too Large'],
   }],
 ];
 
@@ -76,6 +79,8 @@ for (const [label, path, expectedContent, options = {}] of checks) {
     const expectedStatuses = options.expectedStatuses;
     const ok = expectedStatuses ? expectedStatuses.includes(response.status) : response.status >= 200 && response.status < 400;
     const hasExpectedContent = body.includes(expectedContent);
+    const forbiddenContent = options.forbiddenContent ?? [];
+    const leakedContent = forbiddenContent.find((content) => body.includes(content));
     const contentType = response.headers.get('content-type') ?? '';
     const hasJsonContentType = !options.expectJson || contentType.includes('application/json');
     let hasValidJson = true;
@@ -86,11 +91,14 @@ for (const [label, path, expectedContent, options = {}] of checks) {
         hasValidJson = false;
       }
     }
-    const marker = ok && hasExpectedContent && hasJsonContentType && hasValidJson ? 'ok' : 'fail';
+    const marker = ok && hasExpectedContent && !leakedContent && hasJsonContentType && hasValidJson ? 'ok' : 'fail';
     console.log(`${marker} ${response.status} ${label} ${path}`);
     if (!ok) failures.push(`${label} ${path} returned ${response.status}`);
     if (ok && !hasExpectedContent) {
       failures.push(`${label} ${path} did not include expected content: ${expectedContent}`);
+    }
+    if (ok && leakedContent) {
+      failures.push(`${label} ${path} included forbidden content: ${leakedContent}`);
     }
     if (ok && !hasJsonContentType) {
       failures.push(`${label} ${path} did not return application/json content-type`);
