@@ -333,6 +333,7 @@ describe('unified Next app deployment', () => {
     expect(readiness).toContain('Output directory: leave unset');
     expect(readiness).toContain('docs/nextjs-preview-pr.md');
     expect(prDraft).toContain('gh pr create --base main --head experiment/nextjs-preview');
+    expect(prDraft).toContain('https://github.com/acttub/acttub/compare/main...experiment/nextjs-preview?quick_pull=1');
     expect(prDraft).toContain('corepack pnpm verify:preview');
     expect(prDraft).toContain('Vercel root directory: `web`');
   });

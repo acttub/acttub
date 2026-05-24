@@ -76,6 +76,14 @@ Optional variables are documented in `web/.env.example`.
 
 ## Create Command
 
+No PR is currently open for `experiment/nextjs-preview` into `main`.
+
+Browser URL:
+
+```txt
+https://github.com/acttub/acttub/compare/main...experiment/nextjs-preview?quick_pull=1
+```
+
 After GitHub CLI auth is fixed:
 
 ```bash
