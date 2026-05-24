@@ -208,6 +208,7 @@ describe('unified Next app workspace', () => {
       'corepack pnpm install --frozen-lockfile && corepack pnpm lint && corepack pnpm test && corepack pnpm prod'
     );
     expect(pkg.scripts['verify:runtime']).toBe('corepack pnpm smoke');
+    expect(pkg.scripts['verify:prod-runtime']).toBe('node scripts/verify-prod-runtime.mjs');
   });
 
   it('documents the runtime verification command for the running unified app', () => {
@@ -215,6 +216,9 @@ describe('unified Next app workspace', () => {
 
     expect(readme).toContain('corepack pnpm verify:runtime');
     expect(readme).toContain('Run the smoke checks against the currently running app');
+    expect(readme).toContain('corepack pnpm verify:prod-runtime');
+    expect(readme).toContain('Build `web`, start it on port 4000, run smoke checks, and stop it');
+    expect(existsSync(path.join(repoRoot, 'scripts/verify-prod-runtime.mjs'))).toBe(true);
   });
 
   it('keeps browser-like tests on the unified local origin', () => {
