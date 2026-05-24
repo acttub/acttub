@@ -95,4 +95,4 @@ Output directory:
 .next
 ```
 
-The App Router catch-all page serves the existing client UI routes.
+Routes are defined with explicit App Router pages under `src/app`.

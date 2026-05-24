@@ -1,7 +1,7 @@
 /**
  * Kakao JS SDK v2 래퍼.
  *
- * - index.html 의 외부 스크립트로 window.Kakao 가 로드되어 있음
+ * - Next 루트 layout 의 외부 스크립트로 window.Kakao 가 로드되어 있음
  * - 앱 키는 .env.local 의 NEXT_PUBLIC_KAKAO_APP_KEY (미설정 시 공유 비활성)
  */
 
