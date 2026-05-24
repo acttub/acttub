@@ -2,6 +2,9 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "pnpm build",
+  "git": {
+    "deploymentEnabled": false
+  },
   "crons": [
     {
       "path": "/api/coach/cleanup",

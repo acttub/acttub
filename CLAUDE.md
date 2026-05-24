@@ -73,6 +73,7 @@ Required GitHub repository secrets:
 - `VERCEL_PROJECT_ID`
 
 Vercel direct Git auto-deploy should stay disabled for `web`, and legacy Vercel projects should be disconnected or disabled so only the unified `web` app deploys.
+This repository disables Vercel Git auto-deploy through `git.deploymentEnabled: false` in `web/vercel.json` and the legacy project-root `vercel.json` files.
 
 ## Secrets
 

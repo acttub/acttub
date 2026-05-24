@@ -95,7 +95,7 @@ Deployment is intended to run through GitHub Actions, not Vercel's direct Git au
 - Pull requests run `corepack pnpm verify`, then deploy a Vercel Preview if verification passes.
 - Pushes to `main` run `corepack pnpm verify`, then deploy Vercel Production if verification passes.
 - Repository secrets required by the workflow: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`.
-- Keep Vercel Git auto-deploy disabled for `web`, and disconnect or disable the legacy Vercel projects so only one deployment pipeline runs.
+- `vercel.json` sets `git.deploymentEnabled` to `false` for `web` and the legacy project roots so Vercel Git auto-deploy does not create extra deployments.
 
 The `web` project uses:
 
