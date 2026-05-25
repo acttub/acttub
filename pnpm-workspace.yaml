@@ -1,16 +1,8 @@
 packages:
-  - "acttub-landing"
-  - "ACTI"
-  - "coach"
-  - "thea"
-  - "comm"
-  - "arch"
-  - "excer"
+  - "web"
 
 allowBuilds:
   '@google/genai': true
-  '@clerk/shared': true
-  '@firebase/util': true
   esbuild: true
   protobufjs: true
   sharp: true
@@ -18,8 +10,6 @@ allowBuilds:
 
 onlyBuiltDependencies:
   - '@google/genai'
-  - '@clerk/shared'
-  - '@firebase/util'
   - esbuild
   - protobufjs
   - sharp

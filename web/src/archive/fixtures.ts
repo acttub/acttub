@@ -1,0 +1,67 @@
+import type { ArchiveVideo } from './archiveData';
+
+const now = Date.now();
+const daysAgo = (days: number) => new Date(now - days * 86_400_000);
+
+export const ARCHIVE_FIXTURE_VIDEOS: ArchiveVideo[] = [
+  {
+    id: 'hamlet-monologue',
+    title: '햄릿 3막 독백 연습',
+    description: '감정선이 길게 이어지는 독백 장면을 기록한 영상입니다.',
+    thumbnailUrl: null,
+    durationSec: 188,
+    createdAt: daysAgo(1),
+    viewCount: 128,
+    visibility: 'public',
+    tags: ['햄릿', '독백', '감정'],
+    user: { username: 'minseo01', displayName: '민서', avatarUrl: null },
+  },
+  {
+    id: 'scene-partner-rehearsal',
+    title: '상대와 호흡 맞추는 장면 리허설',
+    description: '상대 배우와 템포를 맞춰 본 리허설 기록.',
+    thumbnailUrl: null,
+    durationSec: 642,
+    createdAt: daysAgo(3),
+    viewCount: 84,
+    visibility: 'public',
+    tags: ['리허설', '호흡', '장면'],
+    user: { username: 'jihoon_actor', displayName: '지훈', avatarUrl: null },
+  },
+  {
+    id: 'camera-self-tape',
+    title: '카메라 앞 자기소개 테이프',
+    description: '오디션 제출용 톤을 점검한 셀프테이프.',
+    thumbnailUrl: null,
+    durationSec: 95,
+    createdAt: daysAgo(5),
+    viewCount: 56,
+    visibility: 'public',
+    tags: ['셀프테이프', '오디션'],
+    user: { username: 'yerin_kim', displayName: '예린', avatarUrl: null },
+  },
+  {
+    id: 'movement-study',
+    title: '무대 동선과 시선 처리 연습',
+    description: '시선 이동과 몸의 방향을 분리해서 연습한 영상.',
+    thumbnailUrl: null,
+    durationSec: 402,
+    createdAt: daysAgo(8),
+    viewCount: 41,
+    visibility: 'public',
+    tags: ['동선', '시선', '무대'],
+    user: { username: 'hyunwoo_h', displayName: '현우', avatarUrl: null },
+  },
+  {
+    id: 'private-voice-note',
+    title: '발성 점검 기록',
+    description: '개인 보관용 발성 기록.',
+    thumbnailUrl: null,
+    durationSec: 241,
+    createdAt: daysAgo(2),
+    viewCount: 0,
+    visibility: 'private',
+    tags: ['발성', '비공개'],
+    user: { username: 'minseo01', displayName: '민서', avatarUrl: null },
+  },
+];

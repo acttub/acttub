@@ -1,0 +1,82 @@
+import { describe, expect, it } from 'vitest';
+import {
+  handleArchiveUpload,
+  handleArchiveVideos,
+  handleCommunityComments,
+  handleCommunityPosts,
+} from './apiCore';
+import { createMemoryActtubStorage } from './storage';
+
+describe('unified API core', () => {
+  it('lists community posts through the server API boundary', async () => {
+    const result = await handleCommunityPosts({
+      method: 'GET',
+      url: '/api/community/posts?board=hot',
+    });
+
+    expect(result.status).toBe(200);
+    expect((result.body as { items: unknown[] }).items.length).toBeGreaterThan(0);
+  });
+
+  it('creates secret-board posts as anonymous', async () => {
+    const result = await handleCommunityPosts({
+      method: 'POST',
+      url: '/api/community/posts',
+      body: { title: '비밀 글', body: '내용', boardId: 'secret', anonymous: false },
+    });
+
+    expect(result.status).toBe(201);
+    expect((result.body as { item: { anonymous: boolean; boardId: string } }).item).toMatchObject({
+      anonymous: true,
+      boardId: 'secret',
+    });
+  });
+
+  it('creates comments and increments post comment counts', async () => {
+    const storage = createMemoryActtubStorage({ seedFixtures: false });
+    const postResult = await handleCommunityPosts({
+      method: 'POST',
+      url: '/api/community/posts',
+      body: { title: '댓글 테스트', body: '내용', boardId: 'free' },
+    }, storage);
+    const postId = (postResult.body as { id: string }).id;
+    const commentResult = await handleCommunityComments({
+      method: 'POST',
+      url: '/api/community/comments',
+      body: { postId, body: '댓글' },
+    }, storage);
+
+    expect(commentResult.status).toBe(201);
+    const fetched = await handleCommunityPosts({
+      method: 'GET',
+      url: `/api/community/posts?q=${encodeURIComponent('댓글 테스트')}`,
+    }, storage);
+    expect((fetched.body as { items: Array<{ commentCount: number }> }).items[0].commentCount).toBe(1);
+  });
+
+  it('lists and creates archive video metadata', async () => {
+    const storage = createMemoryActtubStorage({ seedFixtures: false });
+    const create = await handleArchiveVideos({
+      method: 'POST',
+      url: '/api/archive/videos',
+      body: {
+        title: '새 영상',
+        description: '메타데이터 저장',
+        tags: ['테스트'],
+        visibility: 'public',
+        durationSec: 90,
+      },
+    }, storage);
+
+    expect(create.status).toBe(201);
+    const list = await handleArchiveVideos({ method: 'GET', url: '/api/archive/videos?q=새 영상' }, storage);
+    expect((list.body as { items: Array<{ title: string }> }).items[0].title).toBe('새 영상');
+  });
+
+  it('keeps blob upload explicit until Vercel Blob is configured', async () => {
+    const result = await handleArchiveUpload({ method: 'POST', url: '/api/archive/upload' });
+
+    expect(result.status).toBe(501);
+    expect((result.body as { maximumSizeInBytes: null }).maximumSizeInBytes).toBeNull();
+  });
+});

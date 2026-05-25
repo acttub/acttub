@@ -1,0 +1,213 @@
+/* =====================================================
+   ACTI Design Tokens (v3 — Toss-inspired mobile)
+   - Toss 본문 텍스트 컬러 채택 (#191F28 계열)
+   - 옅은 배경 + 흰 카드 + 진한 텍스트 (모바일 가독성)
+   - BottomCTA 패턴, safe-area 대응
+   ===================================================== */
+
+:root {
+  /* ---------- Base: Neutral (Toss 그레이 스케일) ---------- */
+  --gray-900: #191F28;   /* 본문 primary */
+  --gray-700: #333D4B;
+  --gray-600: #4E5968;   /* 본문 secondary */
+  --gray-500: #6B7684;
+  --gray-400: #8B95A1;   /* 보조 */
+  --gray-300: #B0B8C1;
+  --gray-200: #D1D6DB;
+  --gray-100: #E5E8EB;
+  --gray-50:  #F2F4F6;   /* 옅은 배경 */
+  --white:    #FFFFFF;
+
+  /* ---------- Base: Brand ---------- */
+  --primary-100: #FFE8E0;
+  --primary-300: #FFB39E;
+  --primary-500: #FF7A5C;
+  --primary-600: #E55A3C;
+  --primary-700: #C8553A;
+  --success-500: #2BAC4E;
+  --warn-500:    #F2A50C;
+  --error-500:   #E55353;
+
+  /* ---------- Base: 16유형 시그니처 (HSL 22.5° 균등) ---------- */
+  --type-00: #F2A8A0; --type-00-dark: #8C443B;
+  --type-01: #F2BC9F; --type-01-dark: #8C523B;
+  --type-02: #F2D09F; --type-02-dark: #8C633B;
+  --type-03: #E1F29F; --type-03-dark: #7E8C3B;
+  --type-04: #B7F29F; --type-04-dark: #558C3B;
+  --type-05: #9FF2AE; --type-05-dark: #3B8C53;
+  --type-06: #9FF2CE; --type-06-dark: #3B8C72;
+  --type-07: #9FECF2; --type-07-dark: #3B888C;
+  --type-08: #9FD4F2; --type-08-dark: #3B708C;
+  --type-09: #9FBBF2; --type-09-dark: #3B528C;
+  --type-10: #AE9FF2; --type-10-dark: #473B8C;
+  --type-11: #C49FF2; --type-11-dark: #603B8C;
+  --type-12: #DA9FF2; --type-12-dark: #723B8C;
+  --type-13: #F29FDA; --type-13-dark: #8C3B72;
+  --type-14: #F29FC4; --type-14-dark: #8C3B5B;
+  --type-15: #F29FAE; --type-15-dark: #8C3B4D;
+
+  /* ---------- Spacing (Toss 4·8 base) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ---------- Radius (Toss 시그니처 - 큰 라운드) ---------- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-pill: 9999px;
+
+  /* ---------- Shadow ---------- */
+  --shadow-1: 0 1px 2px rgba(25, 31, 40, 0.04), 0 1px 2px rgba(25, 31, 40, 0.06);
+  --shadow-2: 0 4px 12px rgba(25, 31, 40, 0.06), 0 2px 4px rgba(25, 31, 40, 0.04);
+  --shadow-3: 0 12px 28px rgba(25, 31, 40, 0.10), 0 4px 8px rgba(25, 31, 40, 0.06);
+  --shadow-cta-top: 0 -4px 16px rgba(25, 31, 40, 0.06);
+  --shadow-focus: 0 0 0 4px rgba(255, 122, 92, 0.28);
+
+  /* ---------- Typography ---------- */
+  --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'D2Coding', ui-monospace, monospace;
+
+  /* Toss 모바일 위계 (큰 본문 + 명확한 헤딩) */
+  --text-xs:    12px; --lh-xs:   16px;
+  --text-sm:    14px; --lh-sm:   20px;
+  --text-base:  16px; --lh-base: 24px;
+  --text-md:    17px; --lh-md:   26px;   /* Toss 본문 권장 */
+  --text-lg:    19px; --lh-lg:   28px;
+  --text-xl:    22px; --lh-xl:   30px;
+  --text-2xl:   26px; --lh-2xl:  34px;
+  --text-3xl:   32px; --lh-3xl:  42px;
+  --text-4xl:   40px; --lh-4xl:  50px;
+
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+  --fw-extrabold:800;
+
+  /* ---------- Motion ---------- */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.45, 0.64, 1);
+
+  /* ---------- Semantic ---------- */
+  --bg-page:     var(--gray-50);
+  --bg-surface:  var(--white);
+  --bg-subtle:   var(--gray-100);
+  --bg-inverse:  var(--gray-900);
+
+  --text-default:   var(--gray-900);
+  --text-secondary: var(--gray-600);
+  --text-muted:     var(--gray-500);
+  --text-helper:    var(--gray-400);
+  --text-inverse:   var(--white);
+  --text-link:      var(--primary-600);
+
+  --border-default: var(--gray-200);
+  --border-subtle:  var(--gray-100);
+  --border-focus:   var(--primary-500);
+
+  /* ---------- Container (Toss는 모바일 폼팩터에 최적) ---------- */
+  --container-max: 480px;
+  --container-gutter: 20px;   /* Toss 표준 좌우 20px */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* ===== 16유형 동적 캡처 컬러 ===== */
+[data-type="00"] { --bg-capture: var(--type-00); --text-on-type: var(--type-00-dark); }
+[data-type="01"] { --bg-capture: var(--type-01); --text-on-type: var(--type-01-dark); }
+[data-type="02"] { --bg-capture: var(--type-02); --text-on-type: var(--type-02-dark); }
+[data-type="03"] { --bg-capture: var(--type-03); --text-on-type: var(--type-03-dark); }
+[data-type="04"] { --bg-capture: var(--type-04); --text-on-type: var(--type-04-dark); }
+[data-type="05"] { --bg-capture: var(--type-05); --text-on-type: var(--type-05-dark); }
+[data-type="06"] { --bg-capture: var(--type-06); --text-on-type: var(--type-06-dark); }
+[data-type="07"] { --bg-capture: var(--type-07); --text-on-type: var(--type-07-dark); }
+[data-type="08"] { --bg-capture: var(--type-08); --text-on-type: var(--type-08-dark); }
+[data-type="09"] { --bg-capture: var(--type-09); --text-on-type: var(--type-09-dark); }
+[data-type="10"] { --bg-capture: var(--type-10); --text-on-type: var(--type-10-dark); }
+[data-type="11"] { --bg-capture: var(--type-11); --text-on-type: var(--type-11-dark); }
+[data-type="12"] { --bg-capture: var(--type-12); --text-on-type: var(--type-12-dark); }
+[data-type="13"] { --bg-capture: var(--type-13); --text-on-type: var(--type-13-dark); }
+[data-type="14"] { --bg-capture: var(--type-14); --text-on-type: var(--type-14-dark); }
+[data-type="15"] { --bg-capture: var(--type-15); --text-on-type: var(--type-15-dark); }
+
+/* ===== Base Reset ===== */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+  color: var(--text-default);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body { min-height: 100dvh; }
+
+button { font-family: inherit; }
+a { color: inherit; }
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-left: var(--container-gutter);
+  padding-right: var(--container-gutter);
+  width: 100%;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== Page transition ===== */
+.page-enter { animation: page-enter var(--duration-base) var(--ease-out); }
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Bottom CTA 컨테이너 ===== */
+.bottom-cta {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-3) var(--container-gutter) calc(var(--space-3) + var(--safe-bottom));
+  background: linear-gradient(180deg, rgba(242,244,246,0) 0%, var(--bg-page) 28%);
+  z-index: 20;
+}
+.bottom-cta--surface {
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, var(--white) 28%);
+  box-shadow: var(--shadow-cta-top);
+}
