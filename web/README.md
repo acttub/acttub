@@ -74,6 +74,10 @@ corepack pnpm db:migrate
 
 Without `DATABASE_URL`, API handlers fall back to in-memory fixture-backed storage for local development.
 
+Migrations are applied manually, not by GitHub Actions. Before validating a deployed persistence change, apply the relevant `drizzle/*.sql` files to the target Neon database and confirm the schema with SQL. Preview deployments only persist to Neon when the Vercel Preview environment has `DATABASE_URL`; otherwise they use the in-memory fallback.
+
+When API handlers log failed writes for user-provided data, log only sanitized metadata such as IDs, result codes, and error messages. Do not log raw `answers`, contact details, tokens, or request bodies.
+
 ## Coach Blob Cleanup
 
 Coach uploads use Vercel Blob client uploads so large videos do not hit Vercel route request limits.

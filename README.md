@@ -117,4 +117,6 @@ set +a
 corepack pnpm db:migrate
 ```
 
+Migrations are intentionally not run automatically in GitHub Actions. For schema changes, include the exact `web/drizzle/*.sql` files in the PR and Jira notes, apply them to the target Neon database, then verify the resulting table/columns with SQL before testing deployed persistence. Vercel Preview only writes to Neon when the Preview environment has `DATABASE_URL`; without it, API handlers fall back to in-memory storage.
+
 Do not commit `.env.local`, `.vercel/`, `.next/`, or `node_modules/`.

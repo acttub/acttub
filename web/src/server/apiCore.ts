@@ -70,6 +70,10 @@ function badRequest(error: unknown) {
   return { status: 400, body: { error } };
 }
 
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'unknown error';
+}
+
 function storageOrDefault(storage?: ActtubStorage) {
   sharedStorage ??= createActtubStorage();
   return storage ?? sharedStorage;
@@ -172,8 +176,18 @@ export async function handleActiSurveyResponses(input: ApiRequestInput, storage?
   if (method === 'POST') {
     const parsed = createActiSurveySchema.safeParse(input.body);
     if (!parsed.success) return badRequest(parsed.error.issues);
-    const surveyResponse = await store.createActiSurveyResponse(parsed.data);
-    return { status: 201, body: { id: surveyResponse.id, item: surveyResponse } };
+
+    try {
+      const surveyResponse = await store.createActiSurveyResponse(parsed.data);
+      return { status: 201, body: { id: surveyResponse.id, item: surveyResponse } };
+    } catch (error) {
+      console.error('ACTI survey response storage failed', {
+        userId: parsed.data.userId,
+        resultCode: parsed.data.resultCode,
+        error: errorMessage(error),
+      });
+      return { status: 500, body: { error: 'survey response storage failed' } };
+    }
   }
 
   return methodNotAllowed();
