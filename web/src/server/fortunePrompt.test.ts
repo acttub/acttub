@@ -28,9 +28,9 @@ describe('parseFortune', () => {
 
 describe('buildFortunePrompt', () => {
   it('includes the seed values', () => {
-    const prompt = buildFortunePrompt({ birth: '1999-03-12', role: '햄릿', work: '햄릿', today: '2026-06-02' });
+    const prompt = buildFortunePrompt({ birth: '1999-03-12', role: '햄릿', work: '햄릿' });
     expect(prompt).toContain('햄릿');
-    expect(prompt).toContain('2026-06-02');
+    expect(prompt).toContain('1999-03-12');
     expect(prompt).toContain('JSON');
   });
 });

@@ -14,18 +14,28 @@ type FortuneGenerateInput = FortuneSeed & { apiKey: string };
 export type FortuneOptions = {
   apiKey?: string;
   generate?: (input: FortuneGenerateInput) => Promise<Fortune>;
-  now?: () => Date;
 };
 
 const FAILURE_MESSAGE = '운세를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
-
 const RETRYABLE = /\b(429|500|503|UNAVAILABLE|RESOURCE_EXHAUSTED|overloaded|high demand)\b/i;
 
-async function generateContentWithRetry(
-  ai: GoogleGenAI,
-  params: { model: string; contents: string },
-  attempts = 3,
-) {
+// 같은 입력 → 같은 seed → 같은 운세 (결정성). 날짜는 시드에 넣지 않는다.
+function seedFrom(input: FortuneSeed): number {
+  const text = `${input.birth}|${input.role}|${input.work}`;
+  let hash = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    hash = (Math.imul(hash, 31) + text.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+type GenParams = {
+  model: string;
+  contents: string;
+  config?: { temperature: number; seed: number; maxOutputTokens: number };
+};
+
+async function generateContentWithRetry(ai: GoogleGenAI, params: GenParams, attempts = 3) {
   let lastError: unknown;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
@@ -45,16 +55,10 @@ async function defaultGenerate(input: FortuneGenerateInput): Promise<Fortune> {
   const result = await generateContentWithRetry(ai, {
     model: process.env.GEMINI_MODEL ?? 'gemini-3.5-flash',
     contents: buildFortunePrompt(input),
+    // temperature 0 + 입력 기반 seed → 같은 입력엔 같은 답. maxOutputTokens 제한으로 응답 단축(속도).
+    config: { temperature: 0, seed: seedFrom(input), maxOutputTokens: 512 },
   });
   return parseFortune(result.text ?? '');
-}
-
-function todayString(now: () => Date): string {
-  const date = now();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
 }
 
 export async function handleFortune(input: ApiRequestInput, options: FortuneOptions = {}): Promise<ApiResult> {
@@ -74,11 +78,7 @@ export async function handleFortune(input: ApiRequestInput, options: FortuneOpti
 
   try {
     const generate = options.generate ?? defaultGenerate;
-    const fortune = await generate({
-      ...parsed.data,
-      today: todayString(options.now ?? (() => new Date())),
-      apiKey,
-    });
+    const fortune = await generate({ ...parsed.data, apiKey });
     return { status: 200, body: { fortune } };
   } catch (error) {
     console.error('Fortune generate failed', error);

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, Share2, ArrowRight, Loader2, RotateCcw } from 'lucide-react';
+import { Sparkles, Share2, Loader2, RotateCcw } from 'lucide-react';
 import PrimaryButton from '../components/PrimaryButton';
 
 type Fortune = {
@@ -20,9 +20,6 @@ export default function FortunePage() {
   const [fortune, setFortune] = useState<Fortune | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const now = new Date();
-  const dateLabel = `${now.getMonth() + 1}/${now.getDate()}`;
 
   async function seeFortune() {
     if (!birth || !role.trim() || !work.trim()) {
@@ -125,7 +122,7 @@ export default function FortunePage() {
       ) : (
         <section className="fortune__result">
           <article className="fortune__card">
-            <div className="fortune__card-date">🎭 오늘의 연기 운세 · {dateLabel}</div>
+            <div className="fortune__card-date">🎭 오늘의 연기 운세</div>
             <div className="fortune__card-meta">{work} · {role}</div>
             <p className="fortune__oneliner">{fortune.oneLiner}</p>
 
@@ -148,13 +145,9 @@ export default function FortunePage() {
           </article>
 
           <div className="fortune__actions">
-            <PrimaryButton variant="weak" onClick={shareResult}>
+            <PrimaryButton onClick={shareResult}>
               <Share2 size={18} />
-              공유
-            </PrimaryButton>
-            <PrimaryButton as="a" href="/coach?utm_source=fortune&utm_medium=cta">
-              AI한테 확인받기
-              <ArrowRight size={18} />
+              결과 공유하기
             </PrimaryButton>
           </div>
 

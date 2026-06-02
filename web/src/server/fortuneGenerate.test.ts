@@ -39,7 +39,7 @@ describe('handleFortune', () => {
   it('returns 200 with a fortune for valid input', async () => {
     const result = await handleFortune(
       { method: 'POST', url: 'http://x/api/fortune', body: validBody },
-      { apiKey: 'key', generate: okGenerate, now: () => new Date('2026-06-02T00:00:00Z') },
+      { apiKey: 'key', generate: okGenerate },
     );
     expect(result.status).toBe(200);
     expect((result.body as { fortune: Fortune }).fortune.condition.stars).toBe(4);
