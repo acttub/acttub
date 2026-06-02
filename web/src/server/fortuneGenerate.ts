@@ -19,9 +19,30 @@ export type FortuneOptions = {
 
 const FAILURE_MESSAGE = '운세를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
 
+const RETRYABLE = /\b(429|500|503|UNAVAILABLE|RESOURCE_EXHAUSTED|overloaded|high demand)\b/i;
+
+async function generateContentWithRetry(
+  ai: GoogleGenAI,
+  params: { model: string; contents: string },
+  attempts = 3,
+) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await ai.models.generateContent(params);
+    } catch (error) {
+      lastError = error;
+      const message = error instanceof Error ? error.message : String(error);
+      if (attempt === attempts - 1 || !RETRYABLE.test(message)) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 800 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
+
 async function defaultGenerate(input: FortuneGenerateInput): Promise<Fortune> {
   const ai = new GoogleGenAI({ apiKey: input.apiKey });
-  const result = await ai.models.generateContent({
+  const result = await generateContentWithRetry(ai, {
     model: process.env.GEMINI_MODEL ?? 'gemini-3.5-flash',
     contents: buildFortunePrompt(input),
   });
@@ -61,7 +82,6 @@ export async function handleFortune(input: ApiRequestInput, options: FortuneOpti
     return { status: 200, body: { fortune } };
   } catch (error) {
     console.error('Fortune generate failed', error);
-    const detail = error instanceof Error ? error.message : String(error);
-    return { status: 500, body: { error: `${FAILURE_MESSAGE} [debug: ${detail}]` } };
+    return { status: 500, body: { error: FAILURE_MESSAGE } };
   }
 }
