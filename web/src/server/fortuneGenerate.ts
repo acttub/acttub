@@ -61,6 +61,7 @@ export async function handleFortune(input: ApiRequestInput, options: FortuneOpti
     return { status: 200, body: { fortune } };
   } catch (error) {
     console.error('Fortune generate failed', error);
-    return { status: 500, body: { error: FAILURE_MESSAGE } };
+    const detail = error instanceof Error ? error.message : String(error);
+    return { status: 500, body: { error: `${FAILURE_MESSAGE} [debug: ${detail}]` } };
   }
 }
