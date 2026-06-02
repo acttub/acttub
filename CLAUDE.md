@@ -51,6 +51,8 @@ Use TypeScript and React functional components. Keep unified product code inside
 
 Prefer existing helpers and page/component patterns before adding new abstractions. Keep UI unchanged unless the task explicitly asks for a UI change.
 
+For any UI, component, or styling work, follow [`web/design.md`](web/design.md) — the design-system SSOT (tokens, component patterns, accessibility). Use tokens from `web/src/styles/globals.css`; never hardcode colors, spacing, radii, shadows, or font sizes.
+
 ## Testing
 
 `web` uses Vitest. Put tests near covered code as `*.test.ts` or `*.test.tsx`.
