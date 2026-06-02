@@ -42,7 +42,15 @@ export function buildSurveyParams(answers: SurveyAnswers): URLSearchParams {
   return params;
 }
 
-export async function submitSurveyResponse(answers: SurveyAnswers): Promise<void> {
+export async function submitSurveyResponse(answers: SurveyAnswers, resultCode?: string, userId?: string | null): Promise<void> {
+  if (resultCode && userId) {
+    await fetch('/api/acti/survey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, resultCode, answers }),
+    }).catch(() => undefined);
+  }
+
   const body = buildSurveyParams(answers);
   await fetch(FORM_RESPONSE_URL, {
     method: 'POST',

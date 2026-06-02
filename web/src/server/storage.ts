@@ -45,6 +45,22 @@ export type CreateArchiveVideoInput = {
   durationSec?: number | null;
 };
 
+export type ActiSurveyAnswers = Record<string, string | string[]>;
+
+export type ActiSurveyResponse = {
+  id: string;
+  userId: string;
+  resultCode: string;
+  answers: ActiSurveyAnswers;
+  createdAt: Date;
+};
+
+export type CreateActiSurveyResponseInput = {
+  userId: string;
+  resultCode: string;
+  answers: ActiSurveyAnswers;
+};
+
 export type NormalizedArchiveVideoInput = Required<
   Pick<CreateArchiveVideoInput, 'title' | 'description' | 'tags' | 'visibility' | 'thumbnailUrl' | 'durationSec'>
 > &
@@ -66,6 +82,7 @@ export type ActtubStorage = {
   listArchiveVideos(filter: ArchiveFilter): Promise<ArchiveVideo[]>;
   getArchiveVideo(id: string): Promise<ArchiveVideo | null>;
   createArchiveVideo(input: CreateArchiveVideoInput): Promise<ArchiveVideo>;
+  createActiSurveyResponse(input: CreateActiSurveyResponseInput): Promise<ActiSurveyResponse>;
 };
 
 const fixtureUser = {
@@ -103,6 +120,7 @@ export function createMemoryActtubStorage(options: { seedFixtures?: boolean } = 
   const communityPosts: CommunityPost[] = seedFixtures ? [...COMMUNITY_FIXTURE_POSTS] : [];
   const communityComments: CommunityComment[] = seedFixtures ? [...COMMUNITY_FIXTURE_COMMENTS] : [];
   const archiveVideos: ArchiveVideo[] = seedFixtures ? [...ARCHIVE_FIXTURE_VIDEOS] : [];
+  const actiSurveyResponses: ActiSurveyResponse[] = [];
 
   return {
     async listCommunityPosts(query) {
@@ -190,6 +208,17 @@ export function createMemoryActtubStorage(options: { seedFixtures?: boolean } = 
       };
       archiveVideos.unshift(video);
       return video;
+    },
+    async createActiSurveyResponse(input) {
+      const response: ActiSurveyResponse = {
+        id: nextId('acti-survey'),
+        userId: input.userId.trim(),
+        resultCode: input.resultCode.trim().toUpperCase(),
+        answers: input.answers,
+        createdAt: new Date(),
+      };
+      actiSurveyResponses.unshift(response);
+      return response;
     },
   };
 }

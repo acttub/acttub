@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   handleArchiveUpload,
   handleArchiveVideos,
+  handleActiSurveyResponses,
   handleCommunityComments,
   handleCommunityPosts,
 } from './apiCore';
@@ -71,6 +72,34 @@ describe('unified API core', () => {
     expect(create.status).toBe(201);
     const list = await handleArchiveVideos({ method: 'GET', url: '/api/archive/videos?q=새 영상' }, storage);
     expect((list.body as { items: Array<{ title: string }> }).items[0].title).toBe('새 영상');
+  });
+
+  it('stores ACTI survey answers with the computed result code', async () => {
+    const storage = createMemoryActtubStorage({ seedFixtures: false });
+    const result = await handleActiSurveyResponses({
+      method: 'POST',
+      url: '/api/acti/survey',
+      body: {
+        userId: 'acti-user-test',
+        resultCode: 'MINB',
+        answers: {
+          'actor-status': 'active-actor',
+          'feedback-source': ['teacher-coach', 'director'],
+        },
+      },
+    }, storage);
+
+    expect(result.status).toBe(201);
+    expect(result.body).toMatchObject({
+      item: {
+        userId: 'acti-user-test',
+        resultCode: 'MINB',
+        answers: {
+          'actor-status': 'active-actor',
+          'feedback-source': ['teacher-coach', 'director'],
+        },
+      },
+    });
   });
 
   it('keeps blob upload explicit until Vercel Blob is configured', async () => {

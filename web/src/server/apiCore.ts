@@ -44,6 +44,20 @@ const createVideoSchema = z.object({
   durationSec: z.number().int().nonnegative().optional().nullable(),
 });
 
+const createActiSurveySchema = z.object({
+  userId: z.string().trim().min(1).max(120),
+  resultCode: z.string().trim().min(1).max(16),
+  answers: z
+    .record(
+      z.string().trim().min(1).max(100),
+      z.union([
+        z.string().trim().min(1).max(5000),
+        z.array(z.string().trim().min(1).max(5000)).min(1).max(50),
+      ])
+    )
+    .refine((answers) => Object.keys(answers).length > 0, 'answers must not be empty'),
+});
+
 function requestUrl(input: ApiRequestInput) {
   return new URL(input.url, 'http://localhost');
 }
@@ -146,6 +160,20 @@ export async function handleArchiveVideos(input: ApiRequestInput, storage?: Actt
     if (!parsed.success) return badRequest(parsed.error.issues);
     const video = await store.createArchiveVideo(parsed.data);
     return { status: 201, body: { id: video.id, item: video } };
+  }
+
+  return methodNotAllowed();
+}
+
+export async function handleActiSurveyResponses(input: ApiRequestInput, storage?: ActtubStorage): Promise<ApiResult> {
+  const method = input.method.toUpperCase();
+  const store = storageOrDefault(storage);
+
+  if (method === 'POST') {
+    const parsed = createActiSurveySchema.safeParse(input.body);
+    if (!parsed.success) return badRequest(parsed.error.issues);
+    const surveyResponse = await store.createActiSurveyResponse(parsed.data);
+    return { status: 201, body: { id: surveyResponse.id, item: surveyResponse } };
   }
 
   return methodNotAllowed();

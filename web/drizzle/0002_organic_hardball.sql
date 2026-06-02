@@ -1,0 +1,1 @@
+ALTER TABLE "acti_survey_responses" ADD COLUMN "user_id" text NOT NULL;

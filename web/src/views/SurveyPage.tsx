@@ -20,7 +20,7 @@ import {
   type SurveyAnswers,
   type SurveyItem,
 } from '../content/survey';
-import { getMyTypeCode } from '../lib/storage';
+import { getActiUserId, getMyTypeCode } from '../lib/storage';
 import { submitSurveyResponse } from '../lib/surveySubmit';
 
 const AUTO_ADVANCE_MS = 240;
@@ -45,6 +45,7 @@ export default function SurveyPage() {
   const [answers, setAnswers] = useState<SurveyAnswers>({});
   const [submitting, setSubmitting] = useState(false);
   const resultCode = useMemo(() => getMyTypeCode(), []);
+  const userId = useMemo(() => getActiUserId(), []);
 
   useEffect(() => {
     if (!resultCode) router.replace('/ACTI/quiz');
@@ -63,7 +64,7 @@ export default function SurveyPage() {
       if (!resultCode) return;
       setSubmitting(true);
       try {
-        await submitSurveyResponse(answers);
+        await submitSurveyResponse(answers, resultCode, userId);
       } catch {
         // 응답 전송 실패는 사용자 흐름을 막지 않음
       }
