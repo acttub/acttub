@@ -7,6 +7,26 @@ and `src/components`), not invented — keep it in sync when the system evolves.
 > Design language: **Toss-inspired mobile**. Single column, light page + white cards + dark text,
 > sticky bottom CTA, safe-area aware.
 
+## 0. Scope — two style systems exist today
+
+web currently ships **two coexisting style systems**, both bundled through `src/app/globals.css`:
+
+- **System A — this document, the target standard.** Global `:root` tokens (`--primary-500`, `--gray-*`,
+  semantic `--text-default`), BEM classes, per-component CSS. Used by the ACTI diagnosis flow and `src/components`.
+- **System B — legacy.** Tailwind-style utility class names (`rounded-xl border border-line bg-white text-ink`)
+  hand-ported into per-view CSS, with **page-scoped** tokens (e.g. `.coach-page { --primary; --ink; --line }`).
+  Used by `src/views` (coach, archive, community, thea, …). Tailwind is **not** a dependency — it was removed and
+  its utilities frozen into each view's CSS.
+
+**Which to follow:**
+
+- Work in `src/components` / ACTI, or build a new component → follow System A (sections 1–4 below).
+- Edit an existing `src/views/*` page → match that file's existing System B pattern; **do not mix A's global tokens
+  into B**, and don't reintroduce raw hex/px (reuse the page-scoped tokens already defined at the top of its CSS).
+- Either way: no new hardcoded colors/spacing/radii — use whatever tokens are already in scope.
+
+Unifying the two systems onto System A is tracked as a separate task (see Jira `SOMA`).
+
 ## 1. Stack & file layout
 
 - **Plain CSS**, no Tailwind / CSS-in-JS. Each component is a `Name.tsx` + `Name.css` pair in `src/components`.
