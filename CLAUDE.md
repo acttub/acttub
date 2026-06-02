@@ -60,7 +60,7 @@ Prefer existing helpers and page/component patterns before adding new abstractio
 
 Types: prefer `type` aliases over `interface`; validate external input with `zod`. Note `strictNullChecks` is off in `tsconfig` — guard nullable values explicitly rather than relying on the compiler.
 
-For any UI, component, or styling work, follow [`web/design.md`](web/design.md) — the design-system SSOT (tokens, component patterns, accessibility). Use tokens from `web/src/styles/globals.css`; never hardcode colors, spacing, radii, shadows, or font sizes.
+For UI work, read [`web/design.md`](web/design.md) first. Note `web/` has **two style systems** (see its "Scope" section): System A (global `:root` tokens + BEM, in `src/components`/ACTI) and legacy System B (page-scoped tokens + frozen utility classes, in `src/views`). Follow System A for new components; when editing an existing `src/views` page, match that file's existing pattern. Never hardcode colors, spacing, radii, shadows, or font sizes — use the tokens already in scope.
 
 ## Backend & API Conventions
 
