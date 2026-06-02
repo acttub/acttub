@@ -47,9 +47,35 @@ Common commands:
 
 ## Coding Style
 
-Use TypeScript and React functional components. Keep unified product code inside `web/src`, Next route handlers inside `web/src/app/api`, and DB schema/migrations inside `web/src/server` and `web/drizzle`.
+Use TypeScript and React functional components. Import via the `@/*` alias (→ `src/*`), not long relative paths.
+
+Code placement:
+
+- `web/src/app/<area>`: App Router pages. `web/src/app/api/<area>/<action>/route.ts`: route handlers.
+- `web/src/server`: backend core — storage, DB schema/migrations (`schema.ts` + `web/drizzle`), blob, external services (Gemini, email).
+- `web/src/lib`: shared/client-side utilities (scoring, analytics, share, survey submit, …).
+- `web/src/components`: reusable UI. `web/src/views`: page-level views. `web/src/styles`: tokens and global CSS.
 
 Prefer existing helpers and page/component patterns before adding new abstractions. Keep UI unchanged unless the task explicitly asks for a UI change.
+
+Types: prefer `type` aliases over `interface`; validate external input with `zod`. Note `strictNullChecks` is off in `tsconfig` — guard nullable values explicitly rather than relying on the compiler.
+
+For any UI, component, or styling work, follow [`web/design.md`](web/design.md) — the design-system SSOT (tokens, component patterns, accessibility). Use tokens from `web/src/styles/globals.css`; never hardcode colors, spacing, radii, shadows, or font sizes.
+
+## Backend & API Conventions
+
+Route handlers stay thin — they adapt HTTP only and delegate all logic to `web/src/server`:
+
+```ts
+export async function POST(request: Request) {
+  return jsonResponse(await handleCommunityPosts(await jsonRequestInput(request)));
+}
+```
+
+- Business logic lives in `handle*(input: ApiRequestInput, storage?: ActtubStorage): Promise<ApiResult>` functions (see `apiCore.ts`). They return `{ status, body }` — never construct `Response` objects in server logic.
+- Accept an optional injected `storage` (default via `storageOrDefault`) so handlers are unit-testable without a live DB. Access data only through the `ActtubStorage` interface (`createActtubStorage()`), not DB clients directly.
+- Validate request bodies with a `zod` schema via `safeParse`; on failure return `badRequest(parsed.error.issues)` (400).
+- Status conventions: 200/201 success, `badRequest` 400, 404 for missing resources, `methodNotAllowed()` 405. In `catch`, derive the message with `error instanceof Error ? error.message : '<fallback>'`.
 
 ## Testing
 
