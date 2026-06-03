@@ -60,13 +60,14 @@ async function defaultGenerate(input: FortuneGenerateInput): Promise<Fortune> {
   const result = await generateContentWithRetry(ai, {
     model: process.env.GEMINI_MODEL ?? 'gemini-3.5-flash',
     contents: buildFortunePrompt(input),
-    // temperature 0 + 입력 기반 seed → 같은 입력엔 같은 답. maxOutputTokens 제한으로 응답 단축(속도).
+    // temperature 0 + 입력 기반 seed → 같은 입력엔 같은 답.
     // gemini-3.5-flash는 thinking 모델 — thinking 토큰이 maxOutputTokens 예산을 먹어 JSON 본문이 잘린다.
     // 운세엔 추론이 불필요하므로 thinking을 꺼서 예산을 본문에만 쓴다(속도·결정성·비용 이득).
+    // 풍성한 결과(총운·세부 4종·행운 3종·명대사·미션·주의)라 본문이 길어 1024로 잡는다.
     config: {
       temperature: 0,
       seed: seedFrom(input),
-      maxOutputTokens: 512,
+      maxOutputTokens: 1024,
       thinkingConfig: { thinkingBudget: 0 },
     },
   });
