@@ -5,13 +5,32 @@ import Link from 'next/link';
 import { Sparkles, Share2, Loader2, RotateCcw } from 'lucide-react';
 import PrimaryButton from '../components/PrimaryButton';
 
+type FortuneAspect = { stars: number; comment: string };
+
 type Fortune = {
-  oneLiner: string;
-  emotion: string;
-  condition: { stars: number; comment: string };
-  line: string;
+  overall: { stars: number; summary: string };
+  aspects: {
+    emotion: FortuneAspect;
+    delivery: FortuneAspect;
+    focus: FortuneAspect;
+    rapport: FortuneAspect;
+  };
+  lucky: { emotion: string; warmup: string; mood: string };
+  line: { quote: string; note: string };
   mission: string;
+  caution: string;
 };
+
+const ASPECTS: { key: keyof Fortune['aspects']; emoji: string; label: string }[] = [
+  { key: 'emotion', emoji: '😤', label: '감정 연기운' },
+  { key: 'delivery', emoji: '🗣️', label: '대사·발성운' },
+  { key: 'focus', emoji: '🎬', label: '현장·집중운' },
+  { key: 'rapport', emoji: '🤝', label: '호흡·관계운' },
+];
+
+function stars(count: number): string {
+  return '★'.repeat(count) + '☆'.repeat(Math.max(0, 5 - count));
+}
 
 export default function FortunePage() {
   const [birth, setBirth] = useState('');
@@ -49,7 +68,7 @@ export default function FortunePage() {
 
   async function shareResult() {
     if (!fortune) return;
-    const text = `🎭 오늘의 연기 운세\n${work} · ${role}\n${fortune.oneLiner}\n오늘의 명대사: "${fortune.line}"\n\nacttub.com/fortune`;
+    const text = `🎭 오늘의 연기 운세 — ${work} · ${role}\n${fortune.overall.summary}\n오늘의 명대사: "${fortune.line.quote}"\n\nacttub.com/fortune`;
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({ title: '오늘의 연기 운세', text });
@@ -61,10 +80,6 @@ export default function FortunePage() {
       // 사용자가 공유를 취소한 경우 등 — 무시
     }
   }
-
-  const stars = fortune
-    ? '★'.repeat(fortune.condition.stars) + '☆'.repeat(Math.max(0, 5 - fortune.condition.stars))
-    : '';
 
   return (
     <div className="fortune container">
@@ -122,26 +137,89 @@ export default function FortunePage() {
       ) : (
         <section className="fortune__result">
           <article className="fortune__card">
-            <div className="fortune__card-date">🎭 오늘의 연기 운세</div>
-            <div className="fortune__card-meta">{work} · {role}</div>
-            <p className="fortune__oneliner">{fortune.oneLiner}</p>
-
-            <div className="fortune__row">
-              <span>오늘의 감정</span>
-              <strong>{fortune.emotion}</strong>
+            <div className="fortune__card-head">
+              <span className="fortune__card-date">🎭 오늘의 연기 운세</span>
+              <span className="fortune__card-meta">{work} · {role}</span>
             </div>
-            <div className="fortune__row">
-              <span>연기 컨디션</span>
-              <span className="fortune__stars" aria-label={`${fortune.condition.stars}점`}>{stars}</span>
-            </div>
-            {fortune.condition.comment ? <p className="fortune__cond">{fortune.condition.comment}</p> : null}
 
-            <blockquote className="fortune__line">{fortune.line}</blockquote>
+            <div className="fortune__overall">
+              <div className="fortune__overall-top">
+                <span className="fortune__overall-label">오늘의 총운</span>
+                <span
+                  className="fortune__stars fortune__stars--lg"
+                  aria-label={`${fortune.overall.stars}점`}
+                >
+                  {stars(fortune.overall.stars)}
+                </span>
+              </div>
+              <p className="fortune__summary">{fortune.overall.summary}</p>
+            </div>
+
+            <div className="fortune__section">
+              <h2 className="fortune__section-title">세부 운세</h2>
+              <ul className="fortune__aspects">
+                {ASPECTS.map(({ key, emoji, label }) => {
+                  const aspect = fortune.aspects[key];
+                  return (
+                    <li key={key} className="fortune__aspect">
+                      <div className="fortune__aspect-head">
+                        <span className="fortune__aspect-name">
+                          <span aria-hidden>{emoji}</span> {label}
+                        </span>
+                        <span
+                          className="fortune__stars fortune__stars--sm"
+                          aria-label={`${aspect.stars}점`}
+                        >
+                          {stars(aspect.stars)}
+                        </span>
+                      </div>
+                      {aspect.comment ? (
+                        <p className="fortune__aspect-comment">{aspect.comment}</p>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <div className="fortune__section">
+              <h2 className="fortune__section-title">오늘의 행운</h2>
+              <dl className="fortune__lucky">
+                {fortune.lucky.emotion ? (
+                  <div className="fortune__lucky-row">
+                    <dt>행운의 감정</dt>
+                    <dd>{fortune.lucky.emotion}</dd>
+                  </div>
+                ) : null}
+                {fortune.lucky.warmup ? (
+                  <div className="fortune__lucky-row">
+                    <dt>행운의 워밍업</dt>
+                    <dd>{fortune.lucky.warmup}</dd>
+                  </div>
+                ) : null}
+                {fortune.lucky.mood ? (
+                  <div className="fortune__lucky-row">
+                    <dt>행운의 무드</dt>
+                    <dd>{fortune.lucky.mood}</dd>
+                  </div>
+                ) : null}
+              </dl>
+            </div>
+
+            <div className="fortune__section">
+              <h2 className="fortune__section-title">오늘의 명대사</h2>
+              <blockquote className="fortune__line">{fortune.line.quote}</blockquote>
+              {fortune.line.note ? <p className="fortune__line-note">→ {fortune.line.note}</p> : null}
+            </div>
 
             <div className="fortune__mission">
-              <span>오늘의 미션</span>
+              <span>🎯 오늘의 미션</span>
               <p>{fortune.mission}</p>
             </div>
+
+            {fortune.caution ? (
+              <p className="fortune__caution">⚠️ {fortune.caution}</p>
+            ) : null}
           </article>
 
           <div className="fortune__actions">

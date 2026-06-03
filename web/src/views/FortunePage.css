@@ -109,56 +109,130 @@
   box-shadow: var(--shadow-2);
 }
 
+.fortune__card-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
 .fortune__card-date {
   font-size: var(--text-sm);
   font-weight: var(--fw-bold);
   color: var(--primary-600);
 }
-
 .fortune__card-meta {
-  margin-top: calc(-1 * var(--space-2));
   font-size: var(--text-sm);
   color: var(--text-muted);
 }
 
-.fortune__oneliner {
-  margin: 0;
-  font-size: var(--text-xl);
-  line-height: var(--lh-xl);
-  font-weight: var(--fw-bold);
-  color: var(--text-default);
+.fortune__stars {
+  letter-spacing: 2px;
+  color: var(--primary-500);
+  white-space: nowrap;
 }
+.fortune__stars--lg { font-size: var(--text-lg); }
+.fortune__stars--sm { font-size: var(--text-sm); }
 
-.fortune__row {
+/* 총운 */
+.fortune__overall {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-xl);
+}
+.fortune__overall-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--border-subtle);
 }
-.fortune__row > span:first-child {
+.fortune__overall-label {
   font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
   color: var(--text-muted);
 }
-.fortune__row strong {
+.fortune__summary {
+  margin: 0;
   font-size: var(--text-md);
-  font-weight: var(--fw-bold);
+  line-height: var(--lh-md);
+  font-weight: var(--fw-semibold);
   color: var(--text-default);
 }
 
-.fortune__stars {
-  font-size: var(--text-md);
-  letter-spacing: 2px;
-  color: var(--primary-500);
+/* 섹션 공통 */
+.fortune__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+.fortune__section-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
+  color: var(--text-muted);
 }
 
-.fortune__cond {
-  margin: calc(-1 * var(--space-2)) 0 0;
+/* 세부 운세 */
+.fortune__aspects {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.fortune__aspect {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.fortune__aspect-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.fortune__aspect-name {
+  font-size: var(--text-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text-default);
+}
+.fortune__aspect-comment {
+  margin: 0;
   font-size: var(--text-sm);
+  line-height: var(--lh-sm);
   color: var(--text-secondary);
 }
 
+/* 오늘의 행운 */
+.fortune__lucky {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.fortune__lucky-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.fortune__lucky-row dt {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.fortune__lucky-row dd {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text-default);
+  text-align: right;
+}
+
+/* 명대사 */
 .fortune__line {
   margin: 0;
   padding: var(--space-4);
@@ -169,21 +243,39 @@
   font-weight: var(--fw-semibold);
   color: var(--text-default);
 }
+.fortune__line-note {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  color: var(--text-secondary);
+}
 
+/* 미션 */
 .fortune__mission {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--primary-100);
+  border-radius: var(--radius-lg);
 }
 .fortune__mission span {
   font-size: var(--text-sm);
   font-weight: var(--fw-bold);
-  color: var(--text-muted);
+  color: var(--primary-700);
 }
 .fortune__mission p {
   margin: 0;
   font-size: var(--text-md);
   color: var(--text-default);
+}
+
+/* 주의 */
+.fortune__caution {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  color: var(--text-secondary);
 }
 
 .fortune__actions {
