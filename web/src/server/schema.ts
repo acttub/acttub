@@ -3,10 +3,12 @@ import {
   boolean,
   bigint,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
+import type { ActiSurveyAnswers } from './storage';
 
 export const communityPostsTable = pgTable('community_posts', {
   id: text('id').primaryKey(),
@@ -60,10 +62,20 @@ export const archiveVideosTable = pgTable('archive_videos', {
   sizeBytes: bigint('size_bytes', { mode: 'number' }),
 });
 
+export const actiSurveyResponsesTable = pgTable('acti_survey_responses', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  resultCode: text('result_code').notNull(),
+  answers: jsonb('answers').$type<ActiSurveyAnswers>().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type CommunityPostRow = typeof communityPostsTable.$inferSelect;
 export type CommunityCommentRow = typeof communityCommentsTable.$inferSelect;
 export type ArchiveVideoRow = typeof archiveVideosTable.$inferSelect;
+export type ActiSurveyResponseRow = typeof actiSurveyResponsesTable.$inferSelect;
 
 export type NewCommunityPostRow = typeof communityPostsTable.$inferInsert;
 export type NewCommunityCommentRow = typeof communityCommentsTable.$inferInsert;
 export type NewArchiveVideoRow = typeof archiveVideosTable.$inferInsert;
+export type NewActiSurveyResponseRow = typeof actiSurveyResponsesTable.$inferInsert;

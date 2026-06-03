@@ -44,6 +44,7 @@ const requiredApiRoutes = [
   'api/coach/upload/route.ts',
   'api/archive/videos/route.ts',
   'api/archive/upload/route.ts',
+  'api/acti/survey/route.ts',
   'api/community/posts/route.ts',
   'api/community/comments/route.ts',
 ];

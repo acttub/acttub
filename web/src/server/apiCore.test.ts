@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   handleArchiveUpload,
   handleArchiveVideos,
+  handleActiSurveyResponses,
   handleCommunityComments,
   handleCommunityPosts,
 } from './apiCore';
@@ -71,6 +72,68 @@ describe('unified API core', () => {
     expect(create.status).toBe(201);
     const list = await handleArchiveVideos({ method: 'GET', url: '/api/archive/videos?q=새 영상' }, storage);
     expect((list.body as { items: Array<{ title: string }> }).items[0].title).toBe('새 영상');
+  });
+
+  it('stores ACTI survey answers with the computed result code', async () => {
+    const storage = createMemoryActtubStorage({ seedFixtures: false });
+    const result = await handleActiSurveyResponses({
+      method: 'POST',
+      url: '/api/acti/survey',
+      body: {
+        userId: 'acti-user-test',
+        resultCode: 'MINB',
+        answers: {
+          'actor-status': 'active-actor',
+          'feedback-source': ['teacher-coach', 'director'],
+        },
+      },
+    }, storage);
+
+    expect(result.status).toBe(201);
+    expect(result.body).toMatchObject({
+      item: {
+        userId: 'acti-user-test',
+        resultCode: 'MINB',
+        answers: {
+          'actor-status': 'active-actor',
+          'feedback-source': ['teacher-coach', 'director'],
+        },
+      },
+    });
+  });
+
+  it('logs ACTI survey storage failures without exposing answers', async () => {
+    const storage = createMemoryActtubStorage({ seedFixtures: false });
+    const createActiSurveyResponse = vi
+      .spyOn(storage, 'createActiSurveyResponse')
+      .mockRejectedValue(new Error('database unavailable'));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    const result = await handleActiSurveyResponses({
+      method: 'POST',
+      url: '/api/acti/survey',
+      body: {
+        userId: 'acti-user-test',
+        resultCode: 'MINB',
+        answers: {
+          contact: '010-1234-5678',
+        },
+      },
+    }, storage);
+
+    expect(result).toEqual({
+      status: 500,
+      body: { error: 'survey response storage failed' },
+    });
+    expect(createActiSurveyResponse).toHaveBeenCalledOnce();
+    expect(consoleError).toHaveBeenCalledWith('ACTI survey response storage failed', {
+      userId: 'acti-user-test',
+      resultCode: 'MINB',
+      error: 'database unavailable',
+    });
+    expect(JSON.stringify(consoleError.mock.calls)).not.toContain('010-1234-5678');
+
+    consoleError.mockRestore();
   });
 
   it('keeps blob upload explicit until Vercel Blob is configured', async () => {

@@ -101,6 +101,10 @@ Required GitHub repository secrets:
 Vercel direct Git auto-deploy should stay disabled for `web`, and legacy Vercel projects should be disconnected or disabled so only the unified `web` app deploys.
 This repository disables Vercel Git auto-deploy through `git.deploymentEnabled: false` in `web/vercel.json` and the legacy project-root `vercel.json` files.
 
+Drizzle migrations are not applied automatically by GitHub Actions. For schema changes, keep migration files under `web/drizzle`, call out the exact migration files in the PR/Jira notes, and apply them explicitly to the target Neon database before validating deployed persistence. Preview persistence requires the Vercel Preview environment to have `DATABASE_URL`; otherwise API handlers use in-memory fallback storage.
+
+For API paths that accept potentially sensitive user data, keep the user flow non-blocking where appropriate but log server-side failures with sanitized metadata only. Do not log raw request bodies, survey `answers`, contact information, tokens, or uploaded file contents.
+
 ## Secrets
 
 Never commit local env or Vercel metadata:
@@ -115,3 +119,4 @@ Production env is managed in Vercel. Required web env includes `DATABASE_URL`, `
 ## Pull Requests
 
 Use concise conventional-style commits. PRs should summarize affected app(s), list validation commands, and call out deployment or env changes.
+When work is tied to Jira, include the Jira key in branch names, commit messages, and PR titles, e.g. `SOMA-36 feat: store acti survey responses`.

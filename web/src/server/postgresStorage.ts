@@ -4,9 +4,11 @@ import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { HOT_BOARD, HOT_THRESHOLD, getCommunityBoard, isWritableCommunityBoard } from '../community/communityData';
 import type { ArchiveVisibility } from '../archive/archiveData';
 import {
+  actiSurveyResponsesTable,
   archiveVideosTable,
   communityCommentsTable,
   communityPostsTable,
+  type ActiSurveyResponseRow,
   type ArchiveVideoRow,
   type CommunityCommentRow,
   type CommunityPostRow,
@@ -20,6 +22,7 @@ import {
 } from './storage';
 
 const schema = {
+  actiSurveyResponsesTable,
   archiveVideosTable,
   communityCommentsTable,
   communityPostsTable,
@@ -104,6 +107,16 @@ export function archiveVideoRowToDomain(row: ArchiveVideoRow) {
       displayName: row.userDisplayName,
       avatarUrl: row.userAvatarUrl,
     },
+  };
+}
+
+export function actiSurveyResponseRowToDomain(row: ActiSurveyResponseRow) {
+  return {
+    id: row.id,
+    userId: row.userId,
+    resultCode: row.resultCode,
+    answers: row.answers,
+    createdAt: row.createdAt,
   };
 }
 
@@ -253,6 +266,19 @@ export function createPostgresActtubStorage(db: Database): ActtubStorage {
         })
         .returning();
       return archiveVideoRowToDomain(row);
+    },
+    async createActiSurveyResponse(input) {
+      const [row] = await db
+        .insert(actiSurveyResponsesTable)
+        .values({
+          id: nextId('acti-survey'),
+          userId: input.userId.trim(),
+          resultCode: input.resultCode.trim().toUpperCase(),
+          answers: input.answers,
+          createdAt: new Date(),
+        })
+        .returning();
+      return actiSurveyResponseRowToDomain(row);
     },
   };
 }

@@ -10,6 +10,7 @@
 import { isTypeCode, type TypeCode } from '../content/schema';
 
 const KEY = 'myTypeCode';
+const ACTI_USER_ID_KEY = 'actiUserId';
 
 /** SSR/빌드 시 localStorage 부재 대응 */
 function isStorageAvailable(): boolean {
@@ -45,5 +46,26 @@ export function clearMyTypeCode(): void {
     window.localStorage.removeItem(KEY);
   } catch {
     /* 무시 */
+  }
+}
+
+function createActiUserId(): string {
+  const random =
+    typeof window !== 'undefined' && window.crypto?.randomUUID
+      ? window.crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  return `acti-user-${random}`;
+}
+
+export function getActiUserId(): string | null {
+  if (!isStorageAvailable()) return null;
+  try {
+    const stored = window.localStorage.getItem(ACTI_USER_ID_KEY);
+    if (stored?.startsWith('acti-user-')) return stored;
+    const next = createActiUserId();
+    window.localStorage.setItem(ACTI_USER_ID_KEY, next);
+    return next;
+  } catch {
+    return null;
   }
 }

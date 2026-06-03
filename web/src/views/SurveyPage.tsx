@@ -20,7 +20,7 @@ import {
   type SurveyAnswers,
   type SurveyItem,
 } from '../content/survey';
-import { getMyTypeCode } from '../lib/storage';
+import { getActiUserId, getMyTypeCode } from '../lib/storage';
 import { submitSurveyResponse } from '../lib/surveySubmit';
 
 const AUTO_ADVANCE_MS = 240;
@@ -45,25 +45,26 @@ export default function SurveyPage() {
   const [answers, setAnswers] = useState<SurveyAnswers>({});
   const [submitting, setSubmitting] = useState(false);
   const resultCode = useMemo(() => getMyTypeCode(), []);
+  const userId = useMemo(() => getActiUserId(), []);
 
   useEffect(() => {
     if (!resultCode) router.replace('/ACTI/quiz');
   }, [router, resultCode]);
 
-  const findNext = (from: number) => {
+  const findNext = (from: number, currentAnswers: SurveyAnswers) => {
     for (let i = from + 1; i < ITEMS.length; i++) {
-      if (isVisible(ITEMS[i], answers)) return i;
+      if (isVisible(ITEMS[i], currentAnswers)) return i;
     }
     return ITEMS.length;
   };
 
-  const moveNext = async () => {
-    const next = findNext(index);
+  const moveNext = async (currentAnswers: SurveyAnswers = answers) => {
+    const next = findNext(index, currentAnswers);
     if (next >= ITEMS.length) {
       if (!resultCode) return;
       setSubmitting(true);
       try {
-        await submitSurveyResponse(answers);
+        await submitSurveyResponse(currentAnswers, resultCode, userId);
       } catch {
         // 응답 전송 실패는 사용자 흐름을 막지 않음
       }
@@ -84,9 +85,10 @@ export default function SurveyPage() {
   if (item.kind === 'radio') {
     const selected = answers[item.id];
     const handlePick = (val: string) => {
-      setAnswers((prev) => ({ ...prev, [item.id]: val }));
+      const nextAnswers = { ...answers, [item.id]: val };
+      setAnswers(nextAnswers);
       setTimeout(() => {
-        void moveNext();
+        void moveNext(nextAnswers);
       }, AUTO_ADVANCE_MS);
     };
     return (
@@ -185,7 +187,7 @@ export default function SurveyPage() {
               size="xl"
               fullWidth
               disabled={!ready || submitting}
-              onClick={() => void moveNext()}
+              onClick={() => void moveNext({ ...answers, [item.id]: current })}
             >
               다음
               <ArrowRight size={20} aria-hidden="true" />
@@ -205,8 +207,9 @@ export default function SurveyPage() {
   const onChangeArea = (e: ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value);
   const onChangeInput = (e: ChangeEvent<HTMLInputElement>) => setValue(e.target.value);
   const handleNext = () => {
-    setValue(value.trim());
-    void moveNext();
+    const nextAnswers = { ...answers, [item.id]: value.trim() };
+    setAnswers(nextAnswers);
+    void moveNext(nextAnswers);
   };
 
   return (

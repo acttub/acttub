@@ -5,6 +5,7 @@ import { join } from 'node:path';
 const filesCheckedByNextCompiler = [
   'src/app/api/archive/upload/route.ts',
   'src/app/api/archive/videos/route.ts',
+  'src/app/api/acti/survey/route.ts',
   'src/app/api/coach/analyze/route.ts',
   'src/app/api/coach/cleanup/route.ts',
   'src/app/api/coach/upload/route.ts',

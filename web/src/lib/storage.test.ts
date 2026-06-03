@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getMyTypeCode, setMyTypeCode, clearMyTypeCode } from './storage';
+import { clearMyTypeCode, getActiUserId, getMyTypeCode, setMyTypeCode } from './storage';
 
 describe('storage.myTypeCode', () => {
   beforeEach(() => {
@@ -30,5 +30,13 @@ describe('storage.myTypeCode', () => {
     setMyTypeCode('MINB');
     setMyTypeCode('TPAS');
     expect(getMyTypeCode()).toBe('TPAS');
+  });
+
+  it('ACTI 사용자 ID는 한 번 생성되면 같은 브라우저에서 유지된다', () => {
+    const first = getActiUserId();
+    const second = getActiUserId();
+
+    expect(first).toMatch(/^acti-user-/);
+    expect(second).toBe(first);
   });
 });

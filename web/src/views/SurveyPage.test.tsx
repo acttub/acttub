@@ -70,4 +70,34 @@ describe('SurveyPage', () => {
     if (secondItem.kind === 'section') return; // shape-dependent; sanity not required
     expect(screen.getByText((t) => t.includes(secondItem.label))).toBeInTheDocument();
   });
+
+  it('shows the contact question after opting into future service updates', async () => {
+    setMyTypeCode('MINB');
+    renderSurvey();
+
+    for (const item of SURVEY_ITEMS) {
+      if (item.kind === 'section' || item.kind === 'text') continue;
+
+      expect(screen.getByText((text) => text.includes(item.label))).toBeInTheDocument();
+      const option = item.id === 'future-updates'
+        ? item.options.find((candidate) => candidate.value === 'yes')
+        : item.options[0];
+      if (!option) throw new Error(`Missing option for ${item.id}`);
+
+      fireEvent.click(screen.getByText(option.label));
+
+      if (item.kind === 'radio') {
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync();
+        });
+      } else {
+        fireEvent.click(screen.getByRole('button', { name: /다음/ }));
+      }
+    }
+
+    const contact = SURVEY_ITEMS.find((item) => item.kind === 'text' && item.id === 'contact');
+    if (!contact || contact.kind !== 'text') throw new Error('Missing contact survey item');
+    expect(screen.getByText((text) => text.includes(contact.label))).toBeInTheDocument();
+    expect(routerMocks.replace).not.toHaveBeenCalledWith('/ACTI/result/MINB');
+  });
 });
