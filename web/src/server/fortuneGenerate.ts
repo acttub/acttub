@@ -32,7 +32,12 @@ function seedFrom(input: FortuneSeed): number {
 type GenParams = {
   model: string;
   contents: string;
-  config?: { temperature: number; seed: number; maxOutputTokens: number };
+  config?: {
+    temperature: number;
+    seed: number;
+    maxOutputTokens: number;
+    thinkingConfig?: { thinkingBudget: number };
+  };
 };
 
 async function generateContentWithRetry(ai: GoogleGenAI, params: GenParams, attempts = 3) {
@@ -56,7 +61,14 @@ async function defaultGenerate(input: FortuneGenerateInput): Promise<Fortune> {
     model: process.env.GEMINI_MODEL ?? 'gemini-3.5-flash',
     contents: buildFortunePrompt(input),
     // temperature 0 + 입력 기반 seed → 같은 입력엔 같은 답. maxOutputTokens 제한으로 응답 단축(속도).
-    config: { temperature: 0, seed: seedFrom(input), maxOutputTokens: 512 },
+    // gemini-3.5-flash는 thinking 모델 — thinking 토큰이 maxOutputTokens 예산을 먹어 JSON 본문이 잘린다.
+    // 운세엔 추론이 불필요하므로 thinking을 꺼서 예산을 본문에만 쓴다(속도·결정성·비용 이득).
+    config: {
+      temperature: 0,
+      seed: seedFrom(input),
+      maxOutputTokens: 512,
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   });
   return parseFortune(result.text ?? '');
 }
