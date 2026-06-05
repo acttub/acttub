@@ -28,6 +28,11 @@ describe('buildSynthesisPrompt', () => {
     expect(prompt).toContain('의도 ≠ 인상');
   });
 
+  it('tolerates missing persona signals without fabricating', () => {
+    expect(prompt).toContain('일부 코치 신호가 비어 있거나 누락될 수 있다');
+    expect(prompt).toContain('지어내지 말고');
+  });
+
   it('keeps the metric labels and the moments JSON contract', () => {
     expect(prompt).toContain('"감정 전달"');
     expect(prompt).toContain('"대사 전달"');
@@ -61,6 +66,20 @@ describe('parseGeminiFeedback', () => {
     expect(parsed.evaluationMetrics[0]).toMatchObject({ label: '감정 전달', score: 80 });
     expect(parsed.moments).toHaveLength(2);
     expect(parsed.moments[0]).toMatchObject({ timecode: '0:10', aligned: true, tip: '유지' });
+    expect(parsed.moments[1].aligned).toBe(false);
+  });
+
+  it('coerces a string "true" aligned value into a boolean', () => {
+    const raw = JSON.stringify({
+      summary: '요약',
+      moments: [
+        { timecode: '0:01', observed: '멈춤 후 발성', read: '', seen: '', tip: '유지', aligned: 'true' },
+        { timecode: '0:02', observed: '말끝 흐림', read: '', seen: '', tip: '받치기', aligned: 'false' },
+      ],
+    });
+
+    const parsed = parseGeminiFeedback(raw);
+    expect(parsed.moments[0].aligned).toBe(true);
     expect(parsed.moments[1].aligned).toBe(false);
   });
 

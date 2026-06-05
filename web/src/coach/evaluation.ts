@@ -90,6 +90,7 @@ export function buildSynthesisPrompt(input: {
 ${input.signals}
 
 종합 규칙(반드시 지킬 것):
+0. 일부 코치 신호가 비어 있거나 누락될 수 있다. 없는 신호는 지어내지 말고, 주어진 신호만으로 종합한다.
 1. 같은 timecode에 여러 페르소나가 몰린 지점을 우선한다(여러 렌즈가 동의 = 중요). 한 페르소나만 짚은 사소한 건 버린다.
 2. 코치 의견과 관객 인상이 갈리는 지점(의도 ≠ 인상)을 핵심 moment로 올린다. 배우가 가장 모르는 정보다.
 3. moment는 3~4개만. 각 필드는 1~2문장. 길면 배우가 읽지 않는다. 상세하되 간결하게.
@@ -163,6 +164,11 @@ function textField(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+// 모델이 boolean 대신 "true"/"false" 문자열을 줄 수 있어 느슨하게 해석한다.
+function booleanField(value: unknown) {
+  return value === true || (typeof value === 'string' && value.trim().toLowerCase() === 'true');
+}
+
 function momentArray(value: unknown): FeedbackMoment[] {
   if (!Array.isArray(value)) return FALLBACK_FEEDBACK.moments;
 
@@ -182,7 +188,7 @@ function momentArray(value: unknown): FeedbackMoment[] {
         read: textField(record.read),
         seen: textField(record.seen),
         tip,
-        aligned: record.aligned === true,
+        aligned: booleanField(record.aligned),
       };
     })
     .filter((item): item is FeedbackMoment => item !== null);

@@ -144,7 +144,8 @@ async function defaultAnalyze(input: CoachAnalyzeInput): Promise<CoachFeedback> 
     );
 
     // L1: 페르소나 4명이 같은 관찰 위에서 텍스트로 병렬 분석.
-    const signals = await Promise.all(
+    // 한 페르소나가 실패해도 나머지로 피드백을 내도록 allSettled를 쓴다.
+    const settled = await Promise.allSettled(
       PERSONAS.map((persona) =>
         generate(buildPersonaPrompt(persona, {
           category: input.category,
@@ -153,6 +154,23 @@ async function defaultAnalyze(input: CoachAnalyzeInput): Promise<CoachFeedback> 
         })).then((text) => ({ persona: persona.key, signals: text })),
       ),
     );
+
+    const signals = settled
+      .filter((result): result is PromiseFulfilledResult<{ persona: string; signals: string }> =>
+        result.status === 'fulfilled')
+      .map((result) => result.value);
+
+    // 실패한 페르소나는 키만 남기고(민감정보 로깅 금지) 계속 진행한다.
+    settled.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        console.warn('coach persona analysis skipped', { persona: PERSONAS[index].key });
+      }
+    });
+
+    // 페르소나가 모두 실패하면 종합할 신호가 없으므로 분석을 중단한다.
+    if (signals.length === 0) {
+      throw new Error('AI 분석 신호를 생성하지 못했습니다.');
+    }
 
     // L2: 신호를 하나의 피드백으로 종합.
     const synthesis = await generate(
