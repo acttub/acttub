@@ -23,12 +23,21 @@ export type EvaluationMetric = {
   note: string;
 };
 
+// 우영 피드백 카드 재설계: 강점/약점/처방을 흩지 않고, 한 순간(moment)을
+// observed→read→seen→tip 한 흐름으로 묶는다. (Confluence TSSNN 14024706)
+export type FeedbackMoment = {
+  timecode: string;   // "0:12" — 어디서 (분석 구간 내)
+  observed: string;   // 영상에서 실제로 보이거나 들린 사실 (행동·인용 대사·소리)
+  read: string;       // "이 상황에서 이렇게 의도/생각하신 것 같다" — 배우 의도 읽기
+  seen: string;       // "보는 입장에선 이렇게 보인다" — 제3자 인상(의도와의 갭/일치)
+  tip: string;        // "그래서 이렇게 해보길 추천" — 실행 가능한 처방
+  aligned: boolean;   // true=의도대로 전달된 강점 / false=의도-인상 갭
+};
+
 export type CoachFeedback = {
   summary: string;
   evaluationMetrics: EvaluationMetric[];
-  weaknesses: string[];
-  alignedMoments: string[];
-  practiceRecommendations: string[];
+  moments: FeedbackMoment[];
 };
 
 const DEFAULT_EVALUATION_METRICS: EvaluationMetric[] = [
@@ -41,9 +50,16 @@ const DEFAULT_EVALUATION_METRICS: EvaluationMetric[] = [
 const FALLBACK_FEEDBACK: CoachFeedback = {
   summary: '분석 결과를 구조화하지 못했습니다. 영상과 의도는 전달됐지만 응답 형식이 맞지 않았습니다.',
   evaluationMetrics: DEFAULT_EVALUATION_METRICS,
-  weaknesses: ['응답 형식이 깨져 구체적인 부족한 부분을 분리하지 못했습니다.'],
-  alignedMoments: ['응답 형식이 깨져 의도에 부합한 부분을 분리하지 못했습니다.'],
-  practiceRecommendations: ['같은 영상으로 다시 분석을 요청하거나, 의도 설명을 더 구체적으로 입력해 주세요.'],
+  moments: [
+    {
+      timecode: '0:00',
+      observed: '응답 형식이 깨져 구체적인 순간을 분리하지 못했습니다.',
+      read: '',
+      seen: '',
+      tip: '같은 영상으로 다시 분석을 요청하거나, 의도 설명을 더 구체적으로 입력해 주세요.',
+      aligned: false,
+    },
+  ],
 };
 
 export function formatTime(seconds: number) {
@@ -56,53 +72,46 @@ export function formatTime(seconds: number) {
   return `${minutes}:${rest.toString().padStart(2, '0')}`;
 }
 
-export function buildEvaluationPrompt(input: EvaluationInput) {
-  const start = formatTime(input.startTime);
-  const end = formatTime(input.endTime);
-
+// L2 종합(Synthesizer): 페르소나 신호 → 배우가 바로 읽을 하나의 피드백.
+// 품질의 대부분이 여기서 갈린다.
+export function buildSynthesisPrompt(input: {
+  category: string;
+  intent: string;
+  signals: string;
+}) {
   return `
-당신은 연기 코치입니다. 업로드된 연기 연습 영상을 보고, 배우가 다음 연습에서 바로 적용할 수 있는 피드백을 한국어로 작성하세요.
+당신은 수석 연기 코치입니다. 아래는 감정·화술·신체 코치와 관객이 같은 영상을 보고 낸 신호입니다.
+이것들을 배우가 바로 읽을 하나의 피드백으로 종합하세요.
 
-분석 대상:
-- 파일명: ${input.fileName}
-- 분류: ${input.category}
-- 배우가 밝힌 연기 의도: ${input.intent}
-- 분석 구간: ${start} ~ ${end}
+분류: ${input.category}
+배우가 밝힌 연기 의도: ${input.intent}
 
-피드백 원칙 (반드시 지킬 것):
-1. 근거를 명시한다. 모든 지적·강점·처방에는 "어디서"(분석 구간 내 0:00 형식 타임코드)와 "무엇이 보였는지"(구체적 행동·인용한 대사·소리)를 함께 적는다. "감정이 얕다", "발음이 명확하다"처럼 지점 없는 총평은 금지한다.
-2. 배우의 의도와 장면의 서브텍스트를 먼저 존중한다. 위 '연기 의도'와 장면 상황에서 이 인물이 처한 정서의 결을 먼저 추론하고, 그 결에 맞춰 평가한다. 상황에 맞지 않는 더 큰 감정(예: 단순한 투정 장면에 '절박함')을 요구하지 않는다. 배우가 의도적으로 선택한 톤(가벼움·절제 등)은 결함이 아니라 선택으로 보고, 그 선택이 의도를 살렸다면 강점으로 인정한다.
-3. 증상이 아니라 원인과 처방을 말한다. "단조롭다"로 끝내지 말고, 무엇 때문에 그렇게 들리는지(원인) → 다음 연습에서 무엇을 바꾸면 되는지(실행 가능한 처방)까지 연결한다.
-4. 처방은 이 영상의 촬영 조건에서 실제로 보이거나 들릴 수 있는 것만 제안한다. 화면 프레임(상반신 위주 등)에 잡히지 않는 행동(예: 손가락 움직임)은 화면에 드러난 경우에만 다루고, 카메라에 안 잡히는 부분은 처방하지 않는다.
-5. 강점은 반드시 '무엇을' 잘했는지 기술 단위로 적는다. "좋았다"가 아니라, 어떤 선택·기술(호흡 조절, 멈춤, 시선 처리 등)이 의도를 어떻게 살렸는지 구체적으로 서술한다.
-6. 추상적·문학적 표현('스며든다', '녹아든다' 등)을 피하고, 관찰 가능한 행동과 소리로 서술한다.
+페르소나 신호(JSON):
+${input.signals}
 
-평가 축(evaluationMetrics):
-- 감정 전달: 표현된 감정이 의도·장면 서브텍스트와 맞는지 (과하거나 모자란 경우 모두)
-- 대사 전달: 발음·음량·말끝 처리·속도가 안정적인지
-- 신체 표현: 화면에 보이는 자세·움직임·시선·호흡이 인물과 상황에 맞는지
-- 의도 부합: 배우가 밝힌 의도가 실제 연기로 구현됐는지
+종합 규칙(반드시 지킬 것):
+0. 일부 코치 신호가 비어 있거나 누락될 수 있다. 없는 신호는 지어내지 말고, 주어진 신호만으로 종합한다.
+1. 같은 timecode에 여러 페르소나가 몰린 지점을 우선한다(여러 렌즈가 동의 = 중요). 한 페르소나만 짚은 사소한 건 버린다.
+2. 코치 의견과 관객 인상이 갈리는 지점(의도 ≠ 인상)을 핵심 moment로 올린다. 배우가 가장 모르는 정보다.
+3. moment는 3~4개만. 각 필드는 1~2문장. 길면 배우가 읽지 않는다. 상세하되 간결하게.
+4. moments의 최소 절반은 aligned=true(의도대로 전달된 강점)로 채운다. 배우가 "맞아"라고 수긍할 내용이 절반을 넘어야 한다.
+5. 각 moment는 observed(관찰된 사실)→read(의도 읽기)→seen(보는 입장의 인상)→tip(실행 가능한 처방) 흐름을 끊지 않는다.
+6. 추상적·문학적 표현('스며든다', '녹아든다' 등) 금지. 관찰 가능한 행동과 소리로 쓴다. 카메라에 안 잡힌 부분은 다루지 않는다.
 
-score 채점 기준 (0~100 정수, 축마다 동일하게 적용):
-- 85~100: 해당 축이 의도·장면에 잘 부합하고, 영상에서 근거를 분명히 짚을 수 있으며 보완점이 사소함.
-- 70~84: 의도가 대체로 구현됐으나 구체적인 보완점이 1~2개 있음.
-- 55~69: 의도가 일부만 구현됐고 보완점이 여럿이거나, 강점과 약점이 비등함.
-- 40~54: 핵심 의도가 흐릿하게만 전달되고 기본기 보완이 우선 필요함.
-- 0~39: 의도와 어긋나거나 해당 축의 기본기가 거의 드러나지 않음.
-점수는 위 기준의 어느 구간에 해당하는지 판단해 정하고, note에 그 점수를 뒷받침하는 근거 지점을 적는다.
+evaluationMetrics 점수 기준(0~100 정수): 85+ 의도·장면에 잘 부합·근거 분명·보완 사소 / 70~84 대체로 구현·보완 1~2개 / 55~69 일부 구현·강약 비등 / 40~54 핵심 흐릿·기본기 우선 / 0~39 의도 어긋남.
 
-반드시 아래 JSON 형식만 반환하세요. 마크다운 코드블록은 쓰지 마세요. evaluationMetrics의 score는 0부터 100까지의 정수입니다. summary를 제외한 모든 문장에는 가능한 한 타임코드(0:00) 또는 인용한 대사를 포함하세요.
+반드시 아래 JSON만 반환하세요. 마크다운 코드블록은 쓰지 마세요.
 {
-  "summary": "전체 피드백을 2문장으로 요약",
+  "summary": "가장 중요한 한 가지를 중심으로 2문장 이내",
   "evaluationMetrics": [
-    { "label": "감정 전달", "score": 75, "note": "감정 전달 평가 한 문장(근거 지점 포함)" },
-    { "label": "대사 전달", "score": 75, "note": "대사 전달 평가 한 문장(근거 지점 포함)" },
-    { "label": "신체 표현", "score": 75, "note": "신체 표현 평가 한 문장(근거 지점 포함)" },
-    { "label": "의도 부합", "score": 75, "note": "사용자 의도와의 부합 평가 한 문장(근거 지점 포함)" }
+    { "label": "감정 전달", "score": 75, "note": "짧은 근거 한 구절" },
+    { "label": "대사 전달", "score": 75, "note": "짧은 근거 한 구절" },
+    { "label": "신체 표현", "score": 75, "note": "짧은 근거 한 구절" },
+    { "label": "의도 부합", "score": 75, "note": "짧은 근거 한 구절" }
   ],
-  "weaknesses": ["부족한 부분 1(원인+근거 지점)", "부족한 부분 2", "부족한 부분 3"],
-  "alignedMoments": ["잘한 부분 1(무엇을 잘했는지+근거 지점)", "잘한 부분 2"],
-  "practiceRecommendations": ["구체적·실행가능 연습 1", "구체적·실행가능 연습 2", "구체적·실행가능 연습 3"]
+  "moments": [
+    { "timecode": "0:12", "observed": "관찰된 사실(대사 인용/행동)", "read": "이렇게 의도하신 듯", "seen": "보는 입장에선 이렇게 보임", "tip": "이렇게 해보길 추천", "aligned": false }
+  ]
 }
 `.trim();
 }
@@ -117,13 +126,6 @@ function extractJson(rawText: string) {
   if (start >= 0 && end > start) return trimmed.slice(start, end + 1);
 
   return trimmed;
-}
-
-function stringArray(value: unknown, fallback: string[]) {
-  if (!Array.isArray(value)) return fallback;
-
-  const items = value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
-  return items.length > 0 ? items : fallback;
 }
 
 function scoreFromValue(value: unknown) {
@@ -158,6 +160,42 @@ function metricArray(value: unknown) {
   return DEFAULT_EVALUATION_METRICS.map((fallback, index) => metrics[index] ?? fallback);
 }
 
+function textField(value: unknown) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+// 모델이 boolean 대신 "true"/"false" 문자열을 줄 수 있어 느슨하게 해석한다.
+function booleanField(value: unknown) {
+  return value === true || (typeof value === 'string' && value.trim().toLowerCase() === 'true');
+}
+
+function momentArray(value: unknown): FeedbackMoment[] {
+  if (!Array.isArray(value)) return FALLBACK_FEEDBACK.moments;
+
+  const moments = value
+    .map((item): FeedbackMoment | null => {
+      if (!item || typeof item !== 'object') return null;
+
+      const record = item as Record<string, unknown>;
+      const observed = textField(record.observed);
+      const tip = textField(record.tip);
+      // 관찰도 처방도 없는 빈 카드는 버린다.
+      if (!observed && !tip) return null;
+
+      return {
+        timecode: textField(record.timecode) || '0:00',
+        observed,
+        read: textField(record.read),
+        seen: textField(record.seen),
+        tip,
+        aligned: booleanField(record.aligned),
+      };
+    })
+    .filter((item): item is FeedbackMoment => item !== null);
+
+  return moments.length > 0 ? moments : FALLBACK_FEEDBACK.moments;
+}
+
 export function parseGeminiFeedback(rawText: string): CoachFeedback {
   try {
     const parsed = JSON.parse(extractJson(rawText)) as Partial<CoachFeedback>;
@@ -168,12 +206,7 @@ export function parseGeminiFeedback(rawText: string): CoachFeedback {
           ? parsed.summary.trim()
           : FALLBACK_FEEDBACK.summary,
       evaluationMetrics: metricArray(parsed.evaluationMetrics),
-      weaknesses: stringArray(parsed.weaknesses, FALLBACK_FEEDBACK.weaknesses),
-      alignedMoments: stringArray(parsed.alignedMoments, FALLBACK_FEEDBACK.alignedMoments),
-      practiceRecommendations: stringArray(
-        parsed.practiceRecommendations,
-        FALLBACK_FEEDBACK.practiceRecommendations,
-      ),
+      moments: momentArray(parsed.moments),
     };
   } catch {
     return FALLBACK_FEEDBACK;

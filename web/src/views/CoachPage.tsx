@@ -16,23 +16,51 @@ import {
   Sparkles,
   Upload,
 } from 'lucide-react';
-import { ACTING_CATEGORIES, formatTime, type CoachFeedback, type EvaluationMetric } from '../coach/evaluation';
+import {
+  ACTING_CATEGORIES,
+  formatTime,
+  type CoachFeedback,
+  type EvaluationMetric,
+  type FeedbackMoment,
+} from '../coach/evaluation';
 
 type InputMode = 'upload' | 'record';
 
-function FeedbackList({ title, items }: { title: string; items: string[] }) {
+function MomentCard({ moment }: { moment: FeedbackMoment }) {
+  const rows: { label: string; value: string; emphasis?: boolean }[] = [
+    { label: '보인 것', value: moment.observed },
+    { label: '의도', value: moment.read },
+    { label: '보는 입장', value: moment.seen },
+    { label: '추천', value: moment.tip, emphasis: true },
+  ];
+
   return (
-    <section className="rounded-xl border border-line bg-white p-4 shadow-sm">
-      <h3 className="text-sm font-bold text-ink">{title}</h3>
-      <ul className="mt-3 grid gap-2 text-sm leading-6 text-foreground">
-        {items.map((item) => (
-          <li key={item} className="flex gap-2">
-            <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-primary" />
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <article className="rounded-xl border border-line bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-2">
+        <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-bold text-ink">
+          {moment.timecode}
+        </span>
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+            moment.aligned ? 'bg-primary-soft text-primary-deep' : 'bg-red-50 text-danger'
+          }`}
+        >
+          {moment.aligned ? '잘 전달됨' : '의도와 갭'}
+        </span>
+      </div>
+      <dl className="mt-3 grid gap-2 text-sm leading-6">
+        {rows
+          .filter((row) => row.value)
+          .map((row) => (
+            <div key={row.label} className="grid grid-cols-[4.5rem_1fr] gap-2">
+              <dt className={`font-bold ${row.emphasis ? 'text-primary-deep' : 'text-muted'}`}>
+                {row.label}
+              </dt>
+              <dd className={row.emphasis ? 'font-semibold text-ink' : 'text-foreground'}>{row.value}</dd>
+            </div>
+          ))}
+      </dl>
+    </article>
   );
 }
 
@@ -544,13 +572,19 @@ export default function CoachPage() {
                 ))}
               </div>
             </section>
-            <FeedbackList title="부족한 부분" items={feedback.weaknesses} />
-            <FeedbackList title="의도에 부합한 부분" items={feedback.alignedMoments} />
-            <FeedbackList title="연습 방식 추천" items={feedback.practiceRecommendations} />
+            <section className="rounded-2xl border border-line bg-white/80 p-4 shadow-sm">
+              <h2 className="text-sm font-black text-ink">핵심 순간</h2>
+              <p className="mt-1 text-xs text-muted">의도 → 보는 입장 → 추천을 한 흐름으로 묶었습니다.</p>
+              <div className="mt-4 grid gap-3">
+                {feedback.moments.map((moment, index) => (
+                  <MomentCard key={`${moment.timecode}-${index}`} moment={moment} />
+                ))}
+              </div>
+            </section>
           </>
         ) : (
           <section className="rounded-2xl border border-dashed border-line bg-white/70 p-5 text-sm leading-6 text-muted">
-            영상과 의도를 입력한 뒤 분석하면 약점, 잘 맞은 지점, 다음 연습 방식이 분리되어 표시됩니다.
+            영상과 의도를 입력한 뒤 분석하면 의도한 것과 보는 입장의 차이, 다음 연습 추천이 순간별로 묶여 표시됩니다.
           </section>
         )}
 

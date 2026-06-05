@@ -4,7 +4,8 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createPartFromUri, createUserContent, GoogleGenAI } from '@google/genai';
 import { del } from '@vercel/blob';
-import { buildEvaluationPrompt, parseGeminiFeedback, type CoachFeedback } from '../coach/evaluation';
+import { buildSynthesisPrompt, formatTime, parseGeminiFeedback, type CoachFeedback } from '../coach/evaluation';
+import { buildObserverPrompt, buildPersonaPrompt, PERSONAS } from '../coach/personas';
 import type { ApiResult } from './apiCore';
 
 type GeminiFileState = {
@@ -125,20 +126,62 @@ async function defaultAnalyze(input: CoachAnalyzeInput): Promise<CoachFeedback> 
       throw new Error('업로드 파일 URI 또는 MIME 타입을 확인하지 못했습니다.');
     }
 
-    const prompt = buildEvaluationPrompt({
-      fileName: input.fileName,
-      category: input.category,
-      intent: input.intent,
-      startTime: input.startTime,
-      endTime: input.endTime,
+    const model = process.env.GEMINI_MODEL ?? 'gemini-3.5-flash';
+    const videoPart = createPartFromUri(uploadedFile.uri, uploadedFile.mimeType);
+    const generate = (prompt: string, parts: ReturnType<typeof createPartFromUri>[] = []) =>
+      ai.models
+        .generateContent({ model, contents: createUserContent([...parts, prompt]) })
+        .then((response) => response.text ?? '');
+
+    // L0: 영상을 직접 보는 유일한 단계 — 타임코드별 중립 관찰을 뽑는다.
+    const observations = await generate(
+      buildObserverPrompt({
+        category: input.category,
+        start: formatTime(input.startTime),
+        end: formatTime(input.endTime),
+      }),
+      [videoPart],
+    );
+
+    // L1: 페르소나 4명이 같은 관찰 위에서 텍스트로 병렬 분석.
+    // 한 페르소나가 실패해도 나머지로 피드백을 내도록 allSettled를 쓴다.
+    const settled = await Promise.allSettled(
+      PERSONAS.map((persona) =>
+        generate(buildPersonaPrompt(persona, {
+          category: input.category,
+          intent: input.intent,
+          observations,
+        })).then((text) => ({ persona: persona.key, signals: text })),
+      ),
+    );
+
+    const signals = settled
+      .filter((result): result is PromiseFulfilledResult<{ persona: string; signals: string }> =>
+        result.status === 'fulfilled')
+      .map((result) => result.value);
+
+    // 실패한 페르소나는 키만 남기고(민감정보 로깅 금지) 계속 진행한다.
+    settled.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        console.warn('coach persona analysis skipped', { persona: PERSONAS[index].key });
+      }
     });
 
-    const result = await ai.models.generateContent({
-      model: process.env.GEMINI_MODEL ?? 'gemini-3.5-flash',
-      contents: createUserContent([createPartFromUri(uploadedFile.uri, uploadedFile.mimeType), prompt]),
-    });
+    // 페르소나가 모두 실패하면 종합할 신호가 없으므로 분석을 중단한다.
+    if (signals.length === 0) {
+      throw new Error('AI 분석 신호를 생성하지 못했습니다.');
+    }
 
-    return parseGeminiFeedback(result.text ?? '');
+    // L2: 신호를 하나의 피드백으로 종합.
+    const synthesis = await generate(
+      buildSynthesisPrompt({
+        category: input.category,
+        intent: input.intent,
+        signals: JSON.stringify(signals),
+      }),
+    );
+
+    return parseGeminiFeedback(synthesis);
   } finally {
     if (tempPath) {
       await unlink(tempPath).catch(() => undefined);

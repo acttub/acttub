@@ -62,9 +62,9 @@ describe('coach analysis API', () => {
     const analyze = vi.fn().mockResolvedValue({
       summary: '요약',
       evaluationMetrics: [],
-      weaknesses: ['약점'],
-      alignedMoments: ['좋은 지점'],
-      practiceRecommendations: ['연습'],
+      moments: [
+        { timecode: '0:05', observed: '시선 처리', read: '집중 의도', seen: '잘 보임', tip: '유지', aligned: true },
+      ],
     });
     const largeVideo = new Blob([new Uint8Array(81 * 1024 * 1024)], { type: 'video/webm' });
 
@@ -84,9 +84,9 @@ describe('coach analysis API', () => {
     const analyze = vi.fn().mockResolvedValue({
       summary: '요약',
       evaluationMetrics: [],
-      weaknesses: ['약점'],
-      alignedMoments: ['좋은 지점'],
-      practiceRecommendations: ['연습'],
+      moments: [
+        { timecode: '0:05', observed: '시선 처리', read: '집중 의도', seen: '잘 보임', tip: '유지', aligned: true },
+      ],
     });
     const fetcher = vi.fn().mockResolvedValue(
       new Response(new Blob(['video-bytes'], { type: 'video/webm' }), {
