@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Send, Share2, Loader2, RotateCcw, Sparkles } from 'lucide-react';
 import PrimaryButton from '../components/PrimaryButton';
 
-type AttrState = 'hit' | 'near' | 'miss';
+type AttrState = 'hit' | 'miss';
 type GridCell = { key: string; label: string; state: AttrState; value: string };
 type Guess = { title: string; correct: boolean; proximity: number; grid: GridCell[] };
 
@@ -27,7 +27,7 @@ type PostBody = {
   answer?: Answer;
 };
 
-const STATE_EMOJI: Record<AttrState, string> = { hit: '🟩', near: '🟨', miss: '⬜' };
+const STATE_EMOJI: Record<AttrState, string> = { hit: '🟩', miss: '⬜' };
 
 function gridLine(grid: GridCell[]): string {
   return grid.map((cell) => STATE_EMOJI[cell.state]).join('');

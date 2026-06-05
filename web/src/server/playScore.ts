@@ -1,11 +1,11 @@
 // playdle 채점 — 규칙 기반(작품 메타 비교). LLM 미사용 → 빠르고 결정적·설명가능.
-// 추측작 vs 정답작의 속성 5칸을 비교해 워들식 그리드(hit/near/miss)와 꼬맨틀식 근접도%를 낸다.
+// 추측작 vs 정답작의 속성 5칸을 일치 여부(hit/miss)로만 비교한다. 중간(near) 판정 없음.
 
 import { PLAY_WORKS, type PlayWork } from './playData';
 
 export const MAX_GUESSES = 6;
 
-export type AttrState = 'hit' | 'near' | 'miss';
+export type AttrState = 'hit' | 'miss';
 
 export type GridCell = {
   key: string;
@@ -16,7 +16,7 @@ export type GridCell = {
 
 export type Score = {
   correct: boolean;
-  proximity: number; // 0~100
+  proximity: number; // 0~100 (일치한 칸 수 / 전체 칸 수)
   grid: GridCell[];
 };
 
@@ -38,47 +38,20 @@ export function findWork(input: string): PlayWork | null {
   );
 }
 
-const ERA_ORDER: Record<string, number> = { 고전: 0, 근대: 1, 현대: 2 };
-// 국가 권역 — 같은 권역이면 near. 영미권 / 대륙유럽 / 아시아.
-const COUNTRY_REGION: Record<string, string> = {
-  영국: 'anglo', 미국: 'anglo', 아일랜드: 'anglo',
-  프랑스: 'euro', 독일: 'euro', 러시아: 'euro', 노르웨이: 'euro', 그리스: 'euro', 오스트리아: 'euro',
-  한국: 'asia',
-};
-
 function exactState(a: string, b: string): AttrState {
   return a === b ? 'hit' : 'miss';
 }
-
-function eraState(a: string, b: string): AttrState {
-  const da = ERA_ORDER[a];
-  const db = ERA_ORDER[b];
-  if (da === undefined || db === undefined) return exactState(a, b);
-  const dist = Math.abs(da - db);
-  if (dist === 0) return 'hit';
-  if (dist === 1) return 'near';
-  return 'miss';
-}
-
-function countryState(guess: string, answer: string): AttrState {
-  if (guess === answer) return 'hit';
-  const rg = COUNTRY_REGION[guess];
-  const ra = COUNTRY_REGION[answer];
-  return rg && ra && rg === ra ? 'near' : 'miss';
-}
-
-const STATE_WEIGHT: Record<AttrState, number> = { hit: 1, near: 0.5, miss: 0 };
 
 export function scoreGuess(guess: PlayWork, answer: PlayWork): Score {
   const grid: GridCell[] = [
     { key: 'form', label: '형식', state: exactState(guess.form, answer.form), value: guess.form },
     { key: 'genre', label: '장르', state: exactState(guess.genre, answer.genre), value: guess.genre },
-    { key: 'era', label: '시대', state: eraState(guess.era, answer.era), value: guess.era },
-    { key: 'country', label: '국가', state: countryState(guess.country, answer.country), value: guess.country },
+    { key: 'era', label: '시대', state: exactState(guess.era, answer.era), value: guess.era },
+    { key: 'country', label: '국가', state: exactState(guess.country, answer.country), value: guess.country },
     { key: 'tone', label: '정서', state: exactState(guess.tone, answer.tone), value: guess.tone },
   ];
-  const sum = grid.reduce((acc, cell) => acc + STATE_WEIGHT[cell.state], 0);
-  const proximity = Math.round((sum / grid.length) * 100);
+  const hits = grid.filter((cell) => cell.state === 'hit').length;
+  const proximity = Math.round((hits / grid.length) * 100);
   return { correct: guess.id === answer.id, proximity, grid };
 }
 

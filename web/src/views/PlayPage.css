@@ -114,10 +114,6 @@
   background: var(--success-500);
   color: var(--text-inverse);
 }
-.play__cell--near {
-  background: var(--warn-500);
-  color: var(--text-inverse);
-}
 .play__cell--miss {
   background: var(--bg-subtle);
   color: var(--text-muted);

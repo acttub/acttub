@@ -58,25 +58,22 @@ describe('scoreGuess', () => {
     expect(score.grid.map((c) => c.key)).toEqual(['form', 'genre', 'era', 'country', 'tone']);
   });
 
-  it('시대는 한 칸 차이면 near, 두 칸이면 miss', () => {
-    const era = (g: string, a: string) => scoreGuess(byId(g), byId(a)).grid.find((c) => c.key === 'era')!.state;
-    expect(era('hamlet', 'hamlet')).toBe('hit'); // 고전-고전
-    expect(era('seagull', 'hamlet')).toBe('near'); // 근대-고전
-    expect(era('streetcar', 'hamlet')).toBe('miss'); // 현대-고전
+  it('속성은 일치(hit)/불일치(miss)만, near 없음', () => {
+    const states = new Set(scoreGuess(byId('streetcar'), byId('hamlet')).grid.map((c) => c.state));
+    for (const s of states) expect(['hit', 'miss']).toContain(s);
   });
 
-  it('국가는 같은 권역이면 near', () => {
-    const country = (g: string, a: string) =>
-      scoreGuess(byId(g), byId(a)).grid.find((c) => c.key === 'country')!.state;
-    expect(country('streetcar', 'hamlet')).toBe('near'); // 미국-영국(영미권)
-    expect(country('bbalrae', 'hamlet')).toBe('miss'); // 한국-영국
-    expect(country('seagull', 'tartuffe')).toBe('near'); // 러시아-프랑스(대륙유럽)
+  it('일부만 일치하면 근접도가 칸 비율을 따른다', () => {
+    // 햄릿(연극·비극·고전·영국·비장) vs 로미오(연극·비극·고전·영국·서정): 정서만 불일치 → 4/5 = 80
+    const score = scoreGuess(byId('romeo'), byId('hamlet'));
+    expect(score.correct).toBe(false);
+    expect(score.proximity).toBe(80);
   });
 
-  it('완전히 다른 작품은 근접도가 낮다', () => {
+  it('완전히 다른 작품은 근접도 0', () => {
     // 햄릿(연극·비극·고전·영국·비장) vs 위키드(뮤지컬·판타지·현대·미국·유쾌)
     const score = scoreGuess(byId('wicked'), byId('hamlet'));
-    expect(score.proximity).toBeLessThan(20);
+    expect(score.proximity).toBe(0);
   });
 });
 
