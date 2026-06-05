@@ -5,11 +5,24 @@ import {
   scoreGuess,
   answerForDate,
   puzzleNumberForDate,
-  stagedHint,
 } from './playScore';
 import { PLAY_WORKS } from './playData';
 
 const byId = (id: string) => PLAY_WORKS.find((w) => w.id === id)!;
+
+describe('정답 풀 무결성', () => {
+  it('id가 유일하고 60개 규모', () => {
+    const ids = PLAY_WORKS.map((w) => w.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(PLAY_WORKS.length).toBeGreaterThanOrEqual(55);
+  });
+
+  it('모든 작품은 5속성을 채운다', () => {
+    for (const w of PLAY_WORKS) {
+      expect(w.form && w.genre && w.era && w.country && w.tone).toBeTruthy();
+    }
+  });
+});
 
 describe('normalizeTitle / findWork', () => {
   it('정규화는 공백·괄호·구두점을 무시한다', () => {
@@ -31,26 +44,25 @@ describe('normalizeTitle / findWork', () => {
 });
 
 describe('scoreGuess', () => {
-  it('정답을 맞히면 correct + 근접도 100 + 모든 칸 hit', () => {
+  it('정답을 맞히면 correct + 근접도 100 + 5칸 모두 hit', () => {
     const answer = byId('hamlet');
     const score = scoreGuess(answer, answer);
     expect(score.correct).toBe(true);
     expect(score.proximity).toBe(100);
+    expect(score.grid).toHaveLength(5);
     expect(score.grid.every((c) => c.state === 'hit')).toBe(true);
   });
 
-  it('속성이 부분 일치하면 near/hit가 섞이고 근접도가 중간', () => {
-    // 햄릿(비극·고전·영국·연극·비장·앙상블) vs 맥베스(동일 — 단 같은 작품 아님)
-    const score = scoreGuess(byId('macbeth'), byId('hamlet'));
-    expect(score.correct).toBe(false);
-    expect(score.proximity).toBeGreaterThan(80); // 거의 모든 속성 일치
+  it('그리드 키는 형식·장르·시대·국가·정서 5칸', () => {
+    const score = scoreGuess(byId('hamlet'), byId('romeo'));
+    expect(score.grid.map((c) => c.key)).toEqual(['form', 'genre', 'era', 'country', 'tone']);
   });
 
   it('시대는 한 칸 차이면 near, 두 칸이면 miss', () => {
     const era = (g: string, a: string) => scoreGuess(byId(g), byId(a)).grid.find((c) => c.key === 'era')!.state;
     expect(era('hamlet', 'hamlet')).toBe('hit'); // 고전-고전
     expect(era('seagull', 'hamlet')).toBe('near'); // 근대-고전
-    expect(era('godot', 'hamlet')).toBe('miss'); // 현대-고전
+    expect(era('streetcar', 'hamlet')).toBe('miss'); // 현대-고전
   });
 
   it('국가는 같은 권역이면 near', () => {
@@ -58,11 +70,13 @@ describe('scoreGuess', () => {
       scoreGuess(byId(g), byId(a)).grid.find((c) => c.key === 'country')!.state;
     expect(country('streetcar', 'hamlet')).toBe('near'); // 미국-영국(영미권)
     expect(country('bbalrae', 'hamlet')).toBe('miss'); // 한국-영국
+    expect(country('seagull', 'tartuffe')).toBe('near'); // 러시아-프랑스(대륙유럽)
   });
 
   it('완전히 다른 작품은 근접도가 낮다', () => {
+    // 햄릿(연극·비극·고전·영국·비장) vs 위키드(뮤지컬·판타지·현대·미국·유쾌)
     const score = scoreGuess(byId('wicked'), byId('hamlet'));
-    expect(score.proximity).toBeLessThan(40);
+    expect(score.proximity).toBeLessThan(20);
   });
 });
 
@@ -77,16 +91,5 @@ describe('answerForDate (결정성)', () => {
     const n1 = puzzleNumberForDate('2026-06-06');
     expect(n1 - n0).toBe(1);
     expect(answerForDate('2026-06-06').id).toBe(PLAY_WORKS[((n1 % len) + len) % len].id);
-  });
-});
-
-describe('stagedHint', () => {
-  it('시도가 쌓일수록 단계적으로 공개', () => {
-    const w = byId('hamlet');
-    expect(stagedHint(w, 1)).toEqual({});
-    expect(stagedHint(w, 2).quote).toBeTruthy();
-    expect(stagedHint(w, 2).role).toBeUndefined();
-    expect(stagedHint(w, 3).role).toBeTruthy();
-    expect(stagedHint(w, 4).synopsis).toBeTruthy();
   });
 });

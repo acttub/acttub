@@ -17,15 +17,13 @@ type Meta = {
   works: { title: string }[];
 };
 
-type StagedHint = { quote?: string; role?: string; synopsis?: string };
-type Answer = { title: string; hints: { quote: string; role: string; synopsis: string } };
+type Answer = { title: string };
 
 type PostBody = {
   found: boolean;
   message?: string;
   guess?: { title: string };
   result?: { correct: boolean; proximity: number; grid: GridCell[] };
-  hint?: StagedHint;
   answer?: Answer;
 };
 
@@ -39,7 +37,6 @@ export default function PlayPage() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [input, setInput] = useState('');
-  const [hint, setHint] = useState<StagedHint>({});
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -97,7 +94,6 @@ export default function PlayPage() {
           grid: payload.result!.grid,
         },
       ]);
-      setHint(payload.hint ?? {});
       setInput('');
       if (payload.answer) setAnswer(payload.answer);
     } catch {
@@ -138,7 +134,7 @@ export default function PlayPage() {
         <p className="play__sub">
           {meta ? `#${meta.puzzleNumber} · ${meta.date}` : '오늘의 퍼즐 불러오는 중…'}
         </p>
-        <p className="play__rule">작품을 추측하면 정답과의 근접도와 속성 힌트를 알려줘요. {meta?.maxGuesses ?? 6}번 안에 맞혀보세요.</p>
+        <p className="play__rule">작품을 추측하면 정답과의 근접도와 속성 일치를 알려줘요. {meta?.maxGuesses ?? 6}번 안에 맞혀보세요.</p>
       </section>
 
       {/* 추측 히스토리 */}
@@ -163,16 +159,6 @@ export default function PlayPage() {
             </li>
           ))}
         </ul>
-      ) : null}
-
-      {/* 단계 힌트 */}
-      {!done && (hint.quote || hint.role || hint.synopsis) ? (
-        <div className="play__hint">
-          <span className="play__hint-label">💡 힌트</span>
-          {hint.quote ? <p className="play__hint-row">명대사 — “{hint.quote}”</p> : null}
-          {hint.role ? <p className="play__hint-row">대표 배역 — {hint.role}</p> : null}
-          {hint.synopsis ? <p className="play__hint-row">줄거리 — {hint.synopsis}</p> : null}
-        </div>
       ) : null}
 
       {/* 입력 또는 결과 */}
@@ -211,13 +197,11 @@ export default function PlayPage() {
               {isWin ? `🎉 ${guesses.length}번 만에 정답!` : '아쉽! 오늘의 정답은'}
             </span>
             <h2 className="play__answer-title">{answer.title}</h2>
-            <blockquote className="play__answer-quote">“{answer.hints.quote}”</blockquote>
-            <p className="play__answer-syn">{answer.hints.synopsis}</p>
           </article>
 
           <div className="play__bridge">
             <p className="play__bridge-copy">
-              「{answer.title}」의 <strong>{answer.hints.role}</strong> 명대사, 연기해보고 AI한테 점수받아 볼까요?
+              「{answer.title}」의 한 장면, 연기해보고 AI한테 점수받아 볼까요?
             </p>
             <PrimaryButton as="a" href="/coach">
               <Sparkles size={18} />
