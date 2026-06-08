@@ -55,7 +55,12 @@ async function defaultSend(url: string, payload: FormApplyPayload): Promise<bool
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  return res.ok;
+  // Apps Script(웹앱)는 내부에서 실패해도 항상 HTTP 200을 돌려준다.
+  // 그래서 status(res.ok)만으로는 적재 성공을 알 수 없고, body의 { ok: true }까지 확인해야
+  // 시트 적재 실패를 조용히 성공으로 처리하는 데이터 유실을 막는다.
+  if (!res.ok) return false;
+  const body = (await res.json().catch(() => null)) as { ok?: boolean } | null;
+  return body?.ok === true;
 }
 
 export async function handleFormApply(
