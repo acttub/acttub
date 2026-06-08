@@ -91,4 +91,34 @@ describe('handleFormApply', () => {
     });
     expect(result.status).toBe(502);
   });
+
+  it('webhook이 HTTP 200 이라도 body 가 { ok: false } 면 502 로 처리한다(데이터 유실 방지)', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ ok: false, error: 'sheet fail' }) });
+    vi.stubGlobal('fetch', fetchMock);
+    try {
+      const result = await handleFormApply(input(validBody), {
+        webhookUrl: 'https://example.test/hook',
+      });
+      expect(result.status).toBe(502);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('webhook 이 HTTP 200 + body { ok: true } 면 200 으로 처리한다', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
+    vi.stubGlobal('fetch', fetchMock);
+    try {
+      const result = await handleFormApply(input(validBody), {
+        webhookUrl: 'https://example.test/hook',
+      });
+      expect(result.status).toBe(200);
+      expect(result.body).toEqual({ ok: true });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
