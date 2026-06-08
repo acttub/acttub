@@ -5,9 +5,11 @@
  *
  * SOMA-70 모집 깔때기의 끝단. 한 화면에 7문항, 제출 시 /api/form 으로 POST →
  * 구글시트 적재. 성공하면 완료 화면으로 교체한다. 게임/저장 로직 없음.
+ * 톤은 acttub.com 루트(Toss풍 연회색 배경 + 흰 카드 + 코랄 액센트)에 맞춘다.
  * CSS는 src/app/globals.css 의 @import 로 로드한다(views 컨벤션).
  */
 
+import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 
 const CAREERS = ['입시생', '현역·세미프로', '취미·입문'] as const;
@@ -76,31 +78,50 @@ export default function FormPage() {
 
   if (done) {
     return (
-      <main className="form form--done">
-        <div className="form__card container">
-          <h1 className="form__title">신청 완료 🎭</h1>
+      <main className="form form--done container">
+        <header className="form__topbar">
+          <Link href="/" className="form__brand" aria-label="acttub 홈">
+            act<span>tub</span>
+          </Link>
+          <span className="form__badge">알파 테스터</span>
+        </header>
+
+        <section className="form__card form__card--done">
+          <div className="form__done-mark" aria-hidden="true">🎭</div>
+          <h1 className="form__title">신청 완료!</h1>
           <p className="form__lead">
             알파 테스터로 신청해주셔서 고마워요. 적어주신 연락처로 곧 안내드릴게요.
           </p>
           <p className="form__note">
             연기 영상 1개 + 10~15분 인터뷰 후, 커피 기프티콘을 보내드립니다.
           </p>
-        </div>
+          <Link href="/" className="form__home">
+            acttub 둘러보기
+          </Link>
+        </section>
       </main>
     );
   }
 
   return (
-    <main className="form">
-      <form className="form__card container" onSubmit={handleSubmit}>
-        <header className="form__header">
+    <main className="form container">
+      <header className="form__topbar">
+        <Link href="/" className="form__brand" aria-label="acttub 홈">
+          act<span>tub</span>
+        </Link>
+        <span className="form__badge">알파 테스터</span>
+      </header>
+
+      <form className="form__card" onSubmit={handleSubmit}>
+        <div className="form__intro">
+          <span className="form__kicker">AI 연기 피드백 · 알파 테스트</span>
           <h1 className="form__title">알파 테스터 신청</h1>
           <p className="form__lead">
             연기 영상 1개를 올리면 「잘된 점 + 딱 하나 고칠 점 + 다음 한 걸음」을 카드로
             짚어주는 AI 연기 피드백을 함께 테스트해요. 영상 1개 + 10~15분 인터뷰,
-            커피 기프티콘을 드립니다. (오디션 아님 · 앱 테스트)
+            커피 기프티콘을 드립니다. <strong>(오디션 아님 · 앱 테스트)</strong>
           </p>
-        </header>
+        </div>
 
         <label className="form__field">
           <span className="form__label">닉네임 (공개용)</span>
@@ -236,6 +257,7 @@ export default function FormPage() {
         <button className="form__submit" type="submit" disabled={!ready || submitting}>
           {submitting ? '접수 중…' : '신청하기'}
         </button>
+        <p className="form__privacy">제출하면 연락처는 테스트 안내 용도로만 쓰여요.</p>
       </form>
     </main>
   );

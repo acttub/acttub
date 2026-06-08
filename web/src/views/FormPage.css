@@ -1,34 +1,92 @@
+/* FormPage — acttub.com 톤(Toss풍 연회색 배경 + 흰 카드 + 코랄 액센트).
+   System A 토큰만 사용. fortune·play 유입 서브프로젝트와 같은 헤더/배지 패턴. */
+
 .form {
-  padding-top: var(--space-6);
+  padding-top: var(--space-5);
   padding-bottom: var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
+/* 헤더 — 브랜드 워드마크 + 코랄 pill 배지 (fortune__header 패턴) */
+.form__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form__brand {
+  font-size: var(--text-xl);
+  line-height: var(--lh-xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: -0.03em;
+  color: var(--text-default);
+  text-decoration: none;
+}
+
+.form__brand span {
+  color: var(--primary-500);
+}
+
+.form__badge {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  color: var(--primary-700);
+  background: var(--primary-100);
+  border-radius: var(--radius-pill);
+}
+
+/* 카드 — 흰 surface + 부드러운 그림자 */
 .form__card {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2);
 }
 
-.form__header {
+.form__intro {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
+.form__kicker {
+  width: fit-content;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.01em;
+  color: var(--primary-700);
+  background: var(--primary-100);
+  border-radius: var(--radius-pill);
+}
+
 .form__title {
   margin: 0;
-  font-size: var(--text-2xl);
-  line-height: var(--lh-2xl);
+  font-size: var(--text-3xl);
+  line-height: var(--lh-3xl);
   font-weight: var(--fw-extrabold);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--text-default);
 }
 
 .form__lead {
   margin: 0;
   font-size: var(--text-sm);
-  line-height: var(--lh-sm);
+  line-height: var(--lh-md);
   color: var(--text-secondary);
+}
+
+.form__lead strong {
+  color: var(--text-default);
+  font-weight: var(--fw-bold);
 }
 
 .form__note {
@@ -61,9 +119,12 @@
   font-size: var(--text-md);
   font-family: var(--font-sans);
   color: var(--text-default);
-  background: var(--bg-surface);
+  background: var(--bg-page);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
+  transition: border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .form__input::placeholder {
@@ -72,7 +133,8 @@
 
 .form__input:focus-visible {
   outline: none;
-  border-color: var(--border-focus);
+  background: var(--bg-surface);
+  border-color: var(--primary-500);
   box-shadow: var(--shadow-focus);
 }
 
@@ -86,19 +148,23 @@
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-weight: var(--fw-medium);
-  color: var(--text-default);
-  background: var(--bg-surface);
+  color: var(--text-secondary);
+  background: var(--bg-page);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-pill);
   cursor: pointer;
   transition: border-color var(--duration-fast) var(--ease-out),
     background var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out);
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
 @media (hover: hover) {
   .form__chip:hover {
     border-color: var(--primary-300);
+    color: var(--text-default);
+    transform: translateY(-1px);
   }
 }
 
@@ -110,6 +176,15 @@
   color: var(--text-inverse);
   background: var(--primary-500);
   border-color: var(--primary-500);
+  box-shadow: var(--shadow-2);
+}
+
+@media (hover: hover) {
+  .form__chip--on:hover {
+    color: var(--text-inverse);
+    background: var(--primary-600);
+    border-color: var(--primary-600);
+  }
 }
 
 .form__hp {
@@ -137,13 +212,18 @@
   background: var(--primary-500);
   border: none;
   border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
   cursor: pointer;
-  transition: background var(--duration-fast) var(--ease-out);
+  transition: background var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
 @media (hover: hover) {
   .form__submit:hover:not(:disabled) {
     background: var(--primary-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-3);
   }
 }
 
@@ -154,10 +234,45 @@
 .form__submit:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-.form--done .form__card {
+.form__privacy {
+  margin: 0;
+  text-align: center;
+  font-size: var(--text-xs);
+  line-height: var(--lh-xs);
+  color: var(--text-helper);
+}
+
+/* 완료 화면 */
+.form__card--done {
+  align-items: center;
   text-align: center;
   gap: var(--space-3);
   padding-top: var(--space-10);
+  padding-bottom: var(--space-10);
+}
+
+.form__done-mark {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.form__home {
+  margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
+  color: var(--primary-700);
+  background: var(--primary-100);
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .form__home:hover {
+    background: var(--primary-300);
+  }
 }
