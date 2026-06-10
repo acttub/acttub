@@ -60,11 +60,10 @@ describe('coach analysis API', () => {
 
   it('does not reject large uploads before the analyzer receives them', async () => {
     const analyze = vi.fn().mockResolvedValue({
-      summary: '요약',
-      evaluationMetrics: [],
-      moments: [
-        { timecode: '0:05', observed: '시선 처리', read: '집중 의도', seen: '잘 보임', tip: '유지', aligned: true },
-      ],
+      sceneIntent: { text: '집중을 보여주고 싶었어요', source: 'actor_input' },
+      strength: { timecode: '0:05', axis: 'face', signal: '시선 처리', why: '집중이 보였어요', tier: 'execution' },
+      focus: { timecode: '0:10', axes: ['speech'], observedSignal: '말끝 흐림', rootCause: '호흡', intentGap: '', prescription: '끝음절 받치기' },
+      nextStep: { text: '도입부만 다시', action: 'retake_selected_range' },
     });
     const largeVideo = new Blob([new Uint8Array(81 * 1024 * 1024)], { type: 'video/webm' });
 
@@ -82,11 +81,10 @@ describe('coach analysis API', () => {
 
   it('accepts a Blob URL payload so Vercel route requests stay small', async () => {
     const analyze = vi.fn().mockResolvedValue({
-      summary: '요약',
-      evaluationMetrics: [],
-      moments: [
-        { timecode: '0:05', observed: '시선 처리', read: '집중 의도', seen: '잘 보임', tip: '유지', aligned: true },
-      ],
+      sceneIntent: { text: '집중을 보여주고 싶었어요', source: 'actor_input' },
+      strength: { timecode: '0:05', axis: 'face', signal: '시선 처리', why: '집중이 보였어요', tier: 'execution' },
+      focus: { timecode: '0:10', axes: ['speech'], observedSignal: '말끝 흐림', rootCause: '호흡', intentGap: '', prescription: '끝음절 받치기' },
+      nextStep: { text: '도입부만 다시', action: 'retake_selected_range' },
     });
     const fetcher = vi.fn().mockResolvedValue(
       new Response(new Blob(['video-bytes'], { type: 'video/webm' }), {

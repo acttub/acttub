@@ -14,93 +14,113 @@ describe('buildSynthesisPrompt', () => {
     expect(prompt).toContain('persona');
   });
 
-  it('enforces the observed→read→seen→tip moment flow', () => {
-    expect(prompt).toContain('observed(관찰된 사실)→read(의도 읽기)→seen(보는 입장의 인상)→tip(실행 가능한 처방)');
+  it('enforces the single-focus card contract keys', () => {
+    expect(prompt).toContain('"scene_intent"');
+    expect(prompt).toContain('"strength"');
+    expect(prompt).toContain('"focus"');
+    expect(prompt).toContain('"next_step"');
   });
 
-  it('caps length and requires at least half aligned moments', () => {
-    expect(prompt).toContain('moment는 3~4개만');
-    expect(prompt).toContain('절반은 aligned=true');
-    expect(prompt).toContain('수긍할 내용이 절반을 넘어야');
+  it('selects the focus by intent gap, not absolute weakness', () => {
+    expect(prompt).toContain('의도 격차 최대');
+    expect(prompt).toContain('제일 못한 것');
   });
 
-  it('prioritises intent vs impression gaps', () => {
-    expect(prompt).toContain('의도 ≠ 인상');
+  it('requires a strength with a fallback tier and forbids fake praise', () => {
+    expect(prompt).toContain('execution');
+    expect(prompt).toContain('attempt');
+    expect(prompt).toContain('encouragement');
+    expect(prompt).toContain('거짓·추상 칭찬');
   });
 
   it('tolerates missing persona signals without fabricating', () => {
-    expect(prompt).toContain('일부 코치 신호가 비어 있거나 누락될 수 있다');
     expect(prompt).toContain('지어내지 말고');
   });
 
-  it('keeps the metric labels and the moments JSON contract', () => {
-    expect(prompt).toContain('"감정 전달"');
-    expect(prompt).toContain('"대사 전달"');
-    expect(prompt).toContain('"신체 표현"');
-    expect(prompt).toContain('"의도 부합"');
-    expect(prompt).toContain('evaluationMetrics');
-    expect(prompt).toContain('"moments"');
-    expect(prompt).toContain('"aligned"');
+  it('enforces actor language and timecode grounding', () => {
+    expect(prompt).toContain('2인칭 존댓말');
+    expect(prompt).toContain('timecode');
   });
 });
 
 describe('parseGeminiFeedback', () => {
-  it('parses a well-formed synthesized response into the moment schema', () => {
+  it('parses a well-formed single-focus card', () => {
     const raw = JSON.stringify({
-      summary: '요약',
-      evaluationMetrics: [
-        { label: '감정 전달', score: 80, note: '0:10 한숨에서 불안이 보임' },
-        { label: '대사 전달', score: 70, note: '0:40 말끝이 흐려짐' },
-        { label: '신체 표현', score: 60, note: '상반신 고정' },
-        { label: '의도 부합', score: 75, note: '의도 대체로 구현' },
-      ],
-      moments: [
-        { timecode: '0:10', observed: '한숨', read: '불안 의도', seen: '잘 보임', tip: '유지', aligned: true },
-        { timecode: '0:40', observed: '말끝 흐림', read: '절제 의도', seen: '안 들림', tip: '끝음절 받치기', aligned: false },
-      ],
+      scene_intent: { text: '꾹 참다 무너지는 걸 보여주고 싶었어요', source: 'actor_input' },
+      strength: {
+        timecode: '0:48',
+        axis: 'emotion',
+        signal: '"괜찮아"에서 목소리가 떨렸어요',
+        why: '참으려는 마음과 무너짐이 동시에 읽혔어요',
+        tier: 'execution',
+      },
+      focus: {
+        timecode: '0:00-0:15',
+        axes: ['emotion', 'speech'],
+        observed_signal: '도입부 첫 세 대사가 굳어 있었어요',
+        root_cause: '도입부 긴장 — 무너질 높이가 안 생겼어요',
+        intent_gap: '꾹 참다 무너지려 했는데 이미 굳어 보였어요',
+        prescription: '슬레이트 직전 3초 숨 내쉬며 어깨 툭',
+      },
+      next_step: { text: '도입부만 다시', action: 'retake_selected_range' },
     });
 
     const parsed = parseGeminiFeedback(raw);
-    expect(parsed.summary).toBe('요약');
-    expect(parsed.evaluationMetrics).toHaveLength(4);
-    expect(parsed.evaluationMetrics[0]).toMatchObject({ label: '감정 전달', score: 80 });
-    expect(parsed.moments).toHaveLength(2);
-    expect(parsed.moments[0]).toMatchObject({ timecode: '0:10', aligned: true, tip: '유지' });
-    expect(parsed.moments[1].aligned).toBe(false);
+    expect(parsed.sceneIntent).toMatchObject({ source: 'actor_input' });
+    expect(parsed.strength).toMatchObject({ timecode: '0:48', axis: 'emotion', tier: 'execution' });
+    expect(parsed.focus.axes).toEqual(['emotion', 'speech']);
+    expect(parsed.focus.prescription).toContain('어깨 툭');
+    expect(parsed.nextStep).toMatchObject({ text: '도입부만 다시', action: 'retake_selected_range' });
   });
 
-  it('coerces a string "true" aligned value into a boolean', () => {
+  it('falls back unknown enum values to safe defaults', () => {
     const raw = JSON.stringify({
-      summary: '요약',
-      moments: [
-        { timecode: '0:01', observed: '멈춤 후 발성', read: '', seen: '', tip: '유지', aligned: 'true' },
-        { timecode: '0:02', observed: '말끝 흐림', read: '', seen: '', tip: '받치기', aligned: 'false' },
-      ],
+      scene_intent: { text: '의도', source: 'made_up' },
+      strength: { timecode: '0:10', axis: 'nonsense', signal: '시선 처리', why: '집중이 보임', tier: 'weird' },
+      focus: {
+        timecode: '0:20',
+        axes: ['emotion', 'bogus'],
+        observed_signal: '말끝 흐림',
+        root_cause: '호흡',
+        intent_gap: '',
+        prescription: '끝음절 받치기',
+      },
+      next_step: { text: '끝부분만 다시', action: 'unknown' },
     });
 
     const parsed = parseGeminiFeedback(raw);
-    expect(parsed.moments[0].aligned).toBe(true);
-    expect(parsed.moments[1].aligned).toBe(false);
+    expect(parsed.sceneIntent.source).toBe('actor_input');
+    expect(parsed.strength.axis).toBe('emotion');
+    expect(parsed.strength.tier).toBe('attempt');
+    expect(parsed.focus.axes).toEqual(['emotion']); // bogus dropped
+    expect(parsed.nextStep.action).toBe('retake_selected_range');
   });
 
-  it('drops empty moment cards but keeps valid ones', () => {
+  it('fills a fallback strength when signal and why are both empty', () => {
     const raw = JSON.stringify({
-      summary: '요약',
-      moments: [
-        { timecode: '0:05', observed: '', read: '', seen: '', tip: '', aligned: false },
-        { timecode: '0:08', observed: '시선 처리', read: '', seen: '', tip: '', aligned: true },
-      ],
+      scene_intent: { text: '의도', source: 'actor_input' },
+      strength: { timecode: '0:10', axis: 'emotion', signal: '', why: '', tier: 'execution' },
+      focus: {
+        timecode: '0:20',
+        axes: ['speech'],
+        observed_signal: '말끝 흐림',
+        root_cause: '호흡',
+        intent_gap: '',
+        prescription: '끝음절 받치기',
+      },
+      next_step: { text: '다시', action: 'retake_selected_range' },
     });
 
     const parsed = parseGeminiFeedback(raw);
-    expect(parsed.moments).toHaveLength(1);
-    expect(parsed.moments[0].timecode).toBe('0:08');
+    expect(parsed.strength.tier).toBe('encouragement'); // fallback strength
+    expect(parsed.strength.signal.length).toBeGreaterThan(0);
   });
 
   it('falls back to a structured placeholder on malformed JSON', () => {
     const parsed = parseGeminiFeedback('not json at all');
-    expect(parsed.evaluationMetrics).toHaveLength(4);
-    expect(parsed.moments).toHaveLength(1);
-    expect(parsed.summary).toContain('구조화하지 못했습니다');
+    expect(parsed.sceneIntent.text).toContain('의도를 다시 읽지 못했');
+    expect(parsed.strength.tier).toBe('encouragement');
+    expect(parsed.focus.prescription).toContain('다시 분석');
+    expect(parsed.nextStep.action).toBe('retake_selected_range');
   });
 });

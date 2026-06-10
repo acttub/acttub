@@ -20,39 +20,58 @@ import {
   ACTING_CATEGORIES,
   formatTime,
   type CoachFeedback,
-  type EvaluationMetric,
-  type FeedbackMoment,
+  type FeedbackFocus,
+  type FeedbackNextStep,
+  type FeedbackStrength,
+  type SceneIntent,
 } from '../coach/evaluation';
 
 type InputMode = 'upload' | 'record';
 
-function MomentCard({ moment }: { moment: FeedbackMoment }) {
-  const rows: { label: string; value: string; emphasis?: boolean }[] = [
-    { label: '보인 것', value: moment.observed },
-    { label: '의도', value: moment.read },
-    { label: '보는 입장', value: moment.seen },
-    { label: '추천', value: moment.tip, emphasis: true },
-  ];
+// SOMA-60 단일 초점 카드 — 위→아래 정서 설계:
+// 의도 확인 → 강점(안심) → 딱 하나(핵심) → 다음 한 걸음.
+// 내부 라벨(axis/tier/axes enum)은 노출하지 않고, 배우 언어 문장만 보여준다.
 
+function StrengthBlock({ strength }: { strength: FeedbackStrength }) {
   return (
     <article className="rounded-xl border border-line bg-white p-4 shadow-sm">
       <div className="flex items-center gap-2">
-        <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs font-bold text-ink">
-          {moment.timecode}
+        <span aria-hidden="true">👏</span>
+        <h3 className="text-sm font-black text-ink">잘된 순간</h3>
+        <span className="ml-auto rounded-full bg-surface-muted px-2 py-0.5 text-xs font-bold text-ink">
+          {strength.timecode}
         </span>
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-            moment.aligned ? 'bg-primary-soft text-primary-deep' : 'bg-red-50 text-danger'
-          }`}
-        >
-          {moment.aligned ? '잘 전달됨' : '의도와 갭'}
+      </div>
+      <p className="mt-3 text-sm leading-6 text-foreground">{strength.signal}</p>
+      {strength.why ? (
+        <p className="mt-1 text-sm leading-6 text-primary-deep">{strength.why}</p>
+      ) : null}
+    </article>
+  );
+}
+
+function FocusBlock({ focus }: { focus: FeedbackFocus }) {
+  const rows: { label: string; value: string; emphasis?: boolean }[] = [
+    { label: '어디서', value: focus.observedSignal },
+    { label: '왜', value: focus.rootCause },
+    { label: '이렇게 보였어요', value: focus.intentGap },
+    { label: '이렇게 해봐요', value: focus.prescription, emphasis: true },
+  ];
+
+  return (
+    <article className="rounded-xl border border-primary/40 bg-primary-soft/40 p-4 shadow-sm">
+      <div className="flex items-center gap-2">
+        <span aria-hidden="true">🎯</span>
+        <h3 className="text-sm font-black text-ink">이번에 딱 하나</h3>
+        <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-xs font-bold text-primary-deep">
+          {focus.timecode}
         </span>
       </div>
       <dl className="mt-3 grid gap-2 text-sm leading-6">
         {rows
           .filter((row) => row.value)
           .map((row) => (
-            <div key={row.label} className="grid grid-cols-[4.5rem_1fr] gap-2">
+            <div key={row.label} className="grid grid-cols-[6rem_1fr] gap-2">
               <dt className={`font-bold ${row.emphasis ? 'text-primary-deep' : 'text-muted'}`}>
                 {row.label}
               </dt>
@@ -64,33 +83,53 @@ function MomentCard({ moment }: { moment: FeedbackMoment }) {
   );
 }
 
-function MetricGauge({ metric }: { metric: EvaluationMetric }) {
-  const score = Math.max(0, Math.min(100, metric.score));
-
+function NextStepBlock({ nextStep, onRetake }: { nextStep: FeedbackNextStep; onRetake: () => void }) {
   return (
     <article className="rounded-xl border border-line bg-white p-4 shadow-sm">
-      <div className="flex items-center gap-4">
-        <div
-          role="meter"
-          aria-label={`${metric.label} 점수`}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={score}
-          className="grid h-20 w-20 flex-none place-items-center rounded-full"
-          style={{
-            background: `conic-gradient(var(--primary) ${score * 3.6}deg, #edf0f2 0deg)`,
-          }}
-        >
-          <div className="grid h-14 w-14 place-items-center rounded-full bg-white text-lg font-black text-ink">
-            {score}
-          </div>
-        </div>
-        <div className="min-w-0">
-          <h3 className="text-sm font-black text-ink">{metric.label}</h3>
-          <p className="mt-1 text-sm leading-5 text-muted">{metric.note}</p>
-        </div>
+      <div className="flex items-center gap-2">
+        <span aria-hidden="true">▶</span>
+        <h3 className="text-sm font-black text-ink">다음 한 걸음</h3>
       </div>
+      <p className="mt-3 text-sm leading-6 text-foreground">{nextStep.text}</p>
+      <button
+        type="button"
+        onClick={onRetake}
+        className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary-deep"
+      >
+        재촬영하고 비교받기
+      </button>
     </article>
+  );
+}
+
+function IntentEcho({ sceneIntent }: { sceneIntent: SceneIntent | null }) {
+  if (!sceneIntent) {
+    return (
+      <section className="rounded-2xl border border-line bg-ink p-5 text-white shadow-sm">
+        <div className="flex items-center gap-2 text-sm font-black">
+          <Sparkles size={18} />
+          피드백
+        </div>
+        <p className="mt-4 text-xl font-black leading-tight text-white/90">
+          분석 결과가 여기에 표시됩니다.
+        </p>
+      </section>
+    );
+  }
+
+  const inferred = sceneIntent.source !== 'actor_input';
+
+  return (
+    <section className="rounded-2xl border border-line bg-ink p-5 text-white shadow-sm">
+      <div className="flex items-center gap-2 text-sm font-black">
+        <Sparkles size={18} />
+        {inferred ? '이 장면, 이렇게 하려던 것 같아요' : '이 장면, 이렇게 하려 했죠'}
+      </div>
+      <p className="mt-4 text-xl font-black leading-tight">{sceneIntent.text}</p>
+      {inferred ? (
+        <p className="mt-2 text-sm font-semibold text-white/70">맞나요? 아니면 알려주세요.</p>
+      ) : null}
+    </section>
   );
 }
 
@@ -120,6 +159,12 @@ export default function CoachPage() {
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
+  const inputSectionRef = useRef<HTMLElement | null>(null);
+
+  // 다음 한 걸음 — 같은 구간을 다시 찍어 비교하도록 입력 영역으로 이동.
+  function handleRetake() {
+    inputSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   const segmentLength = useMemo(() => Math.max(0, endTime - startTime), [endTime, startTime]);
   const selectedVideoLabel = videoFile
@@ -295,7 +340,7 @@ export default function CoachPage() {
 
   return (
     <div className="coach-page mx-auto grid min-h-screen w-full max-w-7xl gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[1.06fr_0.94fr] lg:px-8 lg:py-8">
-      <section className="flex flex-col gap-5">
+      <section ref={inputSectionRef} className="flex flex-col gap-5">
         <header className="flex items-center justify-between border-b border-line/80 pb-4">
           <Link href="/" className="text-xl font-black tracking-tight text-ink" aria-label="acttub 홈">
             act<span className="text-primary">tub</span>
@@ -549,42 +594,17 @@ export default function CoachPage() {
       </section>
 
       <aside className="flex flex-col gap-5 lg:sticky lg:top-8 lg:max-h-[calc(100dvh-4rem)] lg:overflow-auto">
-        <section className="rounded-2xl border border-line bg-ink p-5 text-white shadow-sm">
-          <div className="flex items-center gap-2 text-sm font-black">
-            <Sparkles size={18} />
-            피드백
-          </div>
-          <p className="mt-4 text-2xl font-black leading-tight">
-            {feedback ? feedback.summary : '분석 결과가 여기에 표시됩니다.'}
-          </p>
-        </section>
+        <IntentEcho sceneIntent={feedback?.sceneIntent ?? null} />
 
         {feedback ? (
           <>
-            <section className="rounded-2xl border border-line bg-white/80 p-4 shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="text-sm font-black text-ink">평가 게이지</h2>
-                <span className="text-xs font-bold text-muted">100점 기준</span>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                {feedback.evaluationMetrics.map((metric) => (
-                  <MetricGauge key={metric.label} metric={metric} />
-                ))}
-              </div>
-            </section>
-            <section className="rounded-2xl border border-line bg-white/80 p-4 shadow-sm">
-              <h2 className="text-sm font-black text-ink">핵심 순간</h2>
-              <p className="mt-1 text-xs text-muted">의도 → 보는 입장 → 추천을 한 흐름으로 묶었습니다.</p>
-              <div className="mt-4 grid gap-3">
-                {feedback.moments.map((moment, index) => (
-                  <MomentCard key={`${moment.timecode}-${index}`} moment={moment} />
-                ))}
-              </div>
-            </section>
+            <StrengthBlock strength={feedback.strength} />
+            <FocusBlock focus={feedback.focus} />
+            <NextStepBlock nextStep={feedback.nextStep} onRetake={handleRetake} />
           </>
         ) : (
           <section className="rounded-2xl border border-dashed border-line bg-white/70 p-5 text-sm leading-6 text-muted">
-            영상과 의도를 입력한 뒤 분석하면 의도한 것과 보는 입장의 차이, 다음 연습 추천이 순간별로 묶여 표시됩니다.
+            영상과 의도를 입력한 뒤 분석하면, 잘된 순간 하나와 이번에 딱 하나 고칠 점, 그리고 다음 한 걸음이 카드로 표시됩니다.
           </section>
         )}
 
