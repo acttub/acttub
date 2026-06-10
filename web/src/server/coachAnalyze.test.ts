@@ -60,11 +60,10 @@ describe('coach analysis API', () => {
 
   it('does not reject large uploads before the analyzer receives them', async () => {
     const analyze = vi.fn().mockResolvedValue({
-      summary: '요약',
-      evaluationMetrics: [],
-      moments: [
-        { timecode: '0:05', observed: '시선 처리', read: '집중 의도', seen: '잘 보임', tip: '유지', aligned: true },
-      ],
+      sceneIntent: { text: '집중을 보여주고 싶었어요', source: 'actor_input' },
+      strength: { timecode: '0:05', axis: 'face', signal: '시선 처리', why: '집중이 보였어요', tier: 'execution' },
+      focus: { timecode: '0:10', axes: ['speech'], observedSignal: '말끝 흐림', rootCause: '호흡', intentGap: '', prescription: '끝음절 받치기' },
+      nextStep: { text: '도입부만 다시', action: 'retake_selected_range' },
     });
     const largeVideo = new Blob([new Uint8Array(81 * 1024 * 1024)], { type: 'video/webm' });
 
@@ -82,11 +81,10 @@ describe('coach analysis API', () => {
 
   it('accepts a Blob URL payload so Vercel route requests stay small', async () => {
     const analyze = vi.fn().mockResolvedValue({
-      summary: '요약',
-      evaluationMetrics: [],
-      moments: [
-        { timecode: '0:05', observed: '시선 처리', read: '집중 의도', seen: '잘 보임', tip: '유지', aligned: true },
-      ],
+      sceneIntent: { text: '집중을 보여주고 싶었어요', source: 'actor_input' },
+      strength: { timecode: '0:05', axis: 'face', signal: '시선 처리', why: '집중이 보였어요', tier: 'execution' },
+      focus: { timecode: '0:10', axes: ['speech'], observedSignal: '말끝 흐림', rootCause: '호흡', intentGap: '', prescription: '끝음절 받치기' },
+      nextStep: { text: '도입부만 다시', action: 'retake_selected_range' },
     });
     const fetcher = vi.fn().mockResolvedValue(
       new Response(new Blob(['video-bytes'], { type: 'video/webm' }), {
@@ -121,6 +119,73 @@ describe('coach analysis API', () => {
       startTime: 0,
       endTime: 12,
     }));
+  });
+
+  it('rejects a Blob URL pointing at a non-Vercel host (SSRF guard)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const analyze = vi.fn();
+    const fetcher = vi.fn();
+
+    try {
+      const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          videoUrl: 'https://internal.admin.local/secret',
+          fileName: '햄릿 독백',
+          mimeType: 'video/webm',
+          category: '독백',
+          intent: '겉으로는 침착하지만 속으로는 무너지는 인물',
+          startTime: 0,
+          endTime: 12,
+        }),
+      }), {
+        apiKey: 'test-key',
+        analyze,
+        fetch: fetcher,
+      });
+
+      expect(result.status).toBe(500);
+      expect(fetcher).not.toHaveBeenCalled();
+      expect(analyze).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('rejects an oversized Blob download via Content-Length (size cap)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const analyze = vi.fn();
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(new Blob(['video-bytes'], { type: 'video/webm' }), {
+        headers: { 'content-type': 'video/webm', 'content-length': String(600 * 1024 * 1024) },
+      }),
+    );
+
+    try {
+      const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          videoUrl: 'https://blob.vercel-storage.com/coach/huge.webm',
+          fileName: '햄릿 독백',
+          mimeType: 'video/webm',
+          category: '독백',
+          intent: '겉으로는 침착하지만 속으로는 무너지는 인물',
+          startTime: 0,
+          endTime: 12,
+        }),
+      }), {
+        apiKey: 'test-key',
+        analyze,
+        fetch: fetcher,
+      });
+
+      expect(result.status).toBe(500);
+      expect(analyze).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it('does not expose provider or model details from analyzer failures', async () => {
