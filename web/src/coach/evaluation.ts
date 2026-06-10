@@ -213,8 +213,9 @@ function parseStrength(value: unknown): FeedbackStrength {
   return {
     timecode: textField(data.timecode) || '0:00',
     axis: enumField(data.axis, FEEDBACK_AXES, 'emotion'),
+    // 한쪽만 오면 그 문장을 signal로 쓰고 why는 비운다 — 같은 문장 중복 노출 방지.
     signal: signal || why,
-    why: why || signal,
+    why: signal ? why : '',
     tier: enumField(data.tier, STRENGTH_TIERS, 'attempt'),
   };
 }
@@ -224,8 +225,9 @@ function parseFocus(value: unknown): FeedbackFocus {
   const observedSignal = textField(data.observed_signal);
   const rootCause = textField(data.root_cause);
   const prescription = textField(data.prescription);
-  // 진단·처방이 둘 다 비면 카드로서 의미가 없다 → 폴백.
-  if (!rootCause && !prescription && !observedSignal) return FALLBACK_FEEDBACK.focus;
+  // 처방 없는 카드는 반려(SOMA-60 불합격 기준 "처방이 끝") → 폴백.
+  // root 누락은 프롬프트가 막고, 파서는 최소선(처방)만 강제한다.
+  if (!prescription) return FALLBACK_FEEDBACK.focus;
   const axes = axesField(data.axes);
   return {
     timecode: textField(data.timecode) || '0:00',

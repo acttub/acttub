@@ -96,6 +96,54 @@ describe('parseGeminiFeedback', () => {
     expect(parsed.nextStep.action).toBe('retake_selected_range');
   });
 
+  it('does not duplicate the sentence when only one of signal/why arrives', () => {
+    const base = {
+      scene_intent: { text: '의도', source: 'actor_input' },
+      focus: {
+        timecode: '0:20',
+        axes: ['speech'],
+        observed_signal: '말끝 흐림',
+        root_cause: '호흡',
+        intent_gap: '',
+        prescription: '끝음절 받치기',
+      },
+      next_step: { text: '다시', action: 'retake_selected_range' },
+    };
+
+    const onlySignal = parseGeminiFeedback(JSON.stringify({
+      ...base,
+      strength: { timecode: '0:10', axis: 'emotion', signal: '떨림이 보였어요', why: '', tier: 'execution' },
+    }));
+    expect(onlySignal.strength.signal).toBe('떨림이 보였어요');
+    expect(onlySignal.strength.why).toBe('');
+
+    const onlyWhy = parseGeminiFeedback(JSON.stringify({
+      ...base,
+      strength: { timecode: '0:10', axis: 'emotion', signal: '', why: '의도대로 무너짐이 읽혔어요', tier: 'execution' },
+    }));
+    expect(onlyWhy.strength.signal).toBe('의도대로 무너짐이 읽혔어요');
+    expect(onlyWhy.strength.why).toBe('');
+  });
+
+  it('rejects a focus without a prescription (SOMA-60 hard floor)', () => {
+    const raw = JSON.stringify({
+      scene_intent: { text: '의도', source: 'actor_input' },
+      strength: { timecode: '0:10', axis: 'emotion', signal: '시선 처리', why: '집중이 보임', tier: 'execution' },
+      focus: {
+        timecode: '0:20',
+        axes: ['speech'],
+        observed_signal: '말끝 흐림',
+        root_cause: '호흡',
+        intent_gap: '안 들렸어요',
+        prescription: '',
+      },
+      next_step: { text: '다시', action: 'retake_selected_range' },
+    });
+
+    const parsed = parseGeminiFeedback(raw);
+    expect(parsed.focus.prescription).toContain('다시 분석');
+  });
+
   it('fills a fallback strength when signal and why are both empty', () => {
     const raw = JSON.stringify({
       scene_intent: { text: '의도', source: 'actor_input' },
