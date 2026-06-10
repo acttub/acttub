@@ -3,8 +3,9 @@
 /**
  * FormPage — 알파 테스터 신청 폼(acttub.com/form).
  *
- * SOMA-70 모집 깔때기의 끝단. 한 화면에 7문항, 제출 시 /api/form 으로 POST →
- * 구글시트 적재. 성공하면 완료 화면으로 교체한다. 게임/저장 로직 없음.
+ * SOMA-70 모집 깔때기의 끝단. 모델: 한 번 사용 + 리뷰(/form/review) 작성 → 쿠폰.
+ * 한 화면에 7문항 + 개인정보 동의, 제출 시 /api/form 으로 POST → 구글시트 적재.
+ * 성공하면 완료 화면으로 교체한다. 게임/저장 로직 없음.
  * 톤은 acttub.com 루트(Toss풍 연회색 배경 + 흰 카드 + 코랄 액센트)에 맞춘다.
  * CSS는 src/app/globals.css 의 @import 로 로드한다(views 컨벤션).
  */
@@ -13,19 +14,35 @@ import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 
 const CAREERS = ['입시생', '현역·세미프로', '취미·입문'] as const;
+const FEEDBACK_SOURCES = [
+  '학원 선생님',
+  '학교·교수',
+  '스터디·동료',
+  '셀프 모니터링',
+  '거의 못 받음',
+] as const;
+const CONCERNS = ['감정 표현', '대사·발성', '표정', '움직임·동선', '기타'] as const;
 const CHANNELS = ['DM', '필름메이커스', '오픈카톡', '인스타'] as const;
 
 type Career = (typeof CAREERS)[number];
+type FeedbackSource = (typeof FEEDBACK_SOURCES)[number];
+type Concern = (typeof CONCERNS)[number];
 type Channel = (typeof CHANNELS)[number];
 
+/** 서버(zod phoneSchema)와 같은 기준 — 숫자만 남겨 01로 시작하는 10~11자리. */
+function isPhone(value: string): boolean {
+  return /^01\d{8,9}$/.test(value.replace(/\D/g, ''));
+}
+
 export default function FormPage() {
-  const [nickname, setNickname] = useState('');
-  const [contact, setContact] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [career, setCareer] = useState<Career | ''>('');
+  const [feedbackSource, setFeedbackSource] = useState<FeedbackSource | ''>('');
+  const [concern, setConcern] = useState<Concern | ''>('');
   const [q1, setQ1] = useState<boolean | null>(null);
-  const [q2, setQ2] = useState<boolean | null>(null);
-  const [slot, setSlot] = useState('');
   const [channel, setChannel] = useState<Channel | ''>('');
+  const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState(''); // honeypot
 
   const [submitting, setSubmitting] = useState(false);
@@ -33,12 +50,14 @@ export default function FormPage() {
   const [error, setError] = useState('');
 
   const ready =
-    nickname.trim().length > 0 &&
-    contact.trim().length > 0 &&
+    name.trim().length > 0 &&
+    isPhone(phone) &&
     career !== '' &&
+    feedbackSource !== '' &&
+    concern !== '' &&
     q1 !== null &&
-    q2 !== null &&
-    channel !== '';
+    channel !== '' &&
+    consent;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -50,13 +69,14 @@ export default function FormPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nickname: nickname.trim(),
-          contact: contact.trim(),
+          name: name.trim(),
+          phone: phone.trim(),
           career,
+          feedbackSource,
+          concern,
           q1,
-          q2,
-          slot: slot.trim(),
           channel,
+          consent,
           website,
         }),
       });
@@ -90,10 +110,10 @@ export default function FormPage() {
           <div className="form__done-mark" aria-hidden="true">🎭</div>
           <h1 className="form__title">신청 완료!</h1>
           <p className="form__lead">
-            알파 테스터로 신청해주셔서 고마워요. 적어주신 연락처로 곧 안내드릴게요.
+            알파 테스터로 신청해주셔서 고마워요. 적어주신 번호로 곧 안내드릴게요.
           </p>
           <p className="form__note">
-            연기 영상 1개 + 10~15분 인터뷰 후, 커피 기프티콘을 보내드립니다.
+            피드백을 한 번 사용해보고 리뷰를 남겨주시면, 커피 기프티콘을 보내드립니다.
           </p>
           <Link href="/" className="form__home">
             acttub 둘러보기
@@ -118,29 +138,33 @@ export default function FormPage() {
           <h1 className="form__title">알파 테스터 신청</h1>
           <p className="form__lead">
             연기 영상 1개를 올리면 「잘된 점 + 딱 하나 고칠 점 + 다음 한 걸음」을 카드로
-            짚어주는 AI 연기 피드백을 함께 테스트해요. 영상 1개 + 10~15분 인터뷰,
+            짚어주는 AI 연기 피드백을 테스트해요. 한 번 사용하고 짧은 리뷰를 남겨주시면
             커피 기프티콘을 드립니다. <strong>(오디션 아님 · 앱 테스트)</strong>
           </p>
         </div>
 
         <label className="form__field">
-          <span className="form__label">닉네임 (공개용)</span>
+          <span className="form__label">성함</span>
           <input
             className="form__input"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             maxLength={40}
+            autoComplete="name"
             required
           />
         </label>
 
         <label className="form__field">
-          <span className="form__label">연락 수단 (카톡 ID 또는 인스타 핸들)</span>
+          <span className="form__label">전화번호 (쿠폰 받으실 번호)</span>
           <input
             className="form__input"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-            maxLength={120}
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="010-0000-0000"
+            maxLength={20}
+            autoComplete="tel"
             required
           />
         </label>
@@ -155,6 +179,42 @@ export default function FormPage() {
                 className={['form__chip', career === c && 'form__chip--on'].filter(Boolean).join(' ')}
                 aria-pressed={career === c}
                 onClick={() => setCareer(c)}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="form__field">
+          <legend className="form__label">지금 연기 피드백은 주로 어디서 받나요?</legend>
+          <div className="form__choices">
+            {FEEDBACK_SOURCES.map((s) => (
+              <button
+                type="button"
+                key={s}
+                className={['form__chip', feedbackSource === s && 'form__chip--on']
+                  .filter(Boolean)
+                  .join(' ')}
+                aria-pressed={feedbackSource === s}
+                onClick={() => setFeedbackSource(s)}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="form__field">
+          <legend className="form__label">연기에서 가장 고민인 부분 하나를 골라주세요</legend>
+          <div className="form__choices">
+            {CONCERNS.map((c) => (
+              <button
+                type="button"
+                key={c}
+                className={['form__chip', concern === c && 'form__chip--on'].filter(Boolean).join(' ')}
+                aria-pressed={concern === c}
+                onClick={() => setConcern(c)}
               >
                 {c}
               </button>
@@ -187,41 +247,6 @@ export default function FormPage() {
         </fieldset>
 
         <fieldset className="form__field">
-          <legend className="form__label">
-            피드백을 받고 다음 날 같은 장면을 다시 연습할 의향이 있나요?
-          </legend>
-          <div className="form__choices">
-            <button
-              type="button"
-              className={['form__chip', q2 === true && 'form__chip--on'].filter(Boolean).join(' ')}
-              aria-pressed={q2 === true}
-              onClick={() => setQ2(true)}
-            >
-              예
-            </button>
-            <button
-              type="button"
-              className={['form__chip', q2 === false && 'form__chip--on'].filter(Boolean).join(' ')}
-              aria-pressed={q2 === false}
-              onClick={() => setQ2(false)}
-            >
-              아니오
-            </button>
-          </div>
-        </fieldset>
-
-        <label className="form__field">
-          <span className="form__label">인터뷰 가능 시간대 (선택)</span>
-          <input
-            className="form__input"
-            value={slot}
-            onChange={(e) => setSlot(e.target.value)}
-            placeholder="예: 평일 저녁, 주말 오후"
-            maxLength={200}
-          />
-        </label>
-
-        <fieldset className="form__field">
           <legend className="form__label">어떤 경로로 오셨나요?</legend>
           <div className="form__choices">
             {CHANNELS.map((c) => (
@@ -237,6 +262,19 @@ export default function FormPage() {
             ))}
           </div>
         </fieldset>
+
+        <label className="form__consent">
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            required
+          />
+          <span>
+            <strong>개인정보 수집·이용 동의 (필수)</strong> — 성함·전화번호는 테스트 안내와
+            쿠폰 발송에만 사용하고, 지급 완료 후 파기합니다.
+          </span>
+        </label>
 
         {/* honeypot: 사람 눈에 안 보이는 봇 트랩 */}
         <input
@@ -257,7 +295,6 @@ export default function FormPage() {
         <button className="form__submit" type="submit" disabled={!ready || submitting}>
           {submitting ? '접수 중…' : '신청하기'}
         </button>
-        <p className="form__privacy">제출하면 연락처는 테스트 안내 용도로만 쓰여요.</p>
       </form>
     </main>
   );
