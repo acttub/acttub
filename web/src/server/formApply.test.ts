@@ -2,24 +2,25 @@ import { describe, expect, it, vi } from 'vitest';
 import { handleFormApply, type FormApplyPayload } from './formApply';
 import type { ApiRequestInput } from './apiCore';
 
-const FIXED = new Date('2026-06-08T00:00:00.000Z');
+const FIXED = new Date('2026-06-10T00:00:00.000Z');
 
 function input(body: unknown): ApiRequestInput {
   return { method: 'POST', url: '/api/form', body };
 }
 
 const validBody = {
-  nickname: '지민',
-  contact: '@jimin_act',
+  name: '김지민',
+  phone: '010-1234-5678',
   career: '입시생',
+  feedbackSource: '학원 선생님',
+  concern: '감정 표현',
   q1: true,
-  q2: true,
-  slot: '평일 저녁',
   channel: '인스타',
+  consent: true,
 };
 
 describe('handleFormApply', () => {
-  it('유효 입력을 webhook으로 보내고 200 ok 를 반환한다', async () => {
+  it('유효 입력을 webhook으로 보내고 200 ok 를 반환한다 (전화번호는 숫자만 정규화)', async () => {
     const send = vi
       .fn<(url: string, payload: FormApplyPayload) => Promise<boolean>>()
       .mockResolvedValue(true);
@@ -36,19 +37,42 @@ describe('handleFormApply', () => {
     expect(send).toHaveBeenCalledWith('https://example.test/hook', {
       kind: 'tester-apply',
       ts: FIXED.toISOString(),
-      nickname: '지민',
-      contact: '@jimin_act',
+      name: '김지민',
+      phone: '01012345678',
       career: '입시생',
+      feedbackSource: '학원 선생님',
+      concern: '감정 표현',
       q1: 'Y',
-      q2: 'Y',
-      slot: '평일 저녁',
       channel: '인스타',
+      consent: 'Y',
     });
   });
 
   it('필수값이 빠지면 400 을 반환하고 전송하지 않는다', async () => {
     const send = vi.fn().mockResolvedValue(true);
-    const result = await handleFormApply(input({ ...validBody, nickname: '' }), {
+    const result = await handleFormApply(input({ ...validBody, name: '' }), {
+      webhookUrl: 'https://example.test/hook',
+      send,
+    });
+
+    expect(result.status).toBe(400);
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('전화번호 형식이 아니면 400 을 반환한다', async () => {
+    const send = vi.fn().mockResolvedValue(true);
+    const result = await handleFormApply(input({ ...validBody, phone: '02-123-4567' }), {
+      webhookUrl: 'https://example.test/hook',
+      send,
+    });
+
+    expect(result.status).toBe(400);
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('개인정보 동의(consent)가 없으면 400 을 반환한다', async () => {
+    const send = vi.fn().mockResolvedValue(true);
+    const result = await handleFormApply(input({ ...validBody, consent: false }), {
       webhookUrl: 'https://example.test/hook',
       send,
     });

@@ -187,6 +187,37 @@
   }
 }
 
+.form__input--area {
+  resize: vertical;
+  min-height: 96px;
+  line-height: var(--lh-md);
+}
+
+/* 개인정보 수집·이용 동의 체크 행 */
+.form__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  line-height: var(--lh-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.form__consent input {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  accent-color: var(--primary-500);
+  cursor: pointer;
+}
+
+.form__consent strong {
+  color: var(--text-default);
+  font-weight: var(--fw-bold);
+}
+
 .form__hp {
   position: absolute;
   left: -9999px;
@@ -235,14 +266,6 @@
   opacity: 0.4;
   cursor: not-allowed;
   box-shadow: none;
-}
-
-.form__privacy {
-  margin: 0;
-  text-align: center;
-  font-size: var(--text-xs);
-  line-height: var(--lh-xs);
-  color: var(--text-helper);
 }
 
 /* 완료 화면 */
