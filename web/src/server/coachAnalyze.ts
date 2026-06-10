@@ -35,6 +35,10 @@ type FormValue = string | File;
 
 const ANALYZE_FAILURE_MESSAGE = '분석 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.';
 
+// 다운로드 영상 크기 상한 — 함수 메모리 고갈 방어.
+// coach 업로드가 100MB 초과 시 multipart를 쓰므로 그보다 넉넉히 잡는다.
+const MAX_VIDEO_BYTES = 500 * 1024 * 1024;
+
 function numberFromForm(value: FormValue | null) {
   if (typeof value !== 'string') return Number.NaN;
   return Number(value);
@@ -211,12 +215,28 @@ async function fileFromBlobUrl(input: {
     throw new Error('invalid video url');
   }
 
+  // SSRF 방어: 영상은 직전에 업로드한 Vercel Blob URL만 다운로드한다.
+  // 임의 호스트(내부망·외부 주소)로 서버가 대신 요청하는 것을 막는다.
+  if (!parsedUrl.hostname.endsWith('.vercel-storage.com')) {
+    throw new Error('invalid video url');
+  }
+
   const response = await input.fetcher(parsedUrl);
   if (!response.ok) {
     throw new Error('video download failed');
   }
 
+  // 선차단: Content-Length가 상한을 넘으면 본문을 메모리에 올리기 전에 거부.
+  const declaredSize = Number(response.headers.get('content-length'));
+  if (Number.isFinite(declaredSize) && declaredSize > MAX_VIDEO_BYTES) {
+    throw new Error('video too large');
+  }
+
   const blob = await response.blob();
+  // 후차단: 헤더가 없거나 위조됐을 수 있어 실제 크기로 다시 확인.
+  if (blob.size > MAX_VIDEO_BYTES) {
+    throw new Error('video too large');
+  }
   const mimeType = input.mimeType || response.headers.get('content-type') || blob.type || 'video/mp4';
   return new File([blob], input.fileName, { type: mimeType });
 }

@@ -123,6 +123,73 @@ describe('coach analysis API', () => {
     }));
   });
 
+  it('rejects a Blob URL pointing at a non-Vercel host (SSRF guard)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const analyze = vi.fn();
+    const fetcher = vi.fn();
+
+    try {
+      const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          videoUrl: 'https://internal.admin.local/secret',
+          fileName: '햄릿 독백',
+          mimeType: 'video/webm',
+          category: '독백',
+          intent: '겉으로는 침착하지만 속으로는 무너지는 인물',
+          startTime: 0,
+          endTime: 12,
+        }),
+      }), {
+        apiKey: 'test-key',
+        analyze,
+        fetch: fetcher,
+      });
+
+      expect(result.status).toBe(500);
+      expect(fetcher).not.toHaveBeenCalled();
+      expect(analyze).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('rejects an oversized Blob download via Content-Length (size cap)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const analyze = vi.fn();
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(new Blob(['video-bytes'], { type: 'video/webm' }), {
+        headers: { 'content-type': 'video/webm', 'content-length': String(600 * 1024 * 1024) },
+      }),
+    );
+
+    try {
+      const result = await handleCoachAnalyze(new Request('http://localhost/api/coach/analyze', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          videoUrl: 'https://blob.vercel-storage.com/coach/huge.webm',
+          fileName: '햄릿 독백',
+          mimeType: 'video/webm',
+          category: '독백',
+          intent: '겉으로는 침착하지만 속으로는 무너지는 인물',
+          startTime: 0,
+          endTime: 12,
+        }),
+      }), {
+        apiKey: 'test-key',
+        analyze,
+        fetch: fetcher,
+      });
+
+      expect(result.status).toBe(500);
+      expect(analyze).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('does not expose provider or model details from analyzer failures', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const analyze = vi.fn().mockRejectedValue(new Error('Gemini model gemini-3.5-flash failed: Request Entity Too Large'));
