@@ -91,7 +91,7 @@ export default function FormReviewPage() {
           <Link href="/" className="form__brand" aria-label="acttub 홈">
             act<span>tub</span>
           </Link>
-          <span className="form__badge">알파 테스트 리뷰</span>
+          <span className="form__badge">리뷰</span>
         </header>
 
         <section className="form__card form__card--done">
@@ -114,7 +114,7 @@ export default function FormReviewPage() {
         <Link href="/" className="form__brand" aria-label="acttub 홈">
           act<span>tub</span>
         </Link>
-        <span className="form__badge">알파 테스트 리뷰</span>
+        <span className="form__badge">리뷰</span>
       </header>
 
       <form className="form__card" onSubmit={handleSubmit}>
@@ -128,7 +128,7 @@ export default function FormReviewPage() {
         </div>
 
         <label className="form__field">
-          <span className="form__label">성함 (신청 때와 동일하게)</span>
+          <span className="form__label">성함</span>
           <input
             className="form__input"
             value={name}
@@ -172,7 +172,7 @@ export default function FormReviewPage() {
 
         <fieldset className="form__field">
           <legend className="form__label">
-            "다음 한 걸음대로 바로 연습해볼 수 있겠다"고 느꼈나요? (1 막막함 ~ 5 바로 가능)
+            연기 성장에 도움이 될 것 같다 느꼈나요? (1 전혀 ~ 5 매우)
           </legend>
           <div className="form__choices">
             {RATINGS.map((r) => (

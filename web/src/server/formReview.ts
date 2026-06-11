@@ -22,7 +22,7 @@ const reviewSchema = z.object({
   phone: phoneSchema,
   /** 전체 만족도 1~5 */
   rating: score,
-  /** "다음 한 걸음대로 바로 연습할 수 있겠다" 동의 정도 1~5 — 처방 실행 가능성 */
+  /** "연기 성장에 도움이 될 것 같다" 동의 정도 1~5 — 성장 기대(시트 '실행가능성' 컬럼 적재) */
   actionable: score,
   /** 다음 연습에도 다시 쓸 의향 */
   reuse: z.boolean(),
