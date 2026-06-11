@@ -6,28 +6,14 @@ import { sendToSheetsWebhook } from './sheetsWebhook';
 /**
  * formReview — 알파 테스트 사용 후 리뷰(acttub.com/form/review) 접수.
  *
- * 검증 신호의 정본: 인터뷰 없이 구조화 문항으로 Gate 1(포맷·코칭 가치)을 측정한다.
- * 만족도·정확성·고민 적중·실행 가능성은 코칭 가치를, 카드 최고 도움 부분·톤은
- * 포맷(카드 구조·문체)을, 기존 피드백 대비·재사용 의향은 대안 대비 가치를 잰다.
+ * 검증 신호의 정본. 멘토 피드백(폼이 너무 길다)으로 핵심 5문항으로 축소:
+ * 만족도(코칭 가치)·실행 가능성(처방)·재사용 의향(대안 대비 가치)·한 줄 리뷰(주관식).
+ * 정확성·고민 적중·최고 도움 부분·톤·기존 대비 문항은 인터뷰로 이관.
  * 전화번호가 신청(tester-apply)과의 매칭 키이자 쿠폰(기프티콘) 발송 키.
  * payload kind='tester-review'로 Apps Script가 리뷰 탭에 분기 적재한다.
+ * 시트 컬럼은 유지하고 삭제 문항은 빈칸('')으로 보낸다 — Apps Script 수정 불필요.
  * formApply와 같은 SHEETS_WEBHOOK_URL 재사용.
  */
-
-export const CONCERN_HITS = ['예', '부분적으로', '아니오'] as const;
-export const BEST_PARTS = ['잘된 점', '딱 하나 고칠 점', '다음 한 걸음', '없음'] as const;
-export const TONES = [
-  '딱 좋았다',
-  '더 직설적이어도 된다',
-  '더 부드러웠으면 한다',
-  '기계적으로 느껴졌다',
-] as const;
-export const COMPARES = [
-  '기존 피드백보다 낫다',
-  '비슷하다',
-  '기존 피드백이 더 낫다',
-  '비교할 기존 피드백이 없다',
-] as const;
 
 const score = z.number().int().min(1).max(5);
 
@@ -36,24 +22,12 @@ const reviewSchema = z.object({
   phone: phoneSchema,
   /** 전체 만족도 1~5 */
   rating: score,
-  /** "영상 속 내 연기를 제대로 봤다" 동의 정도 1~5 — 지각 신뢰 */
-  accuracy: score,
-  /** 피드백 카드가 본인이 고민하던 부분을 짚었는가 */
-  concernHit: z.enum(CONCERN_HITS),
-  /** 카드 세 부분 중 가장 도움된 곳 — 포맷 검증 */
-  bestPart: z.enum(BEST_PARTS),
   /** "다음 한 걸음대로 바로 연습할 수 있겠다" 동의 정도 1~5 — 처방 실행 가능성 */
   actionable: score,
-  /** 말투·표현 평가 — 톤 검증(문체 가이드) */
-  tone: z.enum(TONES),
-  /** 평소 받던 피드백 대비 */
-  compare: z.enum(COMPARES),
   /** 다음 연습에도 다시 쓸 의향 */
   reuse: z.boolean(),
-  /** 가장 좋았던 점 */
+  /** 한 줄 리뷰 — 좋았던 점·아쉬운 점 자유 서술 (시트 '좋았던점' 컬럼 적재) */
   good: z.string().trim().min(1).max(1000),
-  /** 아쉬웠던 점·바라는 점 */
-  improve: z.string().trim().min(1).max(1000),
   // 개인정보 수집·이용 동의 — 미동의 제출은 400.
   consent: z.literal(true),
   // honeypot — 사람은 비워둠. 봇이 채우면 조용히 무시(200)한다.
@@ -66,15 +40,16 @@ export type FormReviewPayload = {
   name: string;
   phone: string;
   rating: number;
-  accuracy: number;
-  concernHit: string;
-  bestPart: string;
+  /** 축소된 문항 — 시트 컬럼 유지용 빈칸 */
+  accuracy: '';
+  concernHit: '';
+  bestPart: '';
   actionable: number;
-  tone: string;
-  compare: string;
+  tone: '';
+  compare: '';
   reuse: string;
   good: string;
-  improve: string;
+  improve: '';
   consent: string;
 };
 
@@ -116,15 +91,15 @@ export async function handleFormReview(
     name: data.name,
     phone: data.phone,
     rating: data.rating,
-    accuracy: data.accuracy,
-    concernHit: data.concernHit,
-    bestPart: data.bestPart,
+    accuracy: '',
+    concernHit: '',
+    bestPart: '',
     actionable: data.actionable,
-    tone: data.tone,
-    compare: data.compare,
+    tone: '',
+    compare: '',
     reuse: data.reuse ? 'Y' : 'N',
     good: data.good,
-    improve: data.improve,
+    improve: '',
     consent: 'Y',
   };
 
