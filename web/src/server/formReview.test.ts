@@ -12,20 +12,14 @@ const validBody = {
   name: '김지민',
   phone: '010 1234 5678',
   rating: 4,
-  accuracy: 5,
-  concernHit: '예',
-  bestPart: '딱 하나 고칠 점',
   actionable: 4,
-  tone: '딱 좋았다',
-  compare: '기존 피드백보다 낫다',
   reuse: true,
   good: '고칠 점을 하나만 짚어줘서 뭘 연습할지 분명했어요.',
-  improve: '대사 타이밍도 봐주면 좋겠어요.',
   consent: true,
 };
 
 describe('handleFormReview', () => {
-  it('유효 입력을 webhook으로 보내고 200 ok 를 반환한다 (전화번호는 숫자만 정규화)', async () => {
+  it('유효 입력을 webhook으로 보내고 200 ok 를 반환한다 (전화번호는 숫자만 정규화, 축소 문항은 빈칸)', async () => {
     const send = vi
       .fn<(url: string, payload: FormReviewPayload) => Promise<boolean>>()
       .mockResolvedValue(true);
@@ -45,15 +39,15 @@ describe('handleFormReview', () => {
       name: '김지민',
       phone: '01012345678',
       rating: 4,
-      accuracy: 5,
-      concernHit: '예',
-      bestPart: '딱 하나 고칠 점',
+      accuracy: '',
+      concernHit: '',
+      bestPart: '',
       actionable: 4,
-      tone: '딱 좋았다',
-      compare: '기존 피드백보다 낫다',
+      tone: '',
+      compare: '',
       reuse: 'Y',
       good: '고칠 점을 하나만 짚어줘서 뭘 연습할지 분명했어요.',
-      improve: '대사 타이밍도 봐주면 좋겠어요.',
+      improve: '',
       consent: 'Y',
     });
   });
@@ -69,46 +63,23 @@ describe('handleFormReview', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  it('점수형 문항(accuracy·actionable)이 범위를 벗어나면 400 을 반환한다', async () => {
+  it('실행 가능성(actionable)이 범위를 벗어나면 400 을 반환한다', async () => {
     const send = vi.fn().mockResolvedValue(true);
-    const result = await handleFormReview(input({ ...validBody, accuracy: 0 }), {
+    const result = await handleFormReview(input({ ...validBody, actionable: 9 }), {
       webhookUrl: 'https://example.test/hook',
       send,
     });
     expect(result.status).toBe(400);
-
-    const result2 = await handleFormReview(input({ ...validBody, actionable: 9 }), {
-      webhookUrl: 'https://example.test/hook',
-      send,
-    });
-    expect(result2.status).toBe(400);
     expect(send).not.toHaveBeenCalled();
   });
 
-  it('선택형 문항(bestPart·tone·compare)에 목록 밖 값이 오면 400 을 반환한다', async () => {
-    const send = vi.fn().mockResolvedValue(true);
-    const result = await handleFormReview(input({ ...validBody, tone: '몰라요' }), {
-      webhookUrl: 'https://example.test/hook',
-      send,
-    });
-
-    expect(result.status).toBe(400);
-    expect(send).not.toHaveBeenCalled();
-  });
-
-  it('주관식(good·improve)이 비면 400 을 반환한다', async () => {
+  it('한 줄 리뷰(good)가 비면 400 을 반환한다', async () => {
     const send = vi.fn().mockResolvedValue(true);
     const result = await handleFormReview(input({ ...validBody, good: '  ' }), {
       webhookUrl: 'https://example.test/hook',
       send,
     });
     expect(result.status).toBe(400);
-
-    const result2 = await handleFormReview(input({ ...validBody, improve: '' }), {
-      webhookUrl: 'https://example.test/hook',
-      send,
-    });
-    expect(result2.status).toBe(400);
     expect(send).not.toHaveBeenCalled();
   });
 
