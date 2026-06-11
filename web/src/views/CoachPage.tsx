@@ -601,6 +601,13 @@ export default function CoachPage() {
             <StrengthBlock strength={feedback.strength} />
             <FocusBlock focus={feedback.focus} />
             <NextStepBlock nextStep={feedback.nextStep} onRetake={handleRetake} />
+            <Link
+              href="/form/review"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-3 text-sm font-bold text-ink transition hover:bg-surface-muted"
+            >
+              <PencilLine size={18} />
+              피드백 어땠나요? 리뷰 남기기
+            </Link>
           </>
         ) : (
           <section className="rounded-2xl border border-dashed border-line bg-white/70 p-5 text-sm leading-6 text-muted">
