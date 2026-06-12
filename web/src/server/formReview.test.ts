@@ -14,7 +14,7 @@ const validBody = {
   rating: 4,
   actionable: 4,
   reuse: true,
-  good: '고칠 점을 하나만 짚어줘서 뭘 연습할지 분명했어요.',
+  good: '고칠 점을 하나만 딱 짚어줘서 뭘 연습할지 분명했고, 대사 타이밍도 봐주면 좋겠어요.',
   consent: true,
 };
 
@@ -46,7 +46,7 @@ describe('handleFormReview', () => {
       tone: '',
       compare: '',
       reuse: 'Y',
-      good: '고칠 점을 하나만 짚어줘서 뭘 연습할지 분명했어요.',
+      good: '고칠 점을 하나만 딱 짚어줘서 뭘 연습할지 분명했고, 대사 타이밍도 봐주면 좋겠어요.',
       improve: '',
       consent: 'Y',
     });
@@ -76,6 +76,16 @@ describe('handleFormReview', () => {
   it('한 줄 리뷰(good)가 비면 400 을 반환한다', async () => {
     const send = vi.fn().mockResolvedValue(true);
     const result = await handleFormReview(input({ ...validBody, good: '  ' }), {
+      webhookUrl: 'https://example.test/hook',
+      send,
+    });
+    expect(result.status).toBe(400);
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('한 줄 리뷰(good)가 30자 미만이면 400 을 반환한다 (쿠폰 어뷰징 1차 필터)', async () => {
+    const send = vi.fn().mockResolvedValue(true);
+    const result = await handleFormReview(input({ ...validBody, good: '좋아요 최고' }), {
       webhookUrl: 'https://example.test/hook',
       send,
     });

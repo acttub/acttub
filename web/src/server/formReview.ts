@@ -26,8 +26,9 @@ const reviewSchema = z.object({
   actionable: score,
   /** 다음 연습에도 다시 쓸 의향 */
   reuse: z.boolean(),
-  /** 한 줄 리뷰 — 좋았던 점·아쉬운 점 자유 서술 (시트 '좋았던점' 컬럼 적재) */
-  good: z.string().trim().min(1).max(1000),
+  /** 한 줄 리뷰 — 좋았던 점·아쉬운 점 자유 서술 (시트 '좋았던점' 컬럼 적재).
+   *  쿠폰 어뷰징 1차 필터: 최소 30자(무성의 단답 차단). 최종 '괜찮은 리뷰' 판단은 수동 검수. */
+  good: z.string().trim().min(30).max(1000),
   // 개인정보 수집·이용 동의 — 미동의 제출은 400.
   consent: z.literal(true),
   // honeypot — 사람은 비워둠. 봇이 채우면 조용히 무시(200)한다.

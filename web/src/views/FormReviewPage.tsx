@@ -16,6 +16,9 @@ import { useState, type FormEvent } from 'react';
 
 const RATINGS = [1, 2, 3, 4, 5] as const;
 
+/** 쿠폰 어뷰징 1차 필터: 서술형 최소 길이(서버 zod와 동일). */
+const GOOD_MIN = 30;
+
 /** 서버(zod phoneSchema)와 같은 기준 — 숫자만 남겨 01로 시작하는 10~11자리. */
 function isPhone(value: string): boolean {
   return /^01\d{8,9}$/.test(value.replace(/\D/g, ''));
@@ -45,7 +48,7 @@ export default function FormReviewPage() {
     rating !== null &&
     actionable !== null &&
     reuse !== null &&
-    good.trim().length > 0 &&
+    good.trim().length >= GOOD_MIN &&
     consent;
 
   async function handleSubmit(e: FormEvent) {
@@ -98,7 +101,7 @@ export default function FormReviewPage() {
           <div className="form__done-mark" aria-hidden="true">☕</div>
           <h1 className="form__title">리뷰 접수 완료!</h1>
           <p className="form__lead">
-            소중한 리뷰 고마워요. 적어주신 번호로 커피 기프티콘을 보내드릴게요.
+            소중한 리뷰 고마워요. 확인 후 적어주신 번호로 커피 기프티콘을 순차적으로 보내드릴게요.
           </p>
           <Link href="/" className="form__home">
             acttub 둘러보기
@@ -123,7 +126,7 @@ export default function FormReviewPage() {
           <h1 className="form__title">사용 후 리뷰</h1>
           <p className="form__lead">
             딱 네 가지만 여쭤볼게요. 1분이면 충분해요.
-            작성을 마치면 적어주신 번호로 <strong>커피 기프티콘</strong>을 보내드립니다.
+            성의 있게 남겨주시면 확인 후 적어주신 번호로 <strong>커피 기프티콘</strong>을 보내드려요.
           </p>
         </div>
 
@@ -213,7 +216,7 @@ export default function FormReviewPage() {
 
         <label className="form__field">
           <span className="form__label">
-            한 줄 리뷰 — 좋았던 점, 아쉬웠던 점 무엇이든 좋아요
+            한 줄 리뷰 — 좋았던 점, 아쉬웠던 점 무엇이든 좋아요 (최소 {GOOD_MIN}자)
           </span>
           <textarea
             className="form__input form__input--area"
@@ -224,6 +227,11 @@ export default function FormReviewPage() {
             rows={3}
             required
           />
+          <span className="form__hint" aria-live="polite">
+            {good.trim().length < GOOD_MIN
+              ? `${GOOD_MIN - good.trim().length}자 더 — 어떤 점이 좋았는지/아쉬웠는지 한 가지만 적어주면 충분해요`
+              : '좋아요, 충분해요 ☕'}
+          </span>
         </label>
 
         <label className="form__consent">
