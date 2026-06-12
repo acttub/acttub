@@ -112,6 +112,13 @@
   color: var(--text-default);
 }
 
+.form__hint {
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  line-height: var(--lh-sm);
+  color: var(--text-muted);
+}
+
 .form__input {
   width: 100%;
   box-sizing: border-box;
