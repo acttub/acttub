@@ -200,6 +200,25 @@
   line-height: var(--lh-md);
 }
 
+/* 평가 문항 아래 붙는 "왜 그런지" 사유 입력 — 위 질문에 딸린 것처럼 좌측 코랄 라인으로 들여쓴다. */
+.form__field--reason {
+  gap: var(--space-1);
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--primary-100);
+}
+
+.form__sublabel {
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+}
+
+/* 사유는 한두 줄이면 충분 — 본 서술란(--area, 96px)보다 낮게. (--area 뒤에 와야 우선) */
+.form__input--reason {
+  min-height: 60px;
+}
+
 /* 개인정보 수집·이용 동의 체크 행 */
 .form__consent {
   display: flex;

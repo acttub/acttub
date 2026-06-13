@@ -12,14 +12,17 @@ const validBody = {
   name: '김지민',
   phone: '010 1234 5678',
   rating: 4,
+  ratingWhy: '피드백이 구체적이라 어디를 고쳐야 할지 바로 알았어요.',
   actionable: 4,
+  actionableWhy: '처방이 명확해서 다음 연습에 바로 적용할 수 있을 것 같아요.',
   reuse: true,
-  good: '고칠 점을 하나만 딱 짚어줘서 뭘 연습할지 분명했고, 대사 타이밍도 봐주면 좋겠어요.',
+  reuseWhy: '혼자 연습할 때 객관적인 시선이 필요해서 또 쓸 것 같아요.',
+  serviceOpinion: '',
   consent: true,
 };
 
 describe('handleFormReview', () => {
-  it('유효 입력을 webhook으로 보내고 200 ok 를 반환한다 (전화번호는 숫자만 정규화, 축소 문항은 빈칸)', async () => {
+  it('유효 입력을 webhook으로 보내고 200 ok 를 반환한다 (전화번호 숫자만 정규화, reuse는 Y/N)', async () => {
     const send = vi
       .fn<(url: string, payload: FormReviewPayload) => Promise<boolean>>()
       .mockResolvedValue(true);
@@ -39,17 +42,31 @@ describe('handleFormReview', () => {
       name: '김지민',
       phone: '01012345678',
       rating: 4,
-      accuracy: '',
-      concernHit: '',
-      bestPart: '',
+      ratingWhy: '피드백이 구체적이라 어디를 고쳐야 할지 바로 알았어요.',
       actionable: 4,
-      tone: '',
-      compare: '',
+      actionableWhy: '처방이 명확해서 다음 연습에 바로 적용할 수 있을 것 같아요.',
       reuse: 'Y',
-      good: '고칠 점을 하나만 딱 짚어줘서 뭘 연습할지 분명했고, 대사 타이밍도 봐주면 좋겠어요.',
-      improve: '',
+      reuseWhy: '혼자 연습할 때 객관적인 시선이 필요해서 또 쓸 것 같아요.',
+      serviceOpinion: '',
       consent: 'Y',
     });
+  });
+
+  it('서비스 의견(serviceOpinion)은 선택 — 없어도 200 으로 접수한다', async () => {
+    const send = vi
+      .fn<(url: string, payload: FormReviewPayload) => Promise<boolean>>()
+      .mockResolvedValue(true);
+    const withoutOpinion: Record<string, unknown> = { ...validBody };
+    delete withoutOpinion.serviceOpinion;
+    const result = await handleFormReview(input(withoutOpinion), {
+      webhookUrl: 'https://example.test/hook',
+      send,
+      now: () => FIXED,
+    });
+
+    expect(result.status).toBe(200);
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send.mock.calls[0][1].serviceOpinion).toBe('');
   });
 
   it('만족도가 1~5 범위를 벗어나면 400 을 반환한다', async () => {
@@ -73,9 +90,9 @@ describe('handleFormReview', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  it('한 줄 리뷰(good)가 비면 400 을 반환한다', async () => {
+  it('만족도 사유(ratingWhy)가 비면 400 을 반환한다', async () => {
     const send = vi.fn().mockResolvedValue(true);
-    const result = await handleFormReview(input({ ...validBody, good: '  ' }), {
+    const result = await handleFormReview(input({ ...validBody, ratingWhy: '   ' }), {
       webhookUrl: 'https://example.test/hook',
       send,
     });
@@ -83,9 +100,9 @@ describe('handleFormReview', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  it('한 줄 리뷰(good)가 30자 미만이면 400 을 반환한다 (쿠폰 어뷰징 1차 필터)', async () => {
+  it('평가 사유가 10자 미만이면 400 을 반환한다 (쿠폰 어뷰징 1차 필터)', async () => {
     const send = vi.fn().mockResolvedValue(true);
-    const result = await handleFormReview(input({ ...validBody, good: '좋아요 최고' }), {
+    const result = await handleFormReview(input({ ...validBody, reuseWhy: '좋아요' }), {
       webhookUrl: 'https://example.test/hook',
       send,
     });
