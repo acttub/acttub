@@ -1,18 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { upload as uploadBlob } from '@vercel/blob/client';
 import Link from 'next/link';
 import {
   Camera,
   CircleStop,
-  Clock3,
   FileVideo,
   Loader2,
   Mic,
   PencilLine,
-  Play,
-  Scissors,
   Sparkles,
   Upload,
 } from 'lucide-react';
@@ -22,15 +19,63 @@ import {
   type CoachFeedback,
   type FeedbackFocus,
   type FeedbackNextStep,
+  type FeedbackOverall,
   type FeedbackStrength,
-  type SceneIntent,
+  type OverallBand,
 } from '../coach/evaluation';
 
 type InputMode = 'upload' | 'record';
 
+// 수동 구간 선택 제거 — 영상 전체를 올리면 AI가 연기 구간을 자동 감지한다. 비용·안정성 위해 10분 상한.
+const MAX_DURATION_SECONDS = 600;
+
 // SOMA-60 단일 초점 카드 — 위→아래 정서 설계:
 // 의도 확인 → 강점(안심) → 딱 하나(핵심) → 다음 한 걸음.
 // 내부 라벨(axis/tier/axes enum)은 노출하지 않고, 배우 언어 문장만 보여준다.
+
+// 다축 전경(rev.7) — 단일 초점 위에 4축 상태를 한눈에. 코치가 다 본 뒤 1노트를 주듯,
+// 배우에게 "전체적으로 어디가 좋고 어디가 아쉬운지" 먼저 돌려준다(처방 카드가 시각 주인공은 유지).
+const BAND_WORD: Record<OverallBand, string> = { good: '좋음', mid: '보통', weak: '아쉬움' };
+const BAND_TONE: Record<OverallBand, string> = {
+  good: 'text-success',
+  mid: 'text-muted',
+  weak: 'text-danger',
+};
+
+function OverallBlock({ overall }: { overall?: FeedbackOverall }) {
+  const bands = overall?.axisBands ?? [];
+
+  if (bands.length === 0) {
+    if (!overall?.text) return null;
+    return (
+      <article className="rounded-xl border border-line bg-white p-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span aria-hidden="true">🎬</span>
+          <h3 className="text-sm font-black text-ink">전체적으로 보면</h3>
+        </div>
+        <p className="mt-3 text-sm leading-6 text-foreground">{overall.text}</p>
+      </article>
+    );
+  }
+
+  return (
+    <article className="rounded-xl border border-line bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-2">
+        <span aria-hidden="true">🎬</span>
+        <h3 className="text-sm font-black text-ink">전체적으로 보면</h3>
+      </div>
+      <ul className="mt-3 grid gap-2">
+        {bands.map((band) => (
+          <li key={band.axis} className="grid grid-cols-[5.5rem_auto_1fr] items-baseline gap-x-2 text-sm leading-6">
+            <span className="font-bold text-ink">{band.label}</span>
+            <span className={`text-xs font-bold ${BAND_TONE[band.band]}`}>{BAND_WORD[band.band]}</span>
+            <span className="text-muted">{band.text}</span>
+          </li>
+        ))}
+      </ul>
+    </article>
+  );
+}
 
 function StrengthBlock({ strength }: { strength: FeedbackStrength }) {
   return (
@@ -63,9 +108,11 @@ function FocusBlock({ focus }: { focus: FeedbackFocus }) {
       <div className="flex items-center gap-2">
         <span aria-hidden="true">🎯</span>
         <h3 className="text-sm font-black text-ink">이번에 딱 하나</h3>
-        <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-xs font-bold text-primary-deep">
-          {focus.timecode}
-        </span>
+        {focus.timecode ? (
+          <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-xs font-bold text-primary-deep">
+            {focus.timecode}
+          </span>
+        ) : null}
       </div>
       <dl className="mt-3 grid gap-2 text-sm leading-6">
         {rows
@@ -102,42 +149,20 @@ function NextStepBlock({ nextStep, onRetake }: { nextStep: FeedbackNextStep; onR
   );
 }
 
-function IntentEcho({ sceneIntent }: { sceneIntent: SceneIntent | null }) {
-  if (!sceneIntent) {
-    return (
-      <section className="rounded-2xl border border-line bg-ink p-5 text-white shadow-sm">
-        <div className="flex items-center gap-2 text-sm font-black">
-          <Sparkles size={18} />
-          피드백
-        </div>
-        <p className="mt-4 text-xl font-black leading-tight text-white/90">
-          분석 결과가 여기에 표시됩니다.
-        </p>
-      </section>
-    );
-  }
-
-  const inferred = sceneIntent.source !== 'actor_input';
-
-  return (
-    <section className="rounded-2xl border border-line bg-ink p-5 text-white shadow-sm">
-      <div className="flex items-center gap-2 text-sm font-black">
-        <Sparkles size={18} />
-        {inferred ? '이 장면, 이렇게 하려던 것 같아요' : '이 장면, 이렇게 하려 했죠'}
-      </div>
-      <p className="mt-4 text-xl font-black leading-tight">{sceneIntent.text}</p>
-      {inferred ? (
-        <p className="mt-2 text-sm font-semibold text-white/70">맞나요? 아니면 알려주세요.</p>
-      ) : null}
-    </section>
-  );
-}
+// 의도 되읽기(IntentEcho) 블록은 제거 — 입력한 의도를 다시 보여주지 않는다(2026-06-12).
+// 데이터(sceneIntent)는 응답에 그대로 남아 있어 되살리기 쉽다.
 
 function fieldClass() {
   return 'w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15';
 }
 
-export default function CoachPage() {
+type CoachPageProps = {
+  // /coach-second(v2 파이프라인)가 같은 화면을 다른 분석 API로 재사용한다. 기본값 = 기존 /coach 그대로.
+  analyzeUrl?: string;
+  badge?: string;
+};
+
+export default function CoachPage({ analyzeUrl = '/api/coach/analyze', badge = 'coach' }: CoachPageProps = {}) {
   const [mode, setMode] = useState<InputMode>('upload');
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
@@ -160,13 +185,13 @@ export default function CoachPage() {
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const inputSectionRef = useRef<HTMLElement | null>(null);
+  const recordStartRef = useRef(0);
 
   // 다음 한 걸음 — 같은 구간을 다시 찍어 비교하도록 입력 영역으로 이동.
   function handleRetake() {
     inputSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  const segmentLength = useMemo(() => Math.max(0, endTime - startTime), [endTime, startTime]);
   const selectedVideoLabel = videoFile
     ? `${videoFile.name} · ${(videoFile.size / 1024 / 1024).toFixed(1)}MB`
     : 'mp4, mov, webm';
@@ -204,28 +229,16 @@ export default function CoachPage() {
   }
 
   function onVideoMetadata() {
-    const nextDuration = videoRef.current?.duration ?? 0;
-    setDuration(Number.isFinite(nextDuration) ? nextDuration : 0);
+    const raw = videoRef.current?.duration ?? 0;
+    // 녹화 webm은 duration이 ∞/0으로 잡히는 브라우저 이슈 — 그 경우 녹화 때 채운 길이를 유지한다.
+    if (!Number.isFinite(raw) || raw <= 0) return;
+    // 분석 범위 = 영상 전체. 실제 연기 구간은 분석 단계에서 AI가 자동으로 좁힌다.
+    setDuration(raw);
     setStartTime(0);
-    setEndTime(Number.isFinite(nextDuration) ? Math.min(nextDuration, 60) : 0);
-  }
-
-  function onTimeUpdate() {
-    const video = videoRef.current;
-    if (!video || endTime <= startTime) return;
-
-    if (video.currentTime > endTime) {
-      video.pause();
-      video.currentTime = startTime;
-    }
-  }
-
-  function playSegment() {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.currentTime = startTime;
-    void video.play();
+    setEndTime(raw);
+    setError(raw > MAX_DURATION_SECONDS
+      ? `영상이 너무 길어요(최대 ${MAX_DURATION_SECONDS / 60}분). 더 짧은 영상으로 올려 주세요.`
+      : '');
   }
 
   async function startRecording() {
@@ -254,14 +267,21 @@ export default function CoachPage() {
 
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'video/webm' });
-        const file = new File([blob], `coach-recording-${Date.now()}.webm`, { type: blob.type });
+        // 업로드 허용 목록은 'video/webm'만 — 녹화 mimeType의 ;codecs=… 꼬리를 떼어 정규화한다.
+        const uploadType = (recorder.mimeType || 'video/webm').split(';')[0] || 'video/webm';
+        const file = new File([blob], `coach-recording-${Date.now()}.webm`, { type: uploadType });
+        // 녹화 webm은 duration이 ∞/0으로 잡히는 브라우저 이슈 — 녹화 경과 시간을 길이로 직접 채운다.
+        const recordedSeconds = Math.max(1, Math.round((Date.now() - recordStartRef.current) / 1000));
         setSelectedVideo(file);
+        setDuration(recordedSeconds);
+        setEndTime(recordedSeconds);
         stream.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
       };
 
       setMode('record');
       setRecordingSeconds(0);
+      recordStartRef.current = Date.now();
       recorder.start();
       setIsRecording(true);
     } catch {
@@ -281,8 +301,8 @@ export default function CoachPage() {
     if (!fileName.trim()) return '파일 이름을 입력해 주세요.';
     if (!intent.trim()) return '이번 연습의 의도나 목표를 입력해 주세요.';
     if (duration <= 0) return '영상 정보를 읽은 뒤 다시 시도해 주세요.';
-    if (startTime < 0 || endTime <= startTime || endTime > duration + 0.5) {
-      return '분석 구간의 시작과 끝 시간을 확인해 주세요.';
+    if (duration > MAX_DURATION_SECONDS) {
+      return `영상이 너무 길어요(최대 ${MAX_DURATION_SECONDS / 60}분). 더 짧은 영상으로 올려 주세요.`;
     }
 
     return '';
@@ -309,7 +329,7 @@ export default function CoachPage() {
         multipart: videoFile.size > 100 * 1024 * 1024,
       });
 
-      const response = await fetch('/api/coach/analyze', {
+      const response = await fetch(analyzeUrl, {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
@@ -346,7 +366,7 @@ export default function CoachPage() {
             act<span className="text-primary">tub</span>
           </Link>
           <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-deep">
-            coach
+            {badge}
           </span>
         </header>
 
@@ -461,9 +481,9 @@ export default function CoachPage() {
                   </select>
                 </label>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wide text-muted">구간</span>
+                  <span className="text-xs font-bold uppercase tracking-wide text-muted">영상 길이</span>
                   <div className="mt-2 rounded-xl border border-line bg-surface-muted px-3 py-2.5 text-sm font-bold text-ink">
-                    {formatTime(segmentLength)}
+                    {duration > 0 ? formatTime(duration) : '—'}
                   </div>
                 </div>
               </div>
@@ -473,14 +493,14 @@ export default function CoachPage() {
 
         <section className="rounded-2xl border border-line bg-white p-4 shadow-sm sm:p-5">
           <div className="flex items-center gap-2 text-sm font-black text-ink">
-            <Scissors size={18} />
-            분석 구간
+            <Sparkles size={18} />
+            영상 미리보기
           </div>
-          {videoFile ? (
-            <p className="mt-2 text-xs font-semibold text-success">
-              {videoFile.name} 업로드됨. 아래 미리보기에서 분석할 구간을 조정하세요.
-            </p>
-          ) : null}
+          <p className="mt-2 text-xs font-medium text-muted">
+            {videoFile
+              ? `${videoFile.name} 업로드됨 — 구간을 따로 자를 필요 없어요. AI가 연기 시작·끝을 자동으로 찾아 분석해요.`
+              : '영상만 올리면 AI가 연기 구간을 자동으로 찾아 분석해요. 따로 구간을 자르지 않아도 돼요. (최대 10분)'}
+          </p>
 
           <div className="mt-4 overflow-hidden rounded-xl bg-black">
             {videoUrl ? (
@@ -490,7 +510,6 @@ export default function CoachPage() {
                 controls
                 playsInline
                 onLoadedMetadata={onVideoMetadata}
-                onTimeUpdate={onTimeUpdate}
                 className="aspect-video w-full bg-black object-contain"
               />
             ) : (
@@ -500,70 +519,11 @@ export default function CoachPage() {
             )}
           </div>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-            <label>
-              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted">
-                <Clock3 size={14} />
-                시작
-              </span>
-              <input
-                type="number"
-                min={0}
-                max={Math.max(0, endTime - 1)}
-                step={0.1}
-                value={Number(startTime.toFixed(1))}
-                onChange={(event) => setStartTime(Math.max(0, Math.min(Number(event.target.value), endTime - 0.1)))}
-                className={`mt-2 ${fieldClass()}`}
-              />
-            </label>
-            <label>
-              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted">
-                <Clock3 size={14} />
-                끝
-              </span>
-              <input
-                type="number"
-                min={startTime + 0.1}
-                max={duration || undefined}
-                step={0.1}
-                value={Number(endTime.toFixed(1))}
-                onChange={(event) => setEndTime(Math.min(duration, Math.max(Number(event.target.value), startTime + 0.1)))}
-                className={`mt-2 ${fieldClass()}`}
-              />
-            </label>
-            <button
-              type="button"
-              onClick={playSegment}
-              disabled={!videoUrl}
-              className="inline-flex items-center justify-center gap-2 self-end rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink transition hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Play size={16} />
-              재생
-            </button>
-          </div>
-
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <input
-              type="range"
-              min={0}
-              max={duration || 0}
-              step={0.1}
-              value={startTime}
-              onChange={(event) => setStartTime(Math.min(Number(event.target.value), endTime - 0.1))}
-              disabled={!videoUrl}
-              aria-label="분석 시작 시간"
-            />
-            <input
-              type="range"
-              min={0}
-              max={duration || 0}
-              step={0.1}
-              value={endTime}
-              onChange={(event) => setEndTime(Math.max(Number(event.target.value), startTime + 0.1))}
-              disabled={!videoUrl}
-              aria-label="분석 종료 시간"
-            />
-          </div>
+          {duration > 0 ? (
+            <p className="mt-3 text-xs font-medium text-muted">
+              영상 길이 {formatTime(duration)} · 전체에서 연기 구간을 자동으로 잡아 분석해요.
+            </p>
+          ) : null}
         </section>
 
         <section className="rounded-2xl border border-line bg-white p-4 shadow-sm sm:p-5">
@@ -594,10 +554,9 @@ export default function CoachPage() {
       </section>
 
       <aside className="flex flex-col gap-5 lg:sticky lg:top-8 lg:max-h-[calc(100dvh-4rem)] lg:overflow-auto">
-        <IntentEcho sceneIntent={feedback?.sceneIntent ?? null} />
-
         {feedback ? (
           <>
+            <OverallBlock overall={feedback.overall} />
             <StrengthBlock strength={feedback.strength} />
             <FocusBlock focus={feedback.focus} />
             <NextStepBlock nextStep={feedback.nextStep} onRetake={handleRetake} />
