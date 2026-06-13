@@ -6,29 +6,41 @@ import { sendToSheetsWebhook } from './sheetsWebhook';
 /**
  * formReview — 알파 테스트 사용 후 리뷰(acttub.com/form/review) 접수.
  *
- * 검증 신호의 정본. 멘토 피드백(폼이 너무 길다)으로 핵심 5문항으로 축소:
- * 만족도(코칭 가치)·실행 가능성(처방)·재사용 의향(대안 대비 가치)·한 줄 리뷰(주관식).
- * 정확성·고민 적중·최고 도움 부분·톤·기존 대비 문항은 인터뷰로 이관.
+ * 검증 신호의 정본. 세 가지 핵심 지표를 점수(1~5 또는 Y/N)로 받고, 각 점수마다
+ * "왜 그렇게 느꼈는지" 한 줄 이유(최소 10자)를 함께 받는다 — 점수만으로는 못 읽는
+ * '이유'가 검증의 핵심이라 정량+정성을 한 문항으로 묶는다:
+ *  · rating(전체 만족도) + ratingWhy
+ *  · actionable(연기 성장 도움) + actionableWhy
+ *  · reuse(다시 쓸 의향) + reuseWhy
+ * 마지막으로 서비스 전반 의견(serviceOpinion)은 선택(빈칸 허용)으로 받는다.
+ * 정확성·고민 적중·톤·기존 대비 등 깊은 문항은 인터뷰로 이관.
  * 전화번호가 신청(tester-apply)과의 매칭 키이자 쿠폰(기프티콘) 발송 키.
- * payload kind='tester-review'로 Apps Script가 리뷰 탭에 분기 적재한다.
- * 시트 컬럼은 유지하고 삭제 문항은 빈칸('')으로 보낸다 — Apps Script 수정 불필요.
+ * payload kind='tester-review'로 Apps Script가 리뷰 탭에 분기 적재한다(컬럼은 v2 스키마).
  * formApply와 같은 SHEETS_WEBHOOK_URL 재사용.
  */
 
 const score = z.number().int().min(1).max(5);
+
+/** 평가 사유 — 쿠폰 어뷰징 1차 필터: 최소 10자(무성의 단답 차단). 최종 '괜찮은 리뷰' 판단은 수동 검수. */
+const reason = z.string().trim().min(10).max(1000);
 
 const reviewSchema = z.object({
   name: z.string().trim().min(1).max(40),
   phone: phoneSchema,
   /** 전체 만족도 1~5 */
   rating: score,
-  /** "연기 성장에 도움이 될 것 같다" 동의 정도 1~5 — 성장 기대(시트 '실행가능성' 컬럼 적재) */
+  /** 만족도를 그렇게 준 이유 */
+  ratingWhy: reason,
+  /** "연기 성장에 도움이 될 것 같다" 동의 정도 1~5 */
   actionable: score,
+  /** 성장 도움을 그렇게 느낀 이유 */
+  actionableWhy: reason,
   /** 다음 연습에도 다시 쓸 의향 */
   reuse: z.boolean(),
-  /** 한 줄 리뷰 — 좋았던 점·아쉬운 점 자유 서술 (시트 '좋았던점' 컬럼 적재).
-   *  쿠폰 어뷰징 1차 필터: 최소 30자(무성의 단답 차단). 최종 '괜찮은 리뷰' 판단은 수동 검수. */
-  good: z.string().trim().min(30).max(1000),
+  /** 다시 쓸/안 쓸 이유 */
+  reuseWhy: reason,
+  /** 마지막 자유 의견 — 선택(빈칸 허용). */
+  serviceOpinion: z.string().trim().max(1000).optional(),
   // 개인정보 수집·이용 동의 — 미동의 제출은 400.
   consent: z.literal(true),
   // honeypot — 사람은 비워둠. 봇이 채우면 조용히 무시(200)한다.
@@ -41,16 +53,14 @@ export type FormReviewPayload = {
   name: string;
   phone: string;
   rating: number;
-  /** 축소된 문항 — 시트 컬럼 유지용 빈칸 */
-  accuracy: '';
-  concernHit: '';
-  bestPart: '';
+  ratingWhy: string;
   actionable: number;
-  tone: '';
-  compare: '';
+  actionableWhy: string;
+  /** 'Y' | 'N' */
   reuse: string;
-  good: string;
-  improve: '';
+  reuseWhy: string;
+  serviceOpinion: string;
+  /** 'Y' */
   consent: string;
 };
 
@@ -92,15 +102,12 @@ export async function handleFormReview(
     name: data.name,
     phone: data.phone,
     rating: data.rating,
-    accuracy: '',
-    concernHit: '',
-    bestPart: '',
+    ratingWhy: data.ratingWhy,
     actionable: data.actionable,
-    tone: '',
-    compare: '',
+    actionableWhy: data.actionableWhy,
     reuse: data.reuse ? 'Y' : 'N',
-    good: data.good,
-    improve: '',
+    reuseWhy: data.reuseWhy,
+    serviceOpinion: data.serviceOpinion ?? '',
     consent: 'Y',
   };
 

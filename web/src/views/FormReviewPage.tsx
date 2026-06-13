@@ -3,9 +3,11 @@
 /**
  * FormReviewPage — 알파 테스트 사용 후 리뷰 폼(acttub.com/form/review).
  *
- * 검증 신호의 정본. 멘토 피드백(폼이 너무 길다)으로 핵심 5문항으로 축소:
- * 만족도·실행 가능성·재사용 의향 + 한 줄 리뷰. 1분 안에 끝나는 게 목표.
- * 정확성·고민 적중·최고 도움 부분·톤·기존 대비는 인터뷰에서 묻는다.
+ * 검증 신호의 정본. 세 가지 핵심 지표(전체 만족도·연기 성장 도움·재사용 의향)를
+ * 점수로 받고, 각 점수 아래 "왜 그렇게 느꼈는지" 이유(최소 10자)를 함께 받는다.
+ * 점수만으로는 못 읽는 '이유'가 검증의 핵심 — 정량+정성을 한 문항으로 묶는다.
+ * 마지막으로 서비스 전반에 하고 싶은 말은 선택(있으면)으로 받는다.
+ * 정확성·고민 적중·톤·기존 대비 등 깊은 문항은 인터뷰에서 묻는다.
  * 전화번호로 신청과 매칭해 쿠폰을 발송한다.
  * 제출 시 /api/form/review 로 POST → 구글시트 적재(kind='tester-review').
  * 스타일은 FormPage.css 의 .form* 클래스를 그대로 재사용한다.
@@ -16,8 +18,8 @@ import { useState, type FormEvent } from 'react';
 
 const RATINGS = [1, 2, 3, 4, 5] as const;
 
-/** 쿠폰 어뷰징 1차 필터: 서술형 최소 길이(서버 zod와 동일). */
-const GOOD_MIN = 30;
+/** 평가 사유 최소 길이 — 쿠폰 어뷰징 1차 필터(무성의 단답 차단). 서버 zod와 동일. */
+const REASON_MIN = 10;
 
 /** 서버(zod phoneSchema)와 같은 기준 — 숫자만 남겨 01로 시작하는 10~11자리. */
 function isPhone(value: string): boolean {
@@ -28,13 +30,46 @@ function chipClass(on: boolean): string {
   return ['form__chip', on && 'form__chip--on'].filter(Boolean).join(' ');
 }
 
+/** 각 평가 문항 아래 "왜 그렇게 느꼈나요?" 이유 입력(최소 REASON_MIN자). */
+function ReasonField({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+  placeholder: string;
+}) {
+  const left = REASON_MIN - value.trim().length;
+  return (
+    <label className="form__field form__field--reason">
+      <span className="form__sublabel">왜 그렇게 느끼셨나요? (최소 {REASON_MIN}자)</span>
+      <textarea
+        className="form__input form__input--area form__input--reason"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={1000}
+        rows={2}
+        required
+      />
+      <span className="form__hint" aria-live="polite">
+        {left > 0 ? `${left}자 더 적어주세요` : '좋아요 ☕'}
+      </span>
+    </label>
+  );
+}
+
 export default function FormReviewPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [rating, setRating] = useState<number | null>(null);
+  const [ratingWhy, setRatingWhy] = useState('');
   const [actionable, setActionable] = useState<number | null>(null);
+  const [actionableWhy, setActionableWhy] = useState('');
   const [reuse, setReuse] = useState<boolean | null>(null);
-  const [good, setGood] = useState('');
+  const [reuseWhy, setReuseWhy] = useState('');
+  const [serviceOpinion, setServiceOpinion] = useState('');
   const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState(''); // honeypot
 
@@ -42,13 +77,18 @@ export default function FormReviewPage() {
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
 
+  const reasonsReady =
+    ratingWhy.trim().length >= REASON_MIN &&
+    actionableWhy.trim().length >= REASON_MIN &&
+    reuseWhy.trim().length >= REASON_MIN;
+
   const ready =
     name.trim().length > 0 &&
     isPhone(phone) &&
     rating !== null &&
     actionable !== null &&
     reuse !== null &&
-    good.trim().length >= GOOD_MIN &&
+    reasonsReady &&
     consent;
 
   async function handleSubmit(e: FormEvent) {
@@ -64,9 +104,12 @@ export default function FormReviewPage() {
           name: name.trim(),
           phone: phone.trim(),
           rating,
+          ratingWhy: ratingWhy.trim(),
           actionable,
+          actionableWhy: actionableWhy.trim(),
           reuse,
-          good: good.trim(),
+          reuseWhy: reuseWhy.trim(),
+          serviceOpinion: serviceOpinion.trim(),
           consent,
           website,
         }),
@@ -125,7 +168,7 @@ export default function FormReviewPage() {
           <span className="form__kicker">AI 연기 피드백 · 알파 테스트</span>
           <h1 className="form__title">사용 후 리뷰</h1>
           <p className="form__lead">
-            딱 네 가지만 여쭤볼게요. 1분이면 충분해요.
+            세 가지를 평가하고, 왜 그렇게 느꼈는지 한 줄씩만 적어주세요.
             성의 있게 남겨주시면 확인 후 적어주신 번호로 <strong>커피 기프티콘</strong>을 보내드려요.
           </p>
         </div>
@@ -171,6 +214,11 @@ export default function FormReviewPage() {
               </button>
             ))}
           </div>
+          <ReasonField
+            value={ratingWhy}
+            onChange={setRatingWhy}
+            placeholder="예: 피드백이 구체적이라 어디를 고쳐야 할지 바로 알았어요"
+          />
         </fieldset>
 
         <fieldset className="form__field">
@@ -190,6 +238,11 @@ export default function FormReviewPage() {
               </button>
             ))}
           </div>
+          <ReasonField
+            value={actionableWhy}
+            onChange={setActionableWhy}
+            placeholder="예: 처방이 명확해서 다음 연습에 바로 적용할 수 있을 것 같아요"
+          />
         </fieldset>
 
         <fieldset className="form__field">
@@ -212,26 +265,23 @@ export default function FormReviewPage() {
               아니오
             </button>
           </div>
+          <ReasonField
+            value={reuseWhy}
+            onChange={setReuseWhy}
+            placeholder="예: 혼자 연습할 때 객관적인 시선이 필요해서 또 쓸 것 같아요"
+          />
         </fieldset>
 
         <label className="form__field">
-          <span className="form__label">
-            한 줄 리뷰 — 좋았던 점, 아쉬웠던 점 무엇이든 좋아요 (최소 {GOOD_MIN}자)
-          </span>
+          <span className="form__label">마지막으로 acttub에 하고 싶은 말이 있다면 (선택)</span>
           <textarea
             className="form__input form__input--area"
-            value={good}
-            onChange={(e) => setGood(e.target.value)}
-            placeholder="예: 고칠 점을 하나만 딱 짚어줘서 좋았어요. 대사 타이밍도 봐주면 좋겠어요"
+            value={serviceOpinion}
+            onChange={(e) => setServiceOpinion(e.target.value)}
+            placeholder="개선 아이디어, 좋았던 점, 불편했던 점 무엇이든 좋아요. 없으면 비워두셔도 돼요."
             maxLength={1000}
             rows={3}
-            required
           />
-          <span className="form__hint" aria-live="polite">
-            {good.trim().length < GOOD_MIN
-              ? `${GOOD_MIN - good.trim().length}자 더 — 어떤 점이 좋았는지/아쉬웠는지 한 가지만 적어주면 충분해요`
-              : '좋아요, 충분해요 ☕'}
-          </span>
         </label>
 
         <label className="form__consent">
