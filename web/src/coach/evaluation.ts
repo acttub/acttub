@@ -67,8 +67,26 @@ export type FeedbackNextStep = {
   action: NextAction;
 };
 
+// 블록0.5 — 다축 전경 (선택, coach-second v2만 채움). rev.7: 단일 초점 위에 축별 상태를 얹는다.
+// 코치는 다축으로 다 본 뒤 1노트만 준다 — 본 것을 배우에게 돌려주는 층 (Confluence 18153475 §3-1).
+export type OverallBand = 'good' | 'mid' | 'weak';
+export type OverallAxisKey = 'emotion' | 'speech' | 'movement' | 'audience';
+
+export type FeedbackAxisBand = {
+  axis: OverallAxisKey;
+  label: string; // 배우 언어 라벨(감정·대사 전달·표정·몸짓·관객 반응) — 내부 키는 노출하지 않는다
+  band: OverallBand; // good=의도대로 / mid=흔들림 / weak=어긋남
+  text: string; // 「축×밴드 문구」 사전에서 — 같은 밴드 → 같은 문구(멱등)
+};
+
+export type FeedbackOverall = {
+  axisBands?: FeedbackAxisBand[]; // rev.7 4축 상태 전경 (UI 주력)
+  text?: string; // 하위호환 — 한 문단 요약(있으면 fallback)
+};
+
 export type CoachFeedback = {
   sceneIntent: SceneIntent;
+  overall?: FeedbackOverall;
   strength: FeedbackStrength;
   focus: FeedbackFocus;
   nextStep: FeedbackNextStep;
