@@ -40,7 +40,6 @@ function ReasonField({
   onChange: (next: string) => void;
   placeholder: string;
 }) {
-  const left = REASON_MIN - value.trim().length;
   return (
     <label className="form__field form__field--reason">
       <span className="form__sublabel">왜 그렇게 느끼셨나요? (최소 {REASON_MIN}자)</span>
@@ -53,9 +52,6 @@ function ReasonField({
         rows={2}
         required
       />
-      <span className="form__hint" aria-live="polite">
-        {left > 0 ? `${left}자 더 적어주세요` : '좋아요 ☕'}
-      </span>
     </label>
   );
 }
@@ -169,7 +165,7 @@ export default function FormReviewPage() {
           <h1 className="form__title">사용 후 리뷰</h1>
           <p className="form__lead">
             세 가지를 평가하고, 왜 그렇게 느꼈는지 한 줄씩만 적어주세요.
-            성의 있게 남겨주시면 확인 후 적어주신 번호로 <strong>커피 기프티콘</strong>을 보내드려요.
+            리뷰 남겨주시면 확인 후 적어주신 번호로 <strong>커피 기프티콘</strong>을 보내드려요.
           </p>
         </div>
 
