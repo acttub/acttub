@@ -61,6 +61,8 @@ export default function QuickTestPage() {
   const [feedback, setFeedback] = useState<CoachFeedback | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  // 대사 안 함은 실패가 아니라 재요청 안내 → 빨간 error와 분리한 중립 톤.
+  const [notice, setNotice] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isStartingRecording, setIsStartingRecording] = useState(false);
@@ -223,6 +225,7 @@ export default function QuickTestPage() {
 
     setIsAnalyzing(true);
     setError('');
+    setNotice('');
     setFeedback(null);
     setSessionId(null);
 
@@ -261,7 +264,7 @@ export default function QuickTestPage() {
 
       // 정해진 대사를 안 했거나 다르게 말함 → 분석 없이 재요청 안내.
       if (payload.spokeExpectedLine === false) {
-        setError('정해진 대사를 확인하지 못했어요. 화면의 대사를 말하면서 다시 연기해 주세요.');
+        setNotice('정해진 대사를 확인하지 못했어요. 화면의 대사를 말하면서 다시 연기해 주세요.');
         return;
       }
 
@@ -435,6 +438,12 @@ export default function QuickTestPage() {
           {error ? (
             <div className="mt-4 rounded-xl border border-danger/30 bg-red-50 px-4 py-3 text-sm font-semibold text-danger">
               {error}
+            </div>
+          ) : null}
+
+          {notice ? (
+            <div className="mt-4 rounded-xl border border-primary/40 bg-primary-soft/40 px-4 py-3 text-sm font-semibold text-primary-deep">
+              {notice}
             </div>
           ) : null}
 

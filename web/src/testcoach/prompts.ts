@@ -2,7 +2,8 @@
 // 프롬프트를 바꾸면 그 페이지와 PROMPT_VERSION을 함께 올린다. 다양성은 버전 간에, 일관성은 호출 간에.
 import type { Anchor } from './types';
 
-export const PROMPT_VERSION = 'v2.0-draft.7';
+// /test 전용(testcoach) — coach-second 복사본에서 대사 게이트·상황 프롬프트로 분기.
+export const PROMPT_VERSION = 'test-v1';
 
 // §5.6 실측: temp 0 + seed 42 + structured output으로 텍스트·영상 출력 바이트 동일 확인.
 export const GENERATION_TEMPERATURE = 0;
