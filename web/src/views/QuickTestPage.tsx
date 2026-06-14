@@ -24,29 +24,29 @@ type InputMode = 'upload' | 'record';
 // 대사 한 마디 체험이라 상한을 짧게 — v2는 영상당 Gemini 6~7회·함수 타임아웃 300s라 긴 영상은 비용·실패 위험.
 const MAX_DURATION_SECONDS = 120;
 
-// 정해진 대사 = 분석 기준. 각 대사에 "연기 의도"를 함께 박아 기존 파이프라인이 그 의도 격차로 평가한다.
-// 의도를 사용자가 적지 않아도 되도록, 대사마다 한 줄짜리 표준 의도를 짝지어 둔다.
-const SAMPLE_LINES: { line: string; intent: string }[] = [
+// 정해진 대사 + 상황을 시스템이 제시. 상황·대사는 분석 프롬프트로 함께 보내고(intent 필드에 합침),
+// 대사는 expectedLine으로도 보내 "정해진 대사를 실제로 했는지" 게이트에 쓴다.
+const SAMPLE_LINES: { line: string; situation: string }[] = [
   {
     line: '나 사실… 너한테 계속 하고 싶었던 말이 있었어.',
-    intent: '쉽게 꺼내지 못한 마음을, 떨리지만 용기 내어 처음 입 밖으로 꺼내는 순간을 보여준다.',
+    situation: '오랫동안 마음에 담아둔 고백을, 큰맘 먹고 상대 앞에서 처음 꺼내는 순간.',
   },
   {
     line: '괜찮아. 난 정말 괜찮으니까, 그런 표정 하지 마.',
-    intent: '겉으로는 아무렇지 않은 척하지만 속으로는 무너지는 마음을 들키지 않으려 애쓰는 모습을 보여준다.',
+    situation: '속은 무너졌지만, 걱정하는 상대 앞에서 아무렇지 않은 척 안심시키려는 순간.',
   },
   {
     line: '왜 이제야 말해? 내가 얼마나 기다렸는지 알기는 해?',
-    intent: '오래 참아온 서운함이 터져 나오면서도 그 밑에 반가움과 안도가 섞인 복잡한 감정을 보여준다.',
+    situation: '오래 기다린 끝에 나타난 상대에게, 서운함과 반가움이 뒤섞여 터뜨리는 순간.',
   },
 ];
 
 // 빠른 테스트는 한 줄 대사이므로 분류를 묻지 않고 '대사'로 고정한다(ACTING_CATEGORIES 중 하나).
 const CATEGORY = '대사';
 
-// 분석 엔진은 지금 /coach 메인이 쓰는 v2 파이프라인을 그대로 재사용한다(다축 전경 카드 포함).
-// 롤백: '/api/coach/analyze'(v1)로 바꾸면 단일 초점만 나온다.
-const ANALYZE_URL = '/api/coach-second/analyze';
+// /test 전용 분석 파이프라인(testcoach) — /coach와 분리해 복사한 독립 엔진.
+// 대사·상황 주입, 대사 안 함 판정 등 /test 고유 동작을 /coach 영향 없이 넣기 위함.
+const ANALYZE_URL = '/api/test/analyze';
 
 function fieldHintClass() {
   return 'text-xs font-medium text-muted';
@@ -94,6 +94,19 @@ export default function QuickTestPage() {
     }, 1000);
 
     return () => window.clearInterval(timer);
+  }, [isRecording]);
+
+  // 녹화 중 라이브 프리뷰 — isRecording이 켜져 video가 렌더된 뒤 카메라 stream을 연결한다.
+  // (없으면 녹화는 돼도 화면에 카메라가 안 보여 "안 켜진" 것처럼 느껴진다.)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!isRecording || !video || !streamRef.current) return undefined;
+    video.srcObject = streamRef.current;
+    video.muted = true;
+    video.play().catch(() => undefined);
+    return () => {
+      video.srcObject = null;
+    };
   }, [isRecording]);
 
   // 다른 대사로 — 결과·영상을 비우고 새 대사를 보여준다.
@@ -176,8 +189,9 @@ export default function QuickTestPage() {
       recordStartRef.current = Date.now();
       recorder.start();
       setIsRecording(true);
-    } catch {
-      setError('카메라와 마이크 권한을 허용해야 직접 녹화할 수 있습니다.');
+    } catch (err) {
+      const name = err instanceof Error ? err.name : 'Unknown';
+      setError(`카메라를 열지 못했어요 (${name}). 주소창의 카메라 권한을 허용하고, 카메라를 쓰는 다른 앱(줌·팀즈 등)을 끈 뒤 다시 시도해 주세요.`);
     } finally {
       setIsStartingRecording(false);
     }
@@ -230,12 +244,26 @@ export default function QuickTestPage() {
           fileName: `빠른 테스트 — ${current.line.slice(0, 20)}`,
           mimeType: videoFile.type || 'video/mp4',
           category: CATEGORY,
-          intent: current.intent,
+          // 상황 + 정해진 대사를 함께 보내 분석 전반(의도 보강·판정)에 흐르게 한다.
+          intent: `상황: ${current.situation}\n정해진 대사: "${current.line}"`,
+          // 대사 게이트용 — 영상에서 이 대사를 실제로 했는지 판정.
+          expectedLine: current.line,
           startTime: 0,
           endTime: duration,
         }),
       });
-      const payload = (await response.json()) as { feedback?: CoachFeedback; sessionId?: string; error?: string };
+      const payload = (await response.json()) as {
+        feedback?: CoachFeedback;
+        sessionId?: string;
+        spokeExpectedLine?: boolean;
+        error?: string;
+      };
+
+      // 정해진 대사를 안 했거나 다르게 말함 → 분석 없이 재요청 안내.
+      if (payload.spokeExpectedLine === false) {
+        setError('정해진 대사를 확인하지 못했어요. 화면의 대사를 말하면서 다시 연기해 주세요.');
+        return;
+      }
 
       if (!response.ok || !payload.feedback) {
         throw new Error(payload.error ?? '분석 요청에 실패했습니다.');
@@ -287,7 +315,7 @@ export default function QuickTestPage() {
               </button>
             </div>
             <p className="mt-3 text-lg font-black leading-7 text-ink sm:text-xl">“{current.line}”</p>
-            <p className="mt-2 text-xs leading-5 text-primary-deep">연기 의도 · {current.intent}</p>
+            <p className="mt-2 text-xs leading-5 text-primary-deep">상황 · {current.situation}</p>
           </div>
         </section>
 
@@ -380,11 +408,13 @@ export default function QuickTestPage() {
           </div>
 
           <div className="mt-4 overflow-hidden rounded-xl bg-black">
-            {videoUrl ? (
+            {(videoUrl || isRecording) ? (
               <video
                 ref={videoRef}
-                src={videoUrl}
-                controls
+                src={isRecording ? undefined : videoUrl}
+                controls={!isRecording}
+                autoPlay={isRecording}
+                muted={isRecording}
                 playsInline
                 onLoadedMetadata={onVideoMetadata}
                 className="aspect-video w-full bg-black object-contain"

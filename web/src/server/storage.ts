@@ -67,7 +67,7 @@ export type NormalizedArchiveVideoInput = Required<
 > &
   Pick<CreateArchiveVideoInput, 'blobUrl' | 'blobPathname' | 'mimeType' | 'sizeBytes'>;
 
-export type CoachSessionPipeline = 'coach' | 'coach-second';
+export type CoachSessionPipeline = 'coach' | 'coach-second' | 'test';
 
 export type CreateCoachSessionInput = {
   pipeline: CoachSessionPipeline;
