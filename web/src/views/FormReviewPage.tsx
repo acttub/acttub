@@ -68,12 +68,6 @@ export default function FormReviewPage() {
   const [serviceOpinion, setServiceOpinion] = useState('');
   const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState(''); // honeypot
-  // /coach 에서 ?s=<코치 세션 id> 로 넘어옴 — 리뷰를 그 세션과 잇는다(없으면 빈칸).
-  // 렌더에 쓰지 않는 값이라 lazy init 으로 한 번만 읽는다(useSearchParams 의 Suspense 경계·
-  // effect setState 린트를 모두 피함). 정적 프리렌더 시 window 가 없어 ''.
-  const [sessionId] = useState(() =>
-    (typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('s') ?? '').slice(0, 120),
-  );
 
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -98,6 +92,9 @@ export default function FormReviewPage() {
     if (!ready || submitting) return;
     setSubmitting(true);
     setError('');
+    // /coach 에서 ?s=<코치 세션 id> 로 넘어옴. 마운트 시점(lazy init)엔 soft navigation 직후라
+    // window.location 이 아직 안 바뀌어 비기도 한다 → 제출 시점에 읽어 확실히 잡는다.
+    const sessionId = (new URLSearchParams(window.location.search).get('s') ?? '').slice(0, 120);
     try {
       const res = await fetch('/api/form/review', {
         method: 'POST',
