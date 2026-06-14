@@ -12,6 +12,19 @@ type GtagCommand = [command: string, ...args: unknown[]];
  */
 export type ResultAction = 'email_report' | 'instagram_story' | 'kakao_share' | 'copy_link';
 
+/**
+ * /coach 한 페이지 안의 단계 진행. 페이지뷰만으론 안 보이는 단계별 이탈(drop-off)을
+ * GA4 유입경로(funnel) 탐색으로 보기 위함. 단계당 1회만 발사 — 재입력·재선택으로
+ * 수치가 부풀지 않게(`error`는 매번 발사해 어느 시도가 실패했는지 본다).
+ */
+export type CoachStep =
+  | 'video_selected'   // 영상 업로드/녹화 완료
+  | 'intent_entered'   // 연기 의도 첫 입력
+  | 'analyze_clicked'  // 'AI로 분석' 클릭(검증 통과)
+  | 'upload_done'      // blob 업로드 성공
+  | 'result_shown'     // 결과 카드 표시
+  | 'error';           // 분석 실패 이탈
+
 declare global {
   interface Window {
     dataLayer?: IArguments[];
@@ -22,6 +35,9 @@ declare global {
 // 모듈 스코프 — React StrictMode dev의 시뮬레이션된 remount는 컴포넌트 ref를
 // 재초기화하므로 dedupe 상태는 컴포넌트 밖에 둬야 한다.
 let lastTrackedPath: string | null = null;
+
+// coach funnel은 '도달 여부'가 핵심 — 단계당 1회만 발사해 중복 입력으로 수치가 부풀지 않게.
+const trackedCoachSteps = new Set<CoachStep>();
 
 export function initAnalytics(): void {
   const measurementId = GA_MEASUREMENT_ID;
@@ -98,4 +114,16 @@ export function trackResultAction(action: ResultAction, resultCode: string): voi
     action,
     result_code: resultCode,
   });
+}
+
+/**
+ * /coach 단계 진행 추적. `error`를 뺀 단계는 세션 동안 1회만 발사(중복 dedupe).
+ * GA4에는 `coach_<step>` 이벤트로 들어가 단계별로 funnel을 잡을 수 있다.
+ */
+export function trackCoachStep(step: CoachStep): void {
+  if (!ensureReady()) return;
+  if (step !== 'error' && trackedCoachSteps.has(step)) return;
+  trackedCoachSteps.add(step);
+
+  window.gtag?.('event', `coach_${step}`);
 }

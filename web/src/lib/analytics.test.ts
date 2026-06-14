@@ -121,6 +121,43 @@ describe('analytics', () => {
     ]);
   });
 
+  it('tracks each coach step once as a coach_<step> event', async () => {
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
+    const { initAnalytics, trackCoachStep } = await loadAnalytics();
+
+    initAnalytics();
+    trackCoachStep('video_selected');
+    trackCoachStep('video_selected');
+    trackCoachStep('analyze_clicked');
+
+    const events = dataLayerEntries().filter(([cmd]) => cmd === 'event');
+    expect(events).toContainEqual(['event', 'coach_video_selected']);
+    expect(events).toContainEqual(['event', 'coach_analyze_clicked']);
+    expect(events.filter(([, name]) => name === 'coach_video_selected')).toHaveLength(1);
+  });
+
+  it('re-fires the coach error step every time', async () => {
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
+    const { initAnalytics, trackCoachStep } = await loadAnalytics();
+
+    initAnalytics();
+    trackCoachStep('error');
+    trackCoachStep('error');
+
+    const errors = dataLayerEntries().filter(([cmd, name]) => cmd === 'event' && name === 'coach_error');
+    expect(errors).toHaveLength(2);
+  });
+
+  it('does not track coach steps when the measurement ID is missing', async () => {
+    vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', '');
+    const { trackCoachStep } = await loadAnalytics();
+
+    trackCoachStep('result_shown');
+
+    expect(window.gtag).toBeUndefined();
+    expect(window.dataLayer ?? []).toHaveLength(0);
+  });
+
   it('lazy-initializes when trackResultAction is called before initAnalytics', async () => {
     vi.stubEnv('NEXT_PUBLIC_GA_MEASUREMENT_ID', 'G-TEST123');
     const { trackResultAction } = await loadAnalytics();
