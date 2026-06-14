@@ -6,16 +6,19 @@ import type { ArchiveVisibility } from '../archive/archiveData';
 import {
   actiSurveyResponsesTable,
   archiveVideosTable,
+  coachSessionsTable,
   communityCommentsTable,
   communityPostsTable,
   type ActiSurveyResponseRow,
   type ArchiveVideoRow,
+  type CoachSessionRow,
   type CommunityCommentRow,
   type CommunityPostRow,
 } from './schema';
 import {
   normalizeArchiveVideoInput,
   type ActtubStorage,
+  type CoachSession,
   type CreateArchiveVideoInput,
   type CreateCommunityCommentInput,
   type CreateCommunityPostInput,
@@ -24,6 +27,7 @@ import {
 const schema = {
   actiSurveyResponsesTable,
   archiveVideosTable,
+  coachSessionsTable,
   communityCommentsTable,
   communityPostsTable,
 };
@@ -117,6 +121,25 @@ export function actiSurveyResponseRowToDomain(row: ActiSurveyResponseRow) {
     resultCode: row.resultCode,
     answers: row.answers,
     createdAt: row.createdAt,
+  };
+}
+
+export function coachSessionRowToDomain(row: CoachSessionRow): CoachSession {
+  return {
+    id: row.id,
+    createdAt: row.createdAt,
+    pipeline: row.pipeline as CoachSession['pipeline'],
+    category: row.category,
+    intent: row.intent,
+    startTime: row.startTime,
+    endTime: row.endTime,
+    fileName: row.fileName,
+    mimeType: row.mimeType,
+    blobUrl: row.blobUrl,
+    blobPathname: row.blobPathname,
+    sizeBytes: row.sizeBytes,
+    feedback: row.feedback,
+    trace: row.trace,
   };
 }
 
@@ -279,6 +302,28 @@ export function createPostgresActtubStorage(db: Database): ActtubStorage {
         })
         .returning();
       return actiSurveyResponseRowToDomain(row);
+    },
+    async createCoachSession(input) {
+      const [row] = await db
+        .insert(coachSessionsTable)
+        .values({
+          id: nextId('coach-session'),
+          createdAt: new Date(),
+          pipeline: input.pipeline,
+          category: input.category.trim(),
+          intent: input.intent.trim(),
+          startTime: input.startTime ?? null,
+          endTime: input.endTime ?? null,
+          fileName: input.fileName?.trim() || null,
+          mimeType: input.mimeType ?? null,
+          blobUrl: input.blobUrl ?? null,
+          blobPathname: input.blobPathname ?? null,
+          sizeBytes: input.sizeBytes ?? null,
+          feedback: input.feedback,
+          trace: input.trace ?? null,
+        })
+        .returning();
+      return coachSessionRowToDomain(row);
     },
   };
 }

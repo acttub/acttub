@@ -48,8 +48,23 @@ describe('handleFormReview', () => {
       reuse: 'Y',
       reuseWhy: '혼자 연습할 때 객관적인 시선이 필요해서 또 쓸 것 같아요.',
       serviceOpinion: '',
+      sessionId: '',
       consent: 'Y',
     });
+  });
+
+  it('코치 세션 id(sessionId)를 받으면 payload 에 실어 보낸다 (세션↔리뷰 매칭 키)', async () => {
+    const send = vi
+      .fn<(url: string, payload: FormReviewPayload) => Promise<boolean>>()
+      .mockResolvedValue(true);
+
+    const result = await handleFormReview(
+      input({ ...validBody, sessionId: 'coach-session-abc' }),
+      { webhookUrl: 'https://example.test/hook', send, now: () => FIXED },
+    );
+
+    expect(result.status).toBe(200);
+    expect(send.mock.calls[0][1].sessionId).toBe('coach-session-abc');
   });
 
   it('서비스 의견(serviceOpinion)은 선택 — 없어도 200 으로 접수한다', async () => {

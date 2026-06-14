@@ -2,12 +2,14 @@ import { sql } from 'drizzle-orm';
 import {
   boolean,
   bigint,
+  doublePrecision,
   integer,
   jsonb,
   pgTable,
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
+import type { CoachFeedback } from '../coach/evaluation';
 import type { ActiSurveyAnswers } from './storage';
 
 export const communityPostsTable = pgTable('community_posts', {
@@ -70,12 +72,34 @@ export const actiSurveyResponsesTable = pgTable('acti_survey_responses', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+// 코치 테스트 세션 — 사용자가 분석한 영상(보관 blob)·연기 의도·AI 피드백을 한 행으로 남긴다.
+// 검증 신호(만족도 리뷰)와 sessionId 로 매칭하기 위한 정본. trace 는 v2 파이프라인 전 단계 기록.
+export const coachSessionsTable = pgTable('coach_sessions', {
+  id: text('id').primaryKey(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  pipeline: text('pipeline').notNull(), // 'coach'(v1) | 'coach-second'(v2)
+  category: text('category').notNull(),
+  intent: text('intent').notNull(),
+  startTime: doublePrecision('start_time'),
+  endTime: doublePrecision('end_time'),
+  fileName: text('file_name'),
+  mimeType: text('mime_type'),
+  // 분석 후 cleanup 크론이 지우는 coach/ 임시본이 아니라, coach-sessions/ 로 복사한 보관본 URL.
+  blobUrl: text('blob_url'),
+  blobPathname: text('blob_pathname'),
+  sizeBytes: bigint('size_bytes', { mode: 'number' }),
+  feedback: jsonb('feedback').$type<CoachFeedback>().notNull(),
+  trace: jsonb('trace'), // v2(coach-second) 전 단계 분석 기록 — v1 은 null
+});
+
 export type CommunityPostRow = typeof communityPostsTable.$inferSelect;
 export type CommunityCommentRow = typeof communityCommentsTable.$inferSelect;
 export type ArchiveVideoRow = typeof archiveVideosTable.$inferSelect;
 export type ActiSurveyResponseRow = typeof actiSurveyResponsesTable.$inferSelect;
+export type CoachSessionRow = typeof coachSessionsTable.$inferSelect;
 
 export type NewCommunityPostRow = typeof communityPostsTable.$inferInsert;
 export type NewCommunityCommentRow = typeof communityCommentsTable.$inferInsert;
 export type NewArchiveVideoRow = typeof archiveVideosTable.$inferInsert;
 export type NewActiSurveyResponseRow = typeof actiSurveyResponsesTable.$inferInsert;
+export type NewCoachSessionRow = typeof coachSessionsTable.$inferInsert;
