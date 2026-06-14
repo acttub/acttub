@@ -41,6 +41,8 @@ const reviewSchema = z.object({
   reuseWhy: reason,
   /** 마지막 자유 의견 — 선택(빈칸 허용). */
   serviceOpinion: z.string().trim().max(1000).optional(),
+  /** 코치 세션 id — /coach 가 리뷰 CTA 에 ?s= 로 실어 보냄. 세션↔리뷰 매칭 키(선택). */
+  sessionId: z.string().trim().max(120).optional(),
   // 개인정보 수집·이용 동의 — 미동의 제출은 400.
   consent: z.literal(true),
   // honeypot — 사람은 비워둠. 봇이 채우면 조용히 무시(200)한다.
@@ -60,6 +62,8 @@ export type FormReviewPayload = {
   reuse: string;
   reuseWhy: string;
   serviceOpinion: string;
+  /** 코치 세션 id(없으면 빈칸) — 시트에서 세션 행과 잇는다. */
+  sessionId: string;
   /** 'Y' */
   consent: string;
 };
@@ -108,6 +112,7 @@ export async function handleFormReview(
     reuse: data.reuse ? 'Y' : 'N',
     reuseWhy: data.reuseWhy,
     serviceOpinion: data.serviceOpinion ?? '',
+    sessionId: data.sessionId ?? '',
     consent: 'Y',
   };
 

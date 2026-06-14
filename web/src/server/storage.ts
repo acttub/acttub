@@ -17,6 +17,7 @@ import {
   type ArchiveVisibility,
 } from '../archive/archiveData';
 import { ARCHIVE_FIXTURE_VIDEOS } from '../archive/fixtures';
+import type { CoachFeedback } from '../coach/evaluation';
 
 export type CreateCommunityPostInput = {
   title: string;
@@ -66,6 +67,41 @@ export type NormalizedArchiveVideoInput = Required<
 > &
   Pick<CreateArchiveVideoInput, 'blobUrl' | 'blobPathname' | 'mimeType' | 'sizeBytes'>;
 
+export type CoachSessionPipeline = 'coach' | 'coach-second';
+
+export type CreateCoachSessionInput = {
+  pipeline: CoachSessionPipeline;
+  category: string;
+  intent: string;
+  startTime?: number | null;
+  endTime?: number | null;
+  fileName?: string | null;
+  mimeType?: string | null;
+  blobUrl?: string | null;
+  blobPathname?: string | null;
+  sizeBytes?: number | null;
+  feedback: CoachFeedback;
+  /** v2(coach-second) 전 단계 분석 기록. v1 은 null. */
+  trace?: unknown;
+};
+
+export type CoachSession = {
+  id: string;
+  createdAt: Date;
+  pipeline: CoachSessionPipeline;
+  category: string;
+  intent: string;
+  startTime: number | null;
+  endTime: number | null;
+  fileName: string | null;
+  mimeType: string | null;
+  blobUrl: string | null;
+  blobPathname: string | null;
+  sizeBytes: number | null;
+  feedback: CoachFeedback;
+  trace: unknown;
+};
+
 export type CommunityPostQuery = {
   id?: string | null;
   q?: string | null;
@@ -83,6 +119,7 @@ export type ActtubStorage = {
   getArchiveVideo(id: string): Promise<ArchiveVideo | null>;
   createArchiveVideo(input: CreateArchiveVideoInput): Promise<ArchiveVideo>;
   createActiSurveyResponse(input: CreateActiSurveyResponseInput): Promise<ActiSurveyResponse>;
+  createCoachSession(input: CreateCoachSessionInput): Promise<CoachSession>;
 };
 
 const fixtureUser = {
@@ -121,6 +158,7 @@ export function createMemoryActtubStorage(options: { seedFixtures?: boolean } = 
   const communityComments: CommunityComment[] = seedFixtures ? [...COMMUNITY_FIXTURE_COMMENTS] : [];
   const archiveVideos: ArchiveVideo[] = seedFixtures ? [...ARCHIVE_FIXTURE_VIDEOS] : [];
   const actiSurveyResponses: ActiSurveyResponse[] = [];
+  const coachSessions: CoachSession[] = [];
 
   return {
     async listCommunityPosts(query) {
@@ -219,6 +257,26 @@ export function createMemoryActtubStorage(options: { seedFixtures?: boolean } = 
       };
       actiSurveyResponses.unshift(response);
       return response;
+    },
+    async createCoachSession(input) {
+      const session: CoachSession = {
+        id: nextId('coach-session'),
+        createdAt: new Date(),
+        pipeline: input.pipeline,
+        category: input.category.trim(),
+        intent: input.intent.trim(),
+        startTime: input.startTime ?? null,
+        endTime: input.endTime ?? null,
+        fileName: input.fileName?.trim() || null,
+        mimeType: input.mimeType ?? null,
+        blobUrl: input.blobUrl ?? null,
+        blobPathname: input.blobPathname ?? null,
+        sizeBytes: input.sizeBytes ?? null,
+        feedback: input.feedback,
+        trace: input.trace ?? null,
+      };
+      coachSessions.unshift(session);
+      return session;
     },
   };
 }

@@ -174,6 +174,8 @@ export default function CoachPage({ analyzeUrl = '/api/coach/analyze', badge = '
   const [intent, setIntent] = useState('');
   const [memo, setMemo] = useState('');
   const [feedback, setFeedback] = useState<CoachFeedback | null>(null);
+  // 저장된 코치 세션 id — 리뷰 폼으로 넘겨 세션↔리뷰를 잇는다(없으면 링크만).
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -224,6 +226,7 @@ export default function CoachPage({ analyzeUrl = '/api/coach/analyze', badge = '
     setStartTime(0);
     setEndTime(0);
     setFeedback(null);
+    setSessionId(null);
     setMemo('');
     setError('');
   }
@@ -320,6 +323,7 @@ export default function CoachPage({ analyzeUrl = '/api/coach/analyze', badge = '
     setIsAnalyzing(true);
     setError('');
     setFeedback(null);
+    setSessionId(null);
 
     try {
       const blob = await uploadBlob(`coach/${Date.now()}-${videoFile.name}`, videoFile, {
@@ -344,13 +348,14 @@ export default function CoachPage({ analyzeUrl = '/api/coach/analyze', badge = '
           endTime,
         }),
       });
-      const payload = (await response.json()) as { feedback?: CoachFeedback; error?: string };
+      const payload = (await response.json()) as { feedback?: CoachFeedback; sessionId?: string; error?: string };
 
       if (!response.ok || !payload.feedback) {
         throw new Error(payload.error ?? '분석 요청에 실패했습니다.');
       }
 
       setFeedback(payload.feedback);
+      setSessionId(payload.sessionId ?? null);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '분석 요청에 실패했습니다.');
     } finally {
@@ -561,7 +566,7 @@ export default function CoachPage({ analyzeUrl = '/api/coach/analyze', badge = '
             <FocusBlock focus={feedback.focus} />
             <NextStepBlock nextStep={feedback.nextStep} onRetake={handleRetake} />
             <Link
-              href="/form/review"
+              href={sessionId ? `/form/review?s=${encodeURIComponent(sessionId)}` : '/form/review'}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-3 text-sm font-bold text-ink transition hover:bg-surface-muted"
             >
               <PencilLine size={18} />

@@ -1,6 +1,20 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
 import { handleCoachAnalyze } from './coachAnalyze';
+import type { ActtubStorage, CoachSession } from './storage';
+
+// 세션 저장을 결정적으로(실 DB/Blob 없이) 만든다 — createCoachSession 만 스텁.
+function stubStorage(id: string) {
+  return {
+    createCoachSession: vi.fn(async (input) => ({ id, ...input } as unknown as CoachSession)),
+  } as unknown as ActtubStorage;
+}
+const stubCopy = vi.fn().mockResolvedValue({
+  url: 'https://store.public.blob.vercel-storage.com/coach-sessions/kept.webm',
+  pathname: 'coach-sessions/kept.webm',
+  contentType: 'video/webm',
+  contentDisposition: '',
+});
 
 function videoFormData(overrides: Partial<Record<string, string | Blob>> = {}) {
   const data = new FormData();
@@ -73,10 +87,13 @@ describe('coach analysis API', () => {
     }), {
       apiKey: 'test-key',
       analyze,
+      storage: stubStorage('coach-session-form'),
     });
 
     expect(result.status).toBe(200);
     expect(analyze).toHaveBeenCalledOnce();
+    // 직접 업로드는 영상 없이 세션을 저장하고 sessionId 를 돌려준다.
+    expect((result.body as { sessionId?: string }).sessionId).toBe('coach-session-form');
   });
 
   it('accepts a Blob URL payload so Vercel route requests stay small', async () => {
@@ -108,6 +125,8 @@ describe('coach analysis API', () => {
       apiKey: 'test-key',
       analyze,
       fetch: fetcher,
+      storage: stubStorage('coach-session-blob'),
+      copyBlob: stubCopy,
     });
 
     expect(result.status).toBe(200);
@@ -119,6 +138,9 @@ describe('coach analysis API', () => {
       startTime: 0,
       endTime: 12,
     }));
+    // Blob URL 경로는 영상을 보관 prefix 로 복사하고 sessionId 를 돌려준다.
+    expect(stubCopy).toHaveBeenCalled();
+    expect((result.body as { sessionId?: string }).sessionId).toBe('coach-session-blob');
   });
 
   it('rejects a Blob URL pointing at a non-Vercel host (SSRF guard)', async () => {

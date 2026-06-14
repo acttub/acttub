@@ -7,6 +7,7 @@ import { del } from '@vercel/blob';
 import { buildSynthesisPrompt, formatTime, parseGeminiFeedback, type CoachFeedback } from '../coach/evaluation';
 import { buildObserverPrompt, buildPersonaPrompt, PERSONAS } from '../coach/personas';
 import type { ApiResult } from './apiCore';
+import { persistCoachSession, type PersistCoachSessionOptions } from './coachSession';
 
 type GeminiFileState = {
   name?: string;
@@ -29,7 +30,7 @@ type CoachAnalyzeOptions = {
   apiKey?: string;
   analyze?: (input: CoachAnalyzeInput) => Promise<CoachFeedback>;
   fetch?: typeof fetch;
-};
+} & PersistCoachSessionOptions;
 
 type FormValue = string | File;
 
@@ -314,7 +315,21 @@ export async function handleCoachAnalyze(request: Request, options: CoachAnalyze
           apiKey,
         });
 
-        return { status: 200, body: { feedback } };
+        // 세션 보관(비차단) — 보관본 복사는 임시 blob 을 지우기 전에 끝나야 한다.
+        const sessionId = await persistCoachSession({
+          pipeline: 'coach',
+          feedback,
+          category,
+          intent,
+          startTime,
+          endTime,
+          fileName,
+          mimeType: video.type,
+          sizeBytes: video.size,
+          videoUrl,
+        }, options);
+
+        return { status: 200, body: { feedback, ...(sessionId ? { sessionId } : {}) } };
       } finally {
         await del(videoUrl).catch(() => undefined);
       }
@@ -356,7 +371,20 @@ export async function handleCoachAnalyze(request: Request, options: CoachAnalyze
       apiKey,
     });
 
-    return { status: 200, body: { feedback } };
+    // 직접 업로드(multipart)는 보관할 blob URL 이 없어 영상 없이 메타·피드백만 남긴다.
+    const sessionId = await persistCoachSession({
+      pipeline: 'coach',
+      feedback,
+      category,
+      intent,
+      startTime,
+      endTime,
+      fileName,
+      mimeType: video.type,
+      sizeBytes: video.size,
+    }, options);
+
+    return { status: 200, body: { feedback, ...(sessionId ? { sessionId } : {}) } };
   } catch (error) {
     console.error('Coach analyze failed', error);
     return jsonError(500, ANALYZE_FAILURE_MESSAGE);
