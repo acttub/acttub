@@ -19,53 +19,55 @@ const sample: Lineshot = {
 
 const okScore = async () => sample;
 
-function audioFile(bytes = 1024, type = 'audio/webm') {
-  return new File([new Uint8Array(bytes)], 'lineshot.webm', { type });
+function audioBlob(bytes = 1024, type = 'audio/webm') {
+  return new Blob([new Uint8Array(bytes)], { type });
 }
 
-function multipartRequest(parts: { audio?: File; line?: string }) {
+// 실제 multipart 본문을 직렬화해 Request로 보내면 File 합성 결과가 Node/undici 버전마다 달라
+// (CI에서 multipartFormDataParser가 거부) 테스트가 환경 의존적이 된다. 핸들러가 의존하는 건
+// request.formData()의 반환값뿐이므로 그 메서드만 직접 주입한다.
+function request(
+  parts: { audio?: Blob; line?: string },
+  opts: { method?: string; contentType?: string } = {},
+): Request {
   const formData = new FormData();
-  if (parts.audio) formData.set('audio', parts.audio);
+  if (parts.audio) formData.set('audio', parts.audio, 'lineshot.webm');
   if (parts.line != null) formData.set('line', parts.line);
-  return new Request('http://localhost/api/lineshot', { method: 'POST', body: formData });
+  return {
+    method: opts.method ?? 'POST',
+    headers: new Headers({ 'content-type': opts.contentType ?? 'multipart/form-data; boundary=test' }),
+    formData: async () => formData,
+  } as unknown as Request;
 }
 
 describe('handleLineshotScore', () => {
   it('POST가 아니면 405', async () => {
-    const res = await handleLineshotScore(new Request('http://localhost/api/lineshot'), {
-      apiKey: 'k',
-      score: okScore,
-    });
+    const res = await handleLineshotScore(request({}, { method: 'GET' }), { apiKey: 'k', score: okScore });
     expect(res.status).toBe(405);
   });
 
   it('API 키가 없으면 500', async () => {
     vi.stubEnv('GEMINI_API_KEY', '');
-    const res = await handleLineshotScore(multipartRequest({ audio: audioFile() }), { score: okScore });
+    const res = await handleLineshotScore(request({ audio: audioBlob() }), { score: okScore });
     expect(res.status).toBe(500);
     vi.unstubAllEnvs();
   });
 
   it('multipart 본문이 아니면 400', async () => {
-    const req = new Request('http://localhost/api/lineshot', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: '{}',
-    });
-    const res = await handleLineshotScore(req, { apiKey: 'k', score: okScore });
-    expect(res.status).toBe(400);
-  });
-
-  it('녹음 파일이 없으면 400', async () => {
-    const res = await handleLineshotScore(multipartRequest({ line: '왜 이제 왔어' }), {
+    const res = await handleLineshotScore(request({}, { contentType: 'application/json' }), {
       apiKey: 'k',
       score: okScore,
     });
     expect(res.status).toBe(400);
   });
 
+  it('녹음 파일이 없으면 400', async () => {
+    const res = await handleLineshotScore(request({ line: '왜 이제 왔어' }), { apiKey: 'k', score: okScore });
+    expect(res.status).toBe(400);
+  });
+
   it('정상 입력은 200과 결과 카드를 돌려준다', async () => {
-    const res = await handleLineshotScore(multipartRequest({ audio: audioFile(), line: '왜 이제 왔어' }), {
+    const res = await handleLineshotScore(request({ audio: audioBlob(), line: '왜 이제 왔어' }), {
       apiKey: 'k',
       score: okScore,
     });
