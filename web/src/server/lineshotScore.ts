@@ -77,9 +77,10 @@ async function defaultScore(input: LineshotScoreInput): Promise<Lineshot> {
     model: process.env.GEMINI_MODEL ?? 'gemini-3.5-flash',
     contents: createUserContent([audioPart, buildLineshotPrompt(input.line)]),
     // 매 녹음이 다르므로 약간의 위트 변주를 허용(0.5). thinking은 꺼서 예산을 JSON 본문에만 쓴다.
+    // 한국어 카드(총평·3축 코멘트·강점·팁·vibe)가 길어 본문 잘림을 막으려 1024로 잡는다(fortune과 동일).
     config: {
       temperature: 0.5,
-      maxOutputTokens: 700,
+      maxOutputTokens: 1024,
       thinkingConfig: { thinkingBudget: 0 },
     },
   });
