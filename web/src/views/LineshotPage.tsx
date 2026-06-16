@@ -154,11 +154,17 @@ export default function LineshotPage() {
       {!result ? (
         <section className="lineshot__intro">
           <h1 className="lineshot__title">라인샷</h1>
-          <p className="lineshot__sub">대사 한 줄 읽으면 AI가 발성·감정·전달력을 점수로 매겨줘요. 10초면 끝!</p>
+          <p className="lineshot__sub">대사 한 줄을 소리 내 읽으면, AI가 듣고 <b>발성·감정·전달력</b>을 점수로 매겨줘요.</p>
+
+          <ol className="lineshot__steps">
+            <li><span className="lineshot__step-no">1</span><span>읽을 대사 정하기<small>직접 쓰거나 ‘랜덤 대사’로</small></span></li>
+            <li><span className="lineshot__step-no">2</span><span>마이크로 한 줄 녹음<small>10초면 끝</small></span></li>
+            <li><span className="lineshot__step-no">3</span><span>AI 점수 카드 받기<small>3축 점수 + 나만의 칭호</small></span></li>
+          </ol>
 
           <div className="lineshot__form">
             <label className="lineshot__field">
-              <span className="lineshot__label">대사 한 줄</span>
+              <span className="lineshot__label">1. 읽을 대사<span className="lineshot__label-hint"> — 직접 쓰거나 아래 ‘랜덤 대사’ 버튼</span></span>
               <textarea
                 className="lineshot__input"
                 value={line}
@@ -174,6 +180,7 @@ export default function LineshotPage() {
               랜덤 대사
             </button>
 
+            <span className="lineshot__label">2. 녹음하기</span>
             <div className="lineshot__recorder">
               {!recording ? (
                 <button type="button" className="lineshot__mic" onClick={startRecording} disabled={loading}>
