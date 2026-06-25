@@ -1,0 +1,341 @@
+/* WaitlistPage — acttub 인스타 홍보물 톤(웜그레이/아이보리 배경 + 오렌지 포인트 + 미니멀).
+   오렌지 포인트는 브랜드 토큰(--primary-500 #FF7A5C)을 그대로 쓰고, 배경/표면/보더만
+   웜톤으로 페이지 스코프 토큰을 둔다(src/views = System B 페이지 스코프 토큰 패턴).
+   간격·라운드·그림자·타이포는 전역 토큰만 사용. 모바일(인스타 인앱) 1컬럼 기준. */
+
+.waitlist {
+  /* 페이지 스코프 웜톤 */
+  --wl-bg: #f6f1e8; /* 웜그레이/아이보리 */
+  --wl-surface: #fffdf9; /* 따뜻한 화이트 카드 */
+  --wl-border: #ece3d4; /* 웜 보더 */
+
+  position: relative;
+  padding-top: var(--space-6);
+  padding-bottom: calc(var(--space-12) + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* 뷰포트 전체를 웜톤으로 — container(480px 중앙정렬) 바깥 여백까지 덮는다(전역 body 변경 없이). */
+.waitlist::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--wl-bg);
+  z-index: -1;
+}
+
+/* 헤더 — 브랜드 워드마크 + 오렌지 pill 배지 (form 패턴 계승) */
+.waitlist__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.waitlist__brand {
+  font-size: var(--text-xl);
+  line-height: var(--lh-xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: -0.03em;
+  color: var(--text-default);
+  text-decoration: none;
+}
+
+.waitlist__brand span {
+  color: var(--primary-500);
+}
+
+.waitlist__badge {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  color: var(--primary-700);
+  background: var(--primary-100);
+  border-radius: var(--radius-pill);
+}
+
+/* 히어로 — 메인 카피 + 서브 카피 */
+.waitlist__hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+}
+
+.waitlist__kicker {
+  width: fit-content;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.01em;
+  color: var(--primary-700);
+  background: var(--primary-100);
+  border-radius: var(--radius-pill);
+}
+
+.waitlist__headline {
+  margin: 0;
+  font-size: var(--text-3xl);
+  line-height: var(--lh-3xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: -0.03em;
+  color: var(--text-default);
+}
+
+.waitlist__sub {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+  color: var(--text-secondary);
+}
+
+/* 카드 — 따뜻한 화이트 surface + 부드러운 그림자 */
+.waitlist__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--wl-surface);
+  border: 1px solid var(--wl-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2);
+}
+
+.waitlist__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.waitlist__label {
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  font-weight: var(--fw-bold);
+  color: var(--text-default);
+}
+
+.waitlist__optional {
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+.waitlist__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-md);
+  font-family: var(--font-sans);
+  color: var(--text-default);
+  background: var(--bg-surface);
+  border: 1px solid var(--wl-border);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.waitlist__input::placeholder {
+  color: var(--text-helper);
+}
+
+.waitlist__input:focus-visible {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: var(--shadow-focus);
+}
+
+.waitlist__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.waitlist__chip {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--wl-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .waitlist__chip:hover {
+    border-color: var(--primary-300);
+    color: var(--text-default);
+    transform: translateY(-1px);
+  }
+}
+
+.waitlist__chip:active {
+  transform: translateY(1px);
+}
+
+.waitlist__chip--on {
+  color: var(--text-inverse);
+  background: var(--primary-500);
+  border-color: var(--primary-500);
+  box-shadow: var(--shadow-2);
+}
+
+@media (hover: hover) {
+  .waitlist__chip--on:hover {
+    color: var(--text-inverse);
+    background: var(--primary-600);
+    border-color: var(--primary-600);
+  }
+}
+
+/* 개인정보 수집·이용 동의 체크 행 */
+.waitlist__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  line-height: var(--lh-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.waitlist__consent input {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  accent-color: var(--primary-500);
+  cursor: pointer;
+}
+
+.waitlist__consent strong {
+  color: var(--text-default);
+  font-weight: var(--fw-bold);
+}
+
+.waitlist__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+/* 메시지 — error(빨강) / notice(이미 신청됨: 부드러운 오렌지 안내) */
+.waitlist__message {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+}
+
+.waitlist__message--error {
+  color: var(--error-500);
+}
+
+.waitlist__message--notice {
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--fw-medium);
+  color: var(--primary-700);
+  background: var(--primary-100);
+  border-radius: var(--radius-lg);
+}
+
+.waitlist__submit {
+  margin-top: var(--space-1);
+  padding: var(--space-4);
+  font-size: var(--text-md);
+  font-weight: var(--fw-bold);
+  font-family: var(--font-sans);
+  color: var(--text-inverse);
+  background: var(--primary-500);
+  border: none;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .waitlist__submit:hover:not(:disabled) {
+    background: var(--primary-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-3);
+  }
+}
+
+.waitlist__submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.waitlist__submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.waitlist__note {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--lh-xs);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* 완료 화면 */
+.waitlist__card--done {
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-10);
+}
+
+.waitlist__done-mark {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.waitlist__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  line-height: var(--lh-2xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: -0.02em;
+  color: var(--text-default);
+}
+
+.waitlist__lead {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--lh-md);
+  color: var(--text-secondary);
+}
+
+.waitlist__home {
+  margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
+  color: var(--primary-700);
+  background: var(--primary-100);
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .waitlist__home:hover {
+    background: var(--primary-300);
+  }
+}
