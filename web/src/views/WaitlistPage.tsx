@@ -1,10 +1,10 @@
 'use client';
 
 /**
- * WaitlistPage — 비공개 테스터 사전 등록(acttub.com/waitlist).
+ * WaitlistPage — 비공개 테스터 사전 등록(acttub.com/tester).
  *
  * 정식 오픈 전 인스타 프로필 링크로 쓰는 단일 화면 랜딩 + 수집 폼. 이메일(필수) +
- * 선택 2문항(현재 상황·도움받고 싶은 부분) + 개인정보 동의를 받아 /api/waitlist 로
+ * 선택 2문항(현재 상황·도움받고 싶은 부분) + 개인정보 동의를 받아 /api/tester 로
  * POST → 구글시트 적재. 성공하면 완료 화면으로 교체한다.
  * 톤은 acttub 인스타 홍보물(웜그레이/아이보리 배경 + 오렌지 포인트 + 미니멀).
  * 인스타 인앱 브라우저(모바일) 1컬럼 기준. CSS 는 src/app/globals.css 의 @import 로 로드.
@@ -59,7 +59,7 @@ export default function WaitlistPage() {
     setSubmitting(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/waitlist', {
+      const res = await fetch('/api/tester', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

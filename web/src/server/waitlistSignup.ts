@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { ApiRequestInput, ApiResult } from './apiCore';
 
 /**
- * waitlistSignup — 비공개 테스터 대기자(waitlist) 이메일 수집(acttub.com/waitlist) 접수.
+ * waitlistSignup — 비공개 테스터 대기자(waitlist) 이메일 수집(acttub.com/tester) 접수.
  *
  * 정식 오픈 전, 인스타 프로필 링크로 쓰는 사전 등록 수집기. 이메일(필수) + 선택 2문항
  * (현재 상황·도움받고 싶은 부분) + 개인정보 동의를 검증해 구글시트(Apps Script 웹앱
