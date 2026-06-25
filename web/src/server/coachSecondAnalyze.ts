@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createPartFromUri, createUserContent, GoogleGenAI, type Schema } from '@google/genai';
 import { del } from '@vercel/blob';
+import { generateContentWithFallback } from './geminiGenerate';
 import { formatTime, type CoachFeedback } from '../coach/evaluation';
 import { PRESCRIPTION_LIBRARY, ROOT_DICTIONARY } from '../coach2/dictionaries';
 import { aggregate, assembleCard, mergeToAnchors, pickMajority } from '../coach2/pipeline';
@@ -183,17 +184,16 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
 
     // 멱등성 호출 설정 — temp 0 + seed + structured output (실측 §5.6).
     const generate = (prompt: string, schema: Schema, withVideo: boolean) =>
-      ai.models
-        .generateContent({
-          model,
-          contents: createUserContent(withVideo ? [videoPart, prompt] : [prompt]),
-          config: {
-            temperature: GENERATION_TEMPERATURE,
-            seed: GENERATION_SEED,
-            responseMimeType: 'application/json',
-            responseSchema: schema,
-          },
-        })
+      generateContentWithFallback(ai, {
+        model,
+        contents: createUserContent(withVideo ? [videoPart, prompt] : [prompt]),
+        config: {
+          temperature: GENERATION_TEMPERATURE,
+          seed: GENERATION_SEED,
+          responseMimeType: 'application/json',
+          responseSchema: schema,
+        },
+      })
         .then((response) => response.text ?? '');
 
     const failures: string[] = [];

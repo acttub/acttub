@@ -8,6 +8,7 @@ import { buildSynthesisPrompt, formatTime, parseGeminiFeedback, type CoachFeedba
 import { buildObserverPrompt, buildPersonaPrompt, PERSONAS } from '../coach/personas';
 import type { ApiResult } from './apiCore';
 import { persistCoachSession, type PersistCoachSessionOptions } from './coachSession';
+import { generateContentWithFallback } from './geminiGenerate';
 
 type GeminiFileState = {
   name?: string;
@@ -134,8 +135,7 @@ async function defaultAnalyze(input: CoachAnalyzeInput): Promise<CoachFeedback> 
     const model = process.env.GEMINI_MODEL ?? 'gemini-3.5-flash';
     const videoPart = createPartFromUri(uploadedFile.uri, uploadedFile.mimeType);
     const generate = (prompt: string, parts: ReturnType<typeof createPartFromUri>[] = []) =>
-      ai.models
-        .generateContent({ model, contents: createUserContent([...parts, prompt]) })
+      generateContentWithFallback(ai, { model, contents: createUserContent([...parts, prompt]) })
         .then((response) => response.text ?? '');
 
     // L0: 영상을 직접 보는 유일한 단계 — 타임코드별 중립 관찰을 뽑는다.

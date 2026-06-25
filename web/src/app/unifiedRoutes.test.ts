@@ -406,7 +406,7 @@ describe('unified Next app deployment', () => {
 
   it('documents every public or required environment variable except hidden provider internals', () => {
     const documented = envExampleNames();
-    const hiddenInternals = new Set(['GEMINI_MODEL']);
+    const hiddenInternals = new Set(['GEMINI_MODEL', 'GEMINI_FALLBACK_MODELS']);
     const missing = sourceEnvNames().filter((name) => !hiddenInternals.has(name) && !documented.includes(name));
 
     expect(missing).toEqual([]);
