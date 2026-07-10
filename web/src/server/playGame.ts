@@ -10,7 +10,6 @@ import {
   answerForDate,
   findWork,
   scoreGuess,
-  stagedHint,
   todayKstISO,
   puzzleNumberForDate,
 } from './playScore';
@@ -24,12 +23,11 @@ const guessSchema = z.object({
 });
 
 const ATTRIBUTES = [
+  { key: 'form', label: '형식' },
   { key: 'genre', label: '장르' },
   { key: 'era', label: '시대' },
   { key: 'country', label: '국가' },
-  { key: 'form', label: '형식' },
   { key: 'tone', label: '정서' },
-  { key: 'cast', label: '인물' },
 ];
 
 function resolveDate(requested: string | undefined, options: PlayOptions): string {
@@ -84,10 +82,7 @@ function handlePost(input: ApiRequestInput, options: PlayOptions): ApiResult {
       found: true,
       guess: { id: work.id, title: work.title },
       result: score,
-      hint: reveal ? {} : stagedHint(answer, attempt),
-      ...(reveal
-        ? { answer: { id: answer.id, title: answer.title, hints: answer.hints } }
-        : {}),
+      ...(reveal ? { answer: { id: answer.id, title: answer.title } } : {}),
     },
   };
 }
