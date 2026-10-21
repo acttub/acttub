@@ -8,6 +8,7 @@ node_modules/
 .next/
 .vercel/
 .playwright-cli/
+web/.coach-trace/
 .env
 .env.local
 .env.*.local

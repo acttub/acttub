@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "entries": {
+    "445ed27a3872b681d98190bae61ccb84954e1bc4e140df5370be958dee776b3a": {
+      "last_emitted_at_ms": 1783069256746,
+      "message": "Verify changes work after editing. Test functionality before marking complete."
+    },
+    "ac0b605e2fab96875ea245af507cb79edbf10bfa51efacbf27823143c6a5fd59": {
+      "last_emitted_at_ms": 1783069075480,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Moderator R3 CONVERGED"
+    },
+    "466399dafa2d20f60587180bad0a07358eb7f2bce724df0ff682f038ad33f5ad": {
+      "last_emitted_at_ms": 1783069031261,
+      "message": "Read multiple files in parallel when possible for faster analysis."
+    },
+    "459c54e5f35d6a58dcd90d2aecc21fa6d1f35d241bc5b134c506f87dc7b6d67b": {
+      "last_emitted_at_ms": 1783068747113,
+      "message": "Combine searches in parallel when investigating multiple patterns."
+    },
+    "79a93d4a2f8f50b95f852280616242fee1855dc99a3c75211917f55e72e95fae": {
+      "last_emitted_at_ms": 1783068746489,
+      "message": "Use parallel execution for independent tasks. Use run_in_background for long operations (npm install, builds, tests)."
+    },
+    "c5ebdda8a46f62033e0f8a7b23a130a856ab5d8fa8cd9bb36b0567b85c9ef1d6": {
+      "last_emitted_at_ms": 1783068726326,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Claude devil R3"
+    },
+    "a8971742e756d380783093b98e6f2da45e2c1b192931072c0d467632e9307162": {
+      "last_emitted_at_ms": 1783068129945,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Domain R3 확정"
+    },
+    "ea2f37ceb713295760c9332544b739f5368696f8a013264fa3784de5a5b3107e": {
+      "last_emitted_at_ms": 1783068115556,
+      "message": "Spawning agent: general-purpose (inherit) | Task: PM R3 확정"
+    },
+    "2effbde948144bb3cd07825b401272c3c0e81c4ba5ab93e65f0c3961274198bc": {
+      "last_emitted_at_ms": 1783068101700,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Eng R3 확정"
+    },
+    "27b073a79fb8bb193e652a8198b0c22ce8ea1c0b7642028fa3862656e98ee95c": {
+      "last_emitted_at_ms": 1783068083344,
+      "message": "Spawning agent: general-purpose (inherit) | Task: CEO R3 확정"
+    },
+    "c424ea5603f9852774fbb05542931febe6da94c70daadc9c855fe33ba6015738": {
+      "last_emitted_at_ms": 1783067933149,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Moderator R2 reduce"
+    },
+    "e2e7ce10ae63ee783ed5e7967719c91738607b3fc7c4c07b75035a1a5d0e1639": {
+      "last_emitted_at_ms": 1783067381481,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Claude devil R2"
+    },
+    "86c5a2dab12aa02f158f998e0e9e02d061c74bb45dbc4def59d2556cfae99762": {
+      "last_emitted_at_ms": 1783066601691,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Domain R2"
+    },
+    "72d78db0483033a7b756f22389cf1910bec28dae9ca4ece005562cd02e546581": {
+      "last_emitted_at_ms": 1783066584837,
+      "message": "Spawning agent: general-purpose (inherit) | Task: PM R2"
+    },
+    "b98758d2992689220ff350fe3d06c422b707f2ec321def15ce57a4b84e58730e": {
+      "last_emitted_at_ms": 1783066571360,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Design R2"
+    },
+    "da8d934715903a4f77ed76587a9f65619e257ed0c44ceaaffb56241c314b3e85": {
+      "last_emitted_at_ms": 1783066554932,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Eng R2"
+    },
+    "6554f3ba1066c36f6cceeb6756c3435bfc8d5bd4d657db5fa3f89445007b6b8e": {
+      "last_emitted_at_ms": 1783066536285,
+      "message": "Spawning agent: general-purpose (inherit) | Task: CEO R2"
+    },
+    "507ff686cf55dbd5ceabf1f497c0948939eeff5c42f039c62aa56908450fb8e7": {
+      "last_emitted_at_ms": 1783066360643,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Moderator R1 reduce"
+    },
+    "42a77e1f2abec02b9ef51d17554f9fa701a526d93b80a46d5ed2069c0b86a894": {
+      "last_emitted_at_ms": 1783065936052,
+      "message": "Spawning agent: general-purpose (inherit) | Task: Claude devil R1"
+    }
+  },
+  "updated_at": "2026-07-03T09:00:56.746Z"
+}

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"head -30 ops/agents/harness-v2-design.md 2>/dev/null; echo ===; head -5 docs/specs/c1-seed-channel-priority-SPEC.md 2>/dev/null\",\"description\":\"Peek at new harness design doc and seed chan...",
+  "error": "Exit code 1\n===",
+  "timestamp": "2026-07-01T22:04:44.954Z",
+  "retry_count": 1
+}

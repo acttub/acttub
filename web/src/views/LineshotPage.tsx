@@ -39,6 +39,31 @@ const AXES: { key: keyof Lineshot['axes']; emoji: string; label: string }[] = [
 
 const MAX_SECONDS = 10;
 
+// 녹음 blob을 디코드해 최대 진폭(peak, 0~1)을 잰다. 서버 무음 가드에 보낼 신호.
+// 압축된 webm은 서버에서 디코드가 비싸므로 PCM 접근이 공짜인 클라이언트에서 측정한다.
+// 측정 실패(미지원 등) 시 1(들린다)로 가정해 정상 채점 흐름을 막지 않는다.
+async function measureLevel(blob: Blob): Promise<number> {
+  try {
+    const AudioCtx =
+      window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return 1;
+    const ctx = new AudioCtx();
+    const buffer = await ctx.decodeAudioData(await blob.arrayBuffer());
+    let peak = 0;
+    for (let c = 0; c < buffer.numberOfChannels; c += 1) {
+      const data = buffer.getChannelData(c);
+      for (let i = 0; i < data.length; i += 1) {
+        const v = Math.abs(data[i]);
+        if (v > peak) peak = v;
+      }
+    }
+    await ctx.close();
+    return peak;
+  } catch {
+    return 1;
+  }
+}
+
 export default function LineshotPage() {
   const [line, setLine] = useState('');
   const [recording, setRecording] = useState(false);
@@ -50,6 +75,7 @@ export default function LineshotPage() {
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const blobRef = useRef<Blob | null>(null);
+  const levelRef = useRef(1);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function pickRandomLine() {
@@ -81,9 +107,14 @@ export default function LineshotPage() {
         if (event.data.size > 0) chunksRef.current.push(event.data);
       };
       recorder.onstop = () => {
-        blobRef.current = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
-        setHasRecording(blobRef.current.size > 0);
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+        blobRef.current = blob;
+        levelRef.current = 1;
+        setHasRecording(blob.size > 0);
         stream.getTracks().forEach((track) => track.stop());
+        void measureLevel(blob).then((level) => {
+          levelRef.current = level;
+        });
       };
       recorder.start();
       recorderRef.current = recorder;
@@ -107,6 +138,7 @@ export default function LineshotPage() {
       const formData = new FormData();
       formData.set('audio', blobRef.current, 'lineshot.webm');
       formData.set('line', line.trim());
+      formData.set('level', String(levelRef.current));
       const response = await fetch('/api/lineshot', { method: 'POST', body: formData });
       const payload = (await response.json()) as { result?: Lineshot; error?: unknown };
       if (!response.ok || !payload.result) {

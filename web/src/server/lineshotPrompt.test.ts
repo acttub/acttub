@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildLineshotPrompt, parseLineshot } from './lineshotPrompt';
+import { buildLineshotPrompt, buildSilentFallback, parseLineshot } from './lineshotPrompt';
 
 describe('buildLineshotPrompt', () => {
   it('제시 대사를 프롬프트에 넣는다', () => {
@@ -12,6 +12,22 @@ describe('buildLineshotPrompt', () => {
   it('대사가 비면 지정 없음으로 처리한다', () => {
     const prompt = buildLineshotPrompt('   ');
     expect(prompt).toContain('지정 없음');
+  });
+
+  it('무음일 때 디테일을 지어내지 말라는 안티-환각 규칙을 담는다', () => {
+    const prompt = buildLineshotPrompt('왜 이제 왔어');
+    expect(prompt).toContain('지어내지 마라');
+  });
+});
+
+describe('buildSilentFallback', () => {
+  it('들은 적 없는 음성을 칭찬하지 않는 fun_fallback 카드를 만든다', () => {
+    const card = buildSilentFallback();
+    expect(card.funFallback).toBe(true);
+    expect(card.title).toBeTruthy();
+    expect(card.oneLiner).toBeTruthy();
+    expect(card.score).toBeGreaterThanOrEqual(60);
+    expect(card.score).toBeLessThanOrEqual(99);
   });
 });
 

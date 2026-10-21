@@ -141,9 +141,23 @@ function parseStructured<T>(rawText: string): T {
   return JSON.parse(rawText) as T;
 }
 
+// 디버그용 — 각 gemini 호출의 input(prompt)·output(rawText) 원본. trace/응답엔 싣지 않는다(로컬 전용).
+type CoachCall = { label: string; prompt: string; rawOutput: string; ok: boolean; error?: string; ms: number };
+
+// 로컬(next dev)에서만 13콜 input/output 을 web/.coach-trace/ 에 파일로 떨군다. 프로덕션 빌드에선 미동작.
+async function dumpCoachCallsLocal(calls: CoachCall[]) {
+  if (process.env.NODE_ENV === 'production' || calls.length === 0) return;
+  const dir = path.join(process.cwd(), '.coach-trace');
+  await mkdir(dir, { recursive: true });
+  const file = path.join(dir, `coach2-${randomUUID().slice(0, 8)}.json`);
+  await writeFile(file, JSON.stringify(calls, null, 2), 'utf8');
+  console.info(`[coach2] ${calls.length} gemini calls → ${file}`);
+}
+
 async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResult> {
   let tempPath = '';
   let geminiFileName = '';
+  const calls: CoachCall[] = [];
 
   try {
     const bytes = Buffer.from(await input.video.arrayBuffer());
@@ -182,8 +196,10 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
     const videoPart = createPartFromUri(uploadedFile.uri, uploadedFile.mimeType);
 
     // 멱등성 호출 설정 — temp 0 + seed + structured output (실측 §5.6).
-    const generate = (prompt: string, schema: Schema, withVideo: boolean) =>
-      ai.models
+    // label 별로 input(prompt)·output(rawText) 을 calls 에 적재 → 로컬에서 파일로 덤프.
+    const generate = (label: string, prompt: string, schema: Schema, withVideo: boolean) => {
+      const startedAt = Date.now();
+      return ai.models
         .generateContent({
           model,
           contents: createUserContent(withVideo ? [videoPart, prompt] : [prompt]),
@@ -194,7 +210,23 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
             responseSchema: schema,
           },
         })
-        .then((response) => response.text ?? '');
+        .then((response) => {
+          const rawOutput = response.text ?? '';
+          calls.push({ label, prompt, rawOutput, ok: true, ms: Date.now() - startedAt });
+          return rawOutput;
+        })
+        .catch((error: unknown) => {
+          calls.push({
+            label,
+            prompt,
+            rawOutput: '',
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+            ms: Date.now() - startedAt,
+          });
+          throw error;
+        });
+    };
 
     const failures: string[] = [];
 
@@ -207,7 +239,7 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
     };
     try {
       const detected = parseStructured<SegmentResult>(
-        await generate(buildSegmentPrompt(input.category), SEGMENT_SCHEMA, true),
+        await generate('segment', buildSegmentPrompt(input.category), SEGMENT_SCHEMA, true),
       );
       if (detected.detected && detected.actingStart && detected.actingEnd) {
         segmentInfo = { detected: true, start: detected.actingStart, end: detected.actingEnd };
@@ -235,7 +267,7 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
         intent_summary: string;
         expected_impressions: IntentInfo['expectedImpressions'];
         confidence: IntentInfo['confidence'];
-      }>(await generate(buildIntentPrompt(input.category, input.intent), INTENT_SCHEMA, false));
+      }>(await generate('intent', buildIntentPrompt(input.category, input.intent), INTENT_SCHEMA, false));
       intentInfo = {
         raw: input.intent,
         keywords: parsed.intent_keywords.slice(0, 3),
@@ -249,16 +281,16 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
 
     // L0 — E1은 필수(실패 시 1회 재시도 후 정직한 중단), E2·E3 단일, E4는 다수결 k=3.
     const transcriptCall = () =>
-      generate(buildTranscriptPrompt(clip), TRANSCRIPT_SCHEMA, true)
+      generate('transcript', buildTranscriptPrompt(clip), TRANSCRIPT_SCHEMA, true)
         .then((text) => parseStructured<TranscriptResult>(text));
 
     const settled = await Promise.allSettled([
       transcriptCall(),
-      generate(buildVoicePrompt(clip), VOICE_SCHEMA, true).then((text) => parseStructured<VoiceResult>(text)),
-      generate(buildFacePrompt(clip), FACE_SCHEMA, true).then((text) => parseStructured<FaceResult>(text)),
-      generate(buildBodyPrompt(clip), BODY_SCHEMA, true),
-      generate(buildBodyPrompt(clip), BODY_SCHEMA, true),
-      generate(buildBodyPrompt(clip), BODY_SCHEMA, true),
+      generate('voice', buildVoicePrompt(clip), VOICE_SCHEMA, true).then((text) => parseStructured<VoiceResult>(text)),
+      generate('face', buildFacePrompt(clip), FACE_SCHEMA, true).then((text) => parseStructured<FaceResult>(text)),
+      generate('body#1', buildBodyPrompt(clip), BODY_SCHEMA, true),
+      generate('body#2', buildBodyPrompt(clip), BODY_SCHEMA, true),
+      generate('body#3', buildBodyPrompt(clip), BODY_SCHEMA, true),
     ]);
 
     let transcript: TranscriptResult | null = settled[0].status === 'fulfilled' ? settled[0].value as TranscriptResult : null;
@@ -327,6 +359,7 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
     const verdictSettled = await Promise.allSettled([
       ...COACH_PERSONAS.map((persona) =>
         generate(
+          `verdict:${persona.key}`,
           buildCoachVerdictPrompt(persona, {
             category: input.category,
             intentRaw: input.intent,
@@ -336,7 +369,7 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
           coachSchema,
           false,
         ).then((text) => parseStructured<{ verdicts: CoachVerdict[] }>(text).verdicts)),
-      generate(buildAudienceVerdictPrompt({ category: input.category, anchors }), audienceVerdictSchema(anchorIds), false)
+      generate('verdict:audience', buildAudienceVerdictPrompt({ category: input.category, anchors }), audienceVerdictSchema(anchorIds), false)
         .then((text) => parseStructured<{ verdicts: AudienceVerdict[] }>(text).verdicts),
     ]);
 
@@ -375,6 +408,7 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
 
       try {
         diagnosis = parseStructured<Diagnosis>(await generate(
+          'diagnosis',
           buildDiagnosisPrompt({
             category: input.category,
             intentRaw: input.intent,
@@ -414,6 +448,7 @@ async function defaultAnalyze(input: CoachSecondInput): Promise<CoachSecondResul
 
     return { feedback, trace };
   } finally {
+    await dumpCoachCallsLocal(calls).catch(() => undefined);
     if (tempPath) {
       await unlink(tempPath).catch(() => undefined);
     }

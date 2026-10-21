@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"echo \\\"=== schedule files ===\\\" && ls -1 ops/schedule/*.md 2>/dev/null\",\"description\":\"List schedule md files\"}",
+  "error": "Exit code 2\n=== schedule files ===",
+  "timestamp": "2026-07-07T06:47:31.767Z",
+  "retry_count": 1
+}

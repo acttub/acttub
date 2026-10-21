@@ -1,6 +1,6 @@
 import { createPartFromBase64, createUserContent, GoogleGenAI } from '@google/genai';
 import type { ApiResult } from './apiCore';
-import { buildLineshotPrompt, parseLineshot, type Lineshot } from './lineshotPrompt';
+import { buildLineshotPrompt, buildSilentFallback, parseLineshot, type Lineshot } from './lineshotPrompt';
 
 type LineshotScoreInput = {
   audio: File;
@@ -76,8 +76,10 @@ async function defaultScore(input: LineshotScoreInput): Promise<Lineshot> {
   const result = await generateContentWithRetry(ai, {
     model: process.env.GEMINI_MODEL ?? 'gemini-3.5-flash',
     contents: createUserContent([audioPart, buildLineshotPrompt(input.line)]),
-    // 매 녹음이 다르므로 약간의 위트 변주를 허용(0.5). thinking은 꺼서 예산을 JSON 본문에만 쓴다.
-    // 한국어 카드(총평·3축 코멘트·강점·팁·vibe)가 길어 본문 잘림을 막으려 1024로 잡는다(fortune과 동일).
+    // 매 녹음이 다르므로 약간의 위트 변주를 허용(0.5). thinking은 꺼서(0) 예산을 JSON 본문에만 쓴다.
+    // (런타임 검증 2026-06-17: thinkingBudget을 256으로 주니 긴 음성에서 출력이 thinking에 먹혀
+    //  JSON이 잘리고 "응답 해석 실패" 500이 났다 → 0으로 환원. 무음 환각 방어는 서버 가드 + 프롬프트가 맡는다.)
+    // 한국어 카드(총평·3축 코멘트·강점·팁·vibe)가 길어 본문 잘림을 막으려 출력은 1024로 잡는다(fortune과 동일).
     config: {
       temperature: 0.5,
       maxOutputTokens: 1024,
@@ -114,6 +116,17 @@ export async function handleLineshotScore(request: Request, options: LineshotSco
     }
 
     const line = textFromForm(formData.get('line')).slice(0, 200);
+
+    // 무음/빈 녹음 가드. 압축된 webm은 서버에서 디코드가 비싸므로, 클라이언트가 Web Audio로 측정한
+    // 진폭(level, 0~1)을 신뢰한다. level이 임계 이하면 Gemini를 부르지 않고 위트 폴백 카드를 돌려준다.
+    // (Gemini가 무음에 funFallback=false로 호평을 지어내는 문제를 결정적으로 차단 — 런타임 검증 2026-06-17.
+    //  level이 없는 구버전/직접 호출은 종전대로 Gemini 경로로 흘러가고, 프롬프트 강화가 2차 방어를 한다.)
+    const rawLevel = formData.get('level');
+    const level = typeof rawLevel === 'string' ? Number(rawLevel) : Number.NaN;
+    const SILENCE_LEVEL = 0.01;
+    if (Number.isFinite(level) && level < SILENCE_LEVEL) {
+      return { status: 200, body: { result: buildSilentFallback() } };
+    }
 
     const result = await (options.score ?? defaultScore)({
       audio,

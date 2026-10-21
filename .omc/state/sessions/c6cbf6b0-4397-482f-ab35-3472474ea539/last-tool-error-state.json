@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"ls ops/sprints/ 2>/dev/null; echo \\\"===schedule dir===\\\"; ls ops/schedule/ 2>/dev/null\",\"description\":\"List sprints and schedule dirs\"}",
+  "error": "Exit code 2\n===schedule dir===",
+  "timestamp": "2026-07-05T05:55:49.465Z",
+  "retry_count": 2
+}
